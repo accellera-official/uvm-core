@@ -1,0 +1,185 @@
+=========================================================================
+==  NOTICE file corresponding to section 4(d) of the Apache License,   ==
+==  Version 2.0, in this case for the Apache Geronimo distribution.    ==
+=========================================================================
+
+=========================================================================
+==  UVM AMD Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+AMD.
+
+Copyright 2010-2022 AMD.
+All rights reserved.
+
+=========================================================================
+==  UVM Accellera Systems Initiative Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Accellera Systems Initiative.
+
+Copyright 2012 Accellera Systems Initiative.
+All rights reserved.
+
+=========================================================================
+==  UVM Aldec Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Aldec.
+
+Copyright 2012 Aldec.
+All rights reserved.
+
+=========================================================================
+==  UVM Analog Devices, Inc Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Analog Devices, Inc.
+
+Copyright 2015 Analog Devices, Inc.
+All rights reserved.
+
+=========================================================================
+==  UVM Cadence Design Systems, Inc Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Cadence Design Systems, Inc.
+
+Copyright 2007-2023 Cadence Design Systems, Inc.
+All rights reserved.
+
+=========================================================================
+==  UVM Cisco Systems, Inc Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Cisco Systems, Inc.
+
+Copyright 2012-2019 Cisco Systems, Inc.
+All rights reserved.
+
+=========================================================================
+==  UVM Cypress Semiconductor Corp Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Cypress Semiconductor Corp.
+
+Copyright 2011-2012 Cypress Semiconductor Corp.
+All rights reserved.
+
+=========================================================================
+==  UVM Intel Corporation Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Intel Corporation.
+
+Copyright 2014-2022 Intel Corporation.
+All rights reserved.
+
+=========================================================================
+==  UVM Marvell International Ltd Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Marvell International Ltd.
+
+Copyright 2019-2023 Marvell International Ltd.
+All rights reserved.
+
+=========================================================================
+==  UVM Mentor Graphics Corporation Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Mentor Graphics Corporation.
+
+Copyright 2007-2023 Mentor Graphics Corporation.
+All rights reserved.
+
+=========================================================================
+==  UVM NVIDIA Corporation Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+NVIDIA Corporation.
+
+Copyright 2012-2022 NVIDIA Corporation.
+All rights reserved.
+
+=========================================================================
+==  UVM NXP Semiconductors Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+NXP Semiconductors.
+
+Copyright 2021 NXP Semiconductors.
+All rights reserved.
+
+=========================================================================
+==  UVM Paradigm Works Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Paradigm Works.
+
+Copyright 2010-2012 Paradigm Works.
+All rights reserved.
+
+=========================================================================
+==  UVM Qualcomm, Inc Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Qualcomm, Inc.
+
+Copyright 2018 Qualcomm, Inc.
+All rights reserved.
+
+=========================================================================
+==  UVM Semifore Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Semifore.
+
+Copyright 2011-2022 Semifore.
+All rights reserved.
+
+=========================================================================
+==  UVM Synopsys, Inc Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Synopsys, Inc.
+
+Copyright 2004-2022 Synopsys, Inc.
+All rights reserved.
+
+=========================================================================
+==  UVM Verific Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Verific.
+
+Copyright 2017-2021 Verific.
+All rights reserved.
+
+=========================================================================
+==  UVM Verilab Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Verilab.
+
+Copyright 2013 Verilab.
+All rights reserved.
+
