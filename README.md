@@ -11,7 +11,7 @@ See details in the Library Release Description below.
 
 1800.2-2020 2.0
 
-This kit was generated based upon the following git commit state: c3ac75ad e2de8c73.
+The tarball for this kit was generated based upon the following git commit state: c3ac75ad e2de8c73.
 
 # License
 
@@ -115,6 +115,18 @@ Unfortunately, the optimization can cause issues in environments using save/rest
 This version of the UVM reference implementation includes an optimization for `apply_config_settings` which changes the default implementation to only search the Config DB for field_names that are declared in `` `uvm_field_* `` macros.
 
 This is technically a violation of the 1800.2 LRM, however Accellera is planning to contribute the changed behavior to the next revision of the 1800.2 standard.  Should the 1800.2 behavior be desired, the library may be compiled with `+define+UVM_COMPONENT_CONFIG_MODE_DEFAULT=CONFIG_STRICT`.  More information is available in the documentation, under `uvm_component::apply_config_settings_mode`.
+
+# Optional Register Block search Optimization
+
+This version of UVM reference implementaion includes an optional register block search by name optimization. The optimization if enabled caches the results of uvm_reg_block::find_blocks() function to avoid repeated searching of entire register model in case the same name is searched for multiple times. The cache is flushed out if the register model is unlocked to account for any naming or structural change in the register model.
+
+The optimization will significantly benefit tests which repeatedly use uvm_reg_block::find_blocks() and/or uvm_reg_block::find_block() with same argument but might unfortunatly create a minor memory overhead of the cache otherwise. Therefore the optimization is disabled by default and must be enabled explicitly on per testrun basis by setting `+UVM_ENABLE_REG_LOOKUP_CACHE` runtime test plusarg.
+
+# Register lookup by name Optimization
+
+This version of UVM reference implementaion includes register lookup by name optimizations. The optimization caches the full name and its corresponding object handle for all uvm_reg_field, uvm_reg and uvm_reg_block objects in the register model to enable significant faster searching by name. The optimization avoid iterative search of entire register model each time a register object is searched by name via functions like get_reg_by_name(), get_field_by_name() and get_block_by_name().
+
+In addition, the library now provides new functions to seach by full name of the register objects for and even faster O(1) rather than O(n) time complexity search. Users can use uvm_reg_field::get_field_by_full_name(), uvm_reg::get_reg_by_full_name() and uvm_reg_block::get_block_by_full_name() static functions to get the handle to a field, register or block respectively.
 
 # Sequencer "disable recording" macro
 The 1800.2 standard has deprecated the use of a `UVM_DISABLE_RECORDING` macro in `uvm_sequencer_base`.  This library disables automatic item recording in `uvm_sequencer_base` when `UVM_DISABLE_AUTO_ITEM_RECORDING` (a more explicit macro name) is defined or, for backward compatibility, when `UVM_DISABLE_RECORDING` is defined.
@@ -233,3 +245,10 @@ begin
 end
 ```
 
+### `uvm_packer` stream contents have changed
+
+If data is packed to a stream and then that stream is unpacked, all library versions produce identical unpack output, but the contents of the stream are different between 1800.2 versions and pre-1800.2 versions.  If the exact stream contents must be maintained, then the recommendation is to use the uvm_compat_packer.  Please refer to the compatibility package [README](./compat/README.md) for details.
+
+### `uvm_sequence_base` and `uvm_sequence#()` are now abstract classes
+
+Prior to 1800.2 versions, user code could create an instance of uvm_sequence_base or uvm_sequence#(), but because these are abstract in 1800.2, they may no longer be instanced.  The recommendation is to use the uvm_compat_sequence_proxy_sequence#().  Please refer to the compatibility package [README](./compat/README.md) for details.
