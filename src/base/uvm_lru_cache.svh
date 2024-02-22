@@ -3,7 +3,7 @@
 // Copyright 2022 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2022 Mentor Graphics Corporation
-// Copyright 2021 NVIDIA Corporation
+// Copyright 2021-2023 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `ifndef UVM_LRU_CACHE_SVH
  `define UVM_LRU_CACHE_SVH
@@ -155,88 +165,120 @@ function void uvm_lru_cache::m_update(uvm_lru_cache::node_type node);
   // an error.
   
   // Only move if we're not already first
-  if (m_begin != node) begin
-    // Removes node from the list
-    node.prev.next = node.next;
-    if (node.next != null)
-      node.next.prev = node.prev;
+  if (m_begin != node) 
+    begin
+      // Removes node from the list
+      node.prev.next = node.next;
+      if (node.next != null)
+      begin
+        node.next.prev = node.prev;
+      end
+
     
-    // Put node before m_begin
-    node.next = m_begin;
-    m_begin.prev = node;
+      // Put node before m_begin
+      node.next = m_begin;
+      m_begin.prev = node;
     
-    // Makes node the head of the list
-    node.prev = null;
-    m_begin = node;
-  end
+      // Makes node the head of the list
+      node.prev = null;
+      m_begin = node;
+    end
 endfunction : m_update
 
 function void uvm_lru_cache::evict_to_max();
   size_t max_size;
   max_size = get_max_size();
   while (max_size && (max_size < m_hash.size()))
-    void'(evict(m_end.key));
+    begin
+      void'(evict(m_end.key));
+    end
+
 endfunction : evict_to_max  
 
 function uvm_lru_cache::optional_data uvm_lru_cache::get(uvm_lru_cache::KEY_T key);
-  if (m_hash.exists(key)) begin
-    node_type node;
-    node = m_hash[key];
-    m_update(node);
-    return '{node.data};
-  end
+  if (m_hash.exists(key)) 
+    begin
+      node_type node;
+      node = m_hash[key];
+      m_update(node);
+      return '{node.data};
+    end
   return '{};
 endfunction : get
 
 function void uvm_lru_cache::put(uvm_lru_cache::KEY_T key, uvm_lru_cache::DATA_T data);
   node_type node;
-  if (!m_hash.exists(key)) begin
-    node = new();
-    node.key = key;
-    node.data = data;
-    node.next = m_begin;
-    m_begin = node;
-    if (node.next == null)
-      m_end = node;
-    else
-      node.next.prev = node;
-    m_hash[key] = node;
-  end
-  else begin
-    node = m_hash[key];
-    m_update(node);
-    node.data = data;
-  end // else: !if(!m_hash.exists(key))
+  if (!m_hash.exists(key)) 
+    begin
+      node = new();
+      node.key = key;
+      node.data = data;
+      node.next = m_begin;
+      m_begin = node;
+      if (node.next == null)
+      begin
+        m_end = node;
+      end
+
+      else
+      begin
+        node.next.prev = node;
+      end
+
+      m_hash[key] = node;
+    end
+  else 
+    begin
+      node = m_hash[key];
+      m_update(node);
+      node.data = data;
+    end // else: !if(!m_hash.exists(key))
 endfunction : put
 
 function uvm_lru_cache::optional_data uvm_lru_cache::evict(uvm_lru_cache::KEY_T key);
-  if (m_hash.exists(key)) begin
-    node_type tmp;
-    tmp = m_hash[key];
-    m_hash.delete(key);
+  if (m_hash.exists(key)) 
+    begin
+      node_type tmp;
+      tmp = m_hash[key];
+      m_hash.delete(key);
     
-    // If we're evicting the first, then
-    // we have to make the next the first.
-    if (m_begin == tmp)
-      m_begin = tmp.next;
-    else
-      tmp.prev.next = tmp.next;
+      // If we're evicting the first, then
+      // we have to make the next the first.
+      if (m_begin == tmp)
+      begin
+        m_begin = tmp.next;
+      end
+
+      else
+      begin
+        tmp.prev.next = tmp.next;
+      end
+
     
-    // Similarly, if we're evicting the last
-    // then we have to make the prev the last.
-    if (m_end == tmp)
-      m_end = tmp.prev;
-    else
-      tmp.next.prev = tmp.prev;
+      // Similarly, if we're evicting the last
+      // then we have to make the prev the last.
+      if (m_end == tmp)
+      begin
+        m_end = tmp.prev;
+      end
+
+      else
+      begin
+        tmp.next.prev = tmp.prev;
+      end
+
     
-    return '{tmp.data};
-  end // if (m_hash.exists(key))
+      return '{tmp.data};
+    end // if (m_hash.exists(key))
   return '{};
 endfunction : evict
 
 function uvm_lru_cache::optional_keys uvm_lru_cache::keys();
   foreach(m_hash[key])
-    keys.push_back(key);
+    begin
+      keys.push_back(key);
+    end
+
   return keys;
 endfunction : keys
 

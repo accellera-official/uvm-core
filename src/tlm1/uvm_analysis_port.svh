@@ -2,7 +2,7 @@
 //----------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2023 NVIDIA Corporation
 // Copyright 2010 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 //------------------------------------------------------------------------------
@@ -74,8 +84,11 @@ class uvm_analysis_port # (type T = int)
     uvm_tlm_if_base # (T, T) tif;
     for (int i = 0; i < this.size(); i++) begin
       tif = this.get_if (i);
-      if ( tif == null )
+      if ( tif == null ) begin
+        
         uvm_report_fatal ("NTCONN", {"No uvm_tlm interface is connected to ", get_full_name(), " for executing write()"}, UVM_NONE);
+      end
+
       tif.write (t);
     end 
   endfunction
@@ -150,8 +163,11 @@ class uvm_analysis_export #(type T=int)
     uvm_tlm_if_base #(T, T) tif;
     for (int i = 0; i < this.size(); i++) begin
       tif = this.get_if (i);
-      if (tif == null)
-         uvm_report_fatal ("NTCONN", {"No uvm_tlm interface is connected to ", get_full_name(), " for executing write()"}, UVM_NONE);
+      if (tif == null) begin
+         
+        uvm_report_fatal ("NTCONN", {"No uvm_tlm interface is connected to ", get_full_name(), " for executing write()"}, UVM_NONE);
+      end
+
       tif.write (t);
     end 
   endfunction

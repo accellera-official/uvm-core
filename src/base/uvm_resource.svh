@@ -7,7 +7,7 @@
 // Copyright 2017 Intel Corporation
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2010-2022 Mentor Graphics Corporation
-// Copyright 2013-2022 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2010-2011 Paradigm Works
 // Copyright 2014 Semifore
 // Copyright 2010-2014 Synopsys, Inc.
@@ -28,6 +28,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 
@@ -57,8 +67,14 @@ class uvm_resource #(type T=int) extends uvm_resource_base;
   endfunction : get_object_type
   virtual function uvm_object create (string name="");
     this_type tmp;
-    if (name=="") tmp = new();
-    else tmp = new(name);
+    if (name=="") begin
+      tmp = new();
+    end
+
+    else begin
+      tmp = new(name);
+    end
+
     return tmp;
   endfunction : create
   `uvm_type_name_decl($sformatf("uvm_resource#(%s)", `uvm_typename(T)))
@@ -92,8 +108,11 @@ class uvm_resource #(type T=int) extends uvm_resource_base;
   // type is this_type, which is the type of the parameterized class.
 
   static function this_type get_type();
-    if(my_type == null)
+    if(my_type == null) begin
+      
       my_type = new();
+    end
+
     return my_type;
   endfunction
 
@@ -149,7 +168,7 @@ class uvm_resource #(type T=int) extends uvm_resource_base;
   //@uvm-contrib For potential contribution to 1800.2
   virtual function T do_read(uvm_object accessor);
     if (uvm_resource_options::is_auditing()) begin
-       record_read_access(accessor);
+      record_read_access(accessor);
     end
     return val;
   endfunction : do_read    
@@ -188,11 +207,14 @@ class uvm_resource #(type T=int) extends uvm_resource_base;
 
     // Set the modified bit and record the transaction only if the value
     // has actually changed.
-    if(val == t)
+    if(val == t) begin
+      
       return;
+    end
+
 
     if (uvm_resource_options::is_auditing()) begin
-       record_write_access(accessor);
+      record_write_access(accessor);
     end
 
     // set the value and set the dirty bit
@@ -216,8 +238,11 @@ class uvm_resource #(type T=int) extends uvm_resource_base;
     uvm_resource_base rb;
     uvm_resource_pool rp = uvm_resource_pool::get();
 
-    if(q.size() == 0)
+    if(q.size() == 0) begin
+      
       return null;
+    end
+
 
     tq = new();
     rsrc = null;
@@ -229,8 +254,11 @@ class uvm_resource #(type T=int) extends uvm_resource_base;
     end
 
     rb = rp.get_highest_precedence(tq);
-    if (!$cast(rsrc, rb))
-       return null;
+    if (!$cast(rsrc, rb)) begin
+       
+      return null;
+    end
+
  
     return rsrc;
 
@@ -240,6 +268,58 @@ class uvm_resource #(type T=int) extends uvm_resource_base;
   function void set_priority (uvm_resource_types::priority_e pri);
     uvm_resource_pool rp = uvm_resource_pool::get();
     rp.set_priority(this, pri);
+  endfunction
+
+  //@uvm-compat provided for compatibility with 1.2
+  static function this_type get_by_name(string scope,
+                                        string name,
+                                        bit rpterr = 1);
+
+    uvm_resource_pool rp = uvm_resource_pool::get();
+    uvm_resource_base rsrc_base;
+    this_type rsrc;
+    string msg;
+
+    rsrc_base = rp.get_by_name(scope, name, my_type, rpterr);
+    if(rsrc_base == null)
+      return null;
+
+    if(!$cast(rsrc, rsrc_base)) begin
+      if(rpterr) begin
+        $sformat(msg, "Resource with name %s in scope %s has incorrect type", name, scope);
+        `uvm_warning("RSRCTYPE", msg);
+      end
+      return null;
+    end
+
+    return rsrc;
+    
+  endfunction
+
+  //@uvm-compat provided for compatibility with 1.2
+  static function this_type get_by_type(string scope = "",
+                                        uvm_resource_base type_handle);
+
+    uvm_resource_pool rp = uvm_resource_pool::get();
+    uvm_resource_base rsrc_base;
+    this_type rsrc;
+    string msg;
+
+    if(type_handle == null)
+      return null;
+
+    rsrc_base = rp.get_by_type(scope, type_handle);
+    if(rsrc_base == null)
+      return null;
+
+    if(!$cast(rsrc, rsrc_base)) begin
+      $sformat(msg, "Resource with specified type handle in scope %s was not located", scope);
+      `uvm_warning("RSRCNF", msg);
+      return null;
+    end
+
+    return rsrc;
+
   endfunction
 
 endclass

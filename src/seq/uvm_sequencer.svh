@@ -3,7 +3,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2014 Cisco Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2014-2022 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2010-2014 Synopsys, Inc.
 // Copyright 2017 Verific
 //   All Rights Reserved Worldwide
@@ -22,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 //------------------------------------------------------------------------------
@@ -211,9 +221,12 @@ task uvm_sequencer::get_next_item(output REQ t);
   // If a sequence_item has already been requested, then get_next_item()
   // should not be called again until item_done() has been called.
 
-  if (get_next_item_called == 1)
+  if (get_next_item_called == 1) begin
+    
     uvm_report_error(get_full_name(),
       "Get_next_item called twice without item_done or get in between", UVM_NONE);
+  end
+
   
   m_safe_select_item(1, t);
 endtask
@@ -241,8 +254,11 @@ task uvm_sequencer::try_next_item(output REQ t);
     // choose the sequence based on relevancy
     selected_sequence = m_choose_next_request();
 
-    if (selected_sequence != -1)
+    if (selected_sequence != -1) begin
+      
       break;
+    end
+
   end
 
   t = null;
@@ -250,7 +266,7 @@ task uvm_sequencer::try_next_item(output REQ t);
   // return if none available
   while (selected_sequence != -1) begin
   
-  // now, allow chosen sequence to resume
+    // now, allow chosen sequence to resume
     selected_sequence_request = arb_sequence_q[selected_sequence];
     m_set_arbitration_completed(selected_sequence_request.request_id);
     arb_sequence_q.delete(selected_sequence);
@@ -264,8 +280,11 @@ task uvm_sequencer::try_next_item(output REQ t);
 
       // attempt to get the item; if it fails, produce an error and return
       found_item = m_req_fifo.try_peek(t);
-      if (found_item)
+      if (found_item) begin
+        
         return;
+      end
+
     end
   
     // re-arbitrate if the sequence was killed or finished after it won arbitration but before it was
@@ -281,7 +300,7 @@ task uvm_sequencer::try_next_item(output REQ t);
     else begin        
       string msg = "try_next_item: the selected sequence '%s' did not produce an item within %0d wait_for_sequences call%s.  If the sequence requires more deltas/NBA within this time step, then the wait_for_sequences_count value for this sequencer should be increased.  Note that sequences should not consume non-delta/NBA time between calls to start_item and finish_item.  Returning null item.";
       `uvm_error("TRY_NEXT_BLOCKED", $sformatf(msg, selected_sequence_request.sequence_ptr.get_full_name(),m_wait_for_sequences_count,
-                                               (m_wait_for_sequences_count>1)?"s":""))
+      (m_wait_for_sequences_count>1)?"s":""))
       return;
     end // else: !if(selected_sequence_request.process_id.status inside {process::KILLED,process::FINISHED})
 

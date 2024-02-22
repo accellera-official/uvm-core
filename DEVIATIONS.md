@@ -14,3 +14,14 @@ the following issues which resulted in the implementation deviating from the 180
 [Mantis 7091](https://accellera.mantishub.io/view.php?id=7091)
 
 3. Section 13.1.5.1 says that ``apply_config_settings`` shall search all fields that match for the component's scope.  This operation is very expensive, as it implies a regex check against all resources in the database.  The actual behavior is to only check for fields that have been defined in `` `uvm_field_* `` macros.  See the documentation of `` uvm_component::apply_config_settings_mode `` for more information.
+
+# Git details
+
+The following information may be used for tracking the version of this file.  Please see
+[DEVELOPMENT.md](./DEVELOPMENT.md) for more details.
+
+```
+$File$
+$Rev$
+$Hash$
+```

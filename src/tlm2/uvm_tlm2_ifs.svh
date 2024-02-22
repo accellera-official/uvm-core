@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 // File -- NODOCS -- UVM TLM 2 Types
 typedef class uvm_time;
@@ -84,7 +94,7 @@ typedef enum
 
 // @uvm-ieee 1800.2-2020 auto 12.3.2.1
 class uvm_tlm_if #(type T=uvm_tlm_generic_payload,
-               type P=uvm_tlm_phase_e);
+               type P=uvm_tlm_phase_e) extends uvm_void;
    //----------------------------------------------------------------------
    // Group -- NODOCS -- tlm transport methods
    //

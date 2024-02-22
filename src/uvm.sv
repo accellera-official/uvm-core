@@ -3,7 +3,7 @@
 // Copyright 2010 AMD
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2010-2011 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -21,5 +21,15 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `include "uvm_pkg.sv"

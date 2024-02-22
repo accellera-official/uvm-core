@@ -5,7 +5,7 @@
 // Copyright 2012-2018 Cisco Systems, Inc.
 // Copyright 2020-2022 Marvell International Ltd.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2013-2022 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2014 Synopsys, Inc.
 // Copyright 2020 Verific
@@ -26,6 +26,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //
@@ -112,20 +122,62 @@ parameter UVM_RADIX = 'hf000000; //4 bits setting the radix
 
 function string uvm_radix_to_string(uvm_radix_enum radix);
   case(radix)
-    UVM_BIN:        return "b";
-    UVM_OCT:        return "o";
-    UVM_DEC:        return "d";
-    UVM_HEX:        return "h";
-    UVM_UNSIGNED:   return "u";
-    UVM_UNFORMAT2:  return "u";
-    UVM_UNFORMAT4:  return "z";
-    UVM_STRING:     return "s";
-    UVM_TIME:       return "t";
-    UVM_ENUM:       return "s";
-    UVM_REAL:       return "g";
-    UVM_REAL_DEC:   return "f";
-    UVM_REAL_EXP:   return "e";
-    default:        return "x"; //hex
+    UVM_BIN:        begin
+      return "b";
+    end
+
+    UVM_OCT:        begin
+      return "o";
+    end
+
+    UVM_DEC:        begin
+      return "d";
+    end
+
+    UVM_HEX:        begin
+      return "h";
+    end
+
+    UVM_UNSIGNED:   begin
+      return "u";
+    end
+
+    UVM_UNFORMAT2:  begin
+      return "u";
+    end
+
+    UVM_UNFORMAT4:  begin
+      return "z";
+    end
+
+    UVM_STRING:     begin
+      return "s";
+    end
+
+    UVM_TIME:       begin
+      return "t";
+    end
+
+    UVM_ENUM:       begin
+      return "s";
+    end
+
+    UVM_REAL:       begin
+      return "g";
+    end
+
+    UVM_REAL_DEC:   begin
+      return "f";
+    end
+
+    UVM_REAL_EXP:   begin
+      return "e";
+    end
+
+    default:        begin
+      return "x";
+    end
+    //hex
   endcase
 endfunction
 
@@ -378,9 +430,7 @@ typedef enum
   UVM_SEQ_ARB_USER
 } uvm_sequencer_arb_mode;
 
-`ifdef UVM_ENABLE_DEPRECATED_API
 typedef uvm_sequencer_arb_mode UVM_SEQ_ARB_TYPE; // backward compat
-`endif // UVM_ENABLE_DEPRECATED_API
 
 
 // Enum --NODOCS-- uvm_sequence_state_enum
@@ -627,16 +677,16 @@ parameter UVM_FILE UVM_STDERR = 32'h8000_0002;
 
 // @uvm-ieee 1800.2-2020 manual F.2.10
 typedef enum {
-	UVM_CORE_UNINITIALIZED,
+    UVM_CORE_UNINITIALIZED,
         UVM_CORE_PRE_INIT,
         UVM_CORE_INITIALIZING,
-	UVM_CORE_INITIALIZED, // UVM_CORE_POST_INIT
-	UVM_CORE_PRE_RUN,
-	UVM_CORE_RUNNING,
-	UVM_CORE_POST_RUN,
-	UVM_CORE_FINISHED,
-	UVM_CORE_PRE_ABORT,
-	UVM_CORE_ABORTED	
+    UVM_CORE_INITIALIZED, // UVM_CORE_POST_INIT
+    UVM_CORE_PRE_RUN,
+    UVM_CORE_RUNNING,
+    UVM_CORE_POST_RUN,
+    UVM_CORE_FINISHED,
+    UVM_CORE_PRE_ABORT,
+    UVM_CORE_ABORTED    
 } uvm_core_state;
 
 // Used to indicate a strict name vs. regex name lookup in apply_config_settings
@@ -657,7 +707,7 @@ uvm_object_wrapper uvm_deferred_init[$];
 // however they are unsafe to use prior to the UVM Core initializing.
 // The uvm_coreservice_t provides safe accessors which ensure proper 
 // ordering of initialization.
-	
+    
 // backward compatibility code
 typedef class uvm_printer;
 typedef class uvm_table_printer;

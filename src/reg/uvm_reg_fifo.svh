@@ -2,7 +2,7 @@
 // -------------------------------------------------------------
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2020 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 //    All Rights Reserved Worldwide
 //
@@ -22,6 +22,15 @@
 // -------------------------------------------------------------
 //
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 // Class -- NODOCS -- uvm_reg_fifo
@@ -34,6 +43,7 @@
 // the FIFO data.
 //
 //------------------------------------------------------------------------------
+
 
 // @uvm-ieee 1800.2-2020 auto 18.8.1
 class uvm_reg_fifo extends uvm_reg;
@@ -160,14 +170,17 @@ class uvm_reg_fifo extends uvm_reg;
                         input  string            fname = "",
                         input  int               lineno = 0);
        uvm_reg_data_t upd;
-       if (!m_set_cnt || fifo.size() == 0)
-          return;
+       if (!m_set_cnt || fifo.size() == 0) begin
+          
+         return;
+       end
+
        m_update_in_progress = 1;
        for (int i=fifo.size()-m_set_cnt; m_set_cnt > 0; i++, m_set_cnt--) begin
          if (i >= 0) begin
-            //uvm_reg_data_t val = get();
-            //super.update(status,path,map,parent,prior,extension,fname,lineno);
-            write(status,fifo[i],path,map,parent,prior,extension,fname,lineno);
+           //uvm_reg_data_t val = get();
+           //super.update(status,path,map,parent,prior,extension,fname,lineno);
+           write(status,fifo[i],path,map,parent,prior,extension,fname,lineno);
          end
        end
        m_update_in_progress = 0;
@@ -212,30 +225,36 @@ class uvm_reg_fifo extends uvm_reg;
 
       super.do_predict(rw,kind,be);
 
-      if (rw.get_status() ==UVM_NOT_OK)
+      if (rw.get_status() ==UVM_NOT_OK) begin
+        
         return;
+      end
+
 
       case (kind)
 
         UVM_PREDICT_WRITE,
-        UVM_PREDICT_DIRECT:
-        begin
-           if (fifo.size() != m_size && !m_update_in_progress)
-             fifo.push_back(this.value.value);
+        UVM_PREDICT_DIRECT: begin
+        
+          if (fifo.size() != m_size && !m_update_in_progress) begin
+             
+            fifo.push_back(this.value.value);
+          end
+
         end
 
-        UVM_PREDICT_READ:
-        begin
-           uvm_reg_data_t value = rw.get_value(0) & ((1 << get_n_bits())-1);
-           uvm_reg_data_t mirror_val;
-           if (fifo.size() == 0) begin
-             return;
-           end
-           mirror_val = fifo.pop_front();
-           if (this.value.get_compare() == UVM_CHECK && mirror_val != value) begin
-              `uvm_warning("MIRROR_MISMATCH",
-               $sformatf("Observed DUT read value 'h%0h != mirror value 'h%0h",value,mirror_val))
-           end
+        UVM_PREDICT_READ: begin
+        
+          uvm_reg_data_t value = rw.get_value(0) & ((1 << get_n_bits())-1);
+          uvm_reg_data_t mirror_val;
+          if (fifo.size() == 0) begin
+            return;
+          end
+          mirror_val = fifo.pop_front();
+          if (this.value.get_compare() == UVM_CHECK && mirror_val != value) begin
+            `uvm_warning("MIRROR_MISMATCH",
+            $sformatf("Observed DUT read value 'h%0h != mirror value 'h%0h",value,mirror_val))
+          end
         end
 
       endcase

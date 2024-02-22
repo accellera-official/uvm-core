@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2023 NVIDIA Corporation
 // Copyright 2010-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -19,6 +19,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //----------------------------------------------------------------------
 // Title -- NODOCS -- UVM TLM Sockets
@@ -79,8 +89,11 @@ class uvm_tlm_b_initiator_socket #(type T=uvm_tlm_generic_payload)
 
     if($cast(initiator_pt_socket, provider)  ||
        $cast(target_pt_socket, provider)     ||
-       $cast(target_socket, provider))
+       $cast(target_socket, provider)) begin
+      
       return;
+    end
+
 
     c = get_comp();
     `uvm_error_context(get_type_name(),
@@ -114,11 +127,18 @@ class uvm_tlm_b_target_socket #(type IMP=int,
   // @uvm-ieee 1800.2-2020 auto 12.3.5.1.3
   function new (string name, uvm_component parent, IMP imp = null);
     super.new (name, parent);
-    if (imp == null) $cast(m_imp, parent);
-    else m_imp = imp;
-    if (m_imp == null)
-       `uvm_error("UVM/TLM2/NOIMP", {"b_target socket ", name,
-                                     " has no implementation"})
+    if (imp == null) begin
+      $cast(m_imp, parent);
+    end
+
+    else begin
+      m_imp = imp;
+    end
+
+    if (m_imp == null) begin
+      `uvm_error("UVM/TLM2/NOIMP", {"b_target socket ", name,
+      " has no implementation"})
+    end
   endfunction
 
 
@@ -162,10 +182,14 @@ class uvm_tlm_nb_initiator_socket #(type IMP=int,
   // @uvm-ieee 1800.2-2020 auto 12.3.5.4.3
   function new(string name, uvm_component parent, IMP imp = null);
     super.new (name, parent);
-    if (imp == null) $cast(imp, parent);
-    if (imp == null)
-       `uvm_error("UVM/TLM2/NOIMP", {"nb_initiator socket ", name,
-                                     " has no implementation"})
+    if (imp == null) begin
+      $cast(imp, parent);
+    end
+
+    if (imp == null) begin
+      `uvm_error("UVM/TLM2/NOIMP", {"nb_initiator socket ", name,
+      " has no implementation"})
+    end
     bw_imp = new("bw_imp", imp);
   endfunction
 
@@ -228,12 +252,19 @@ class uvm_tlm_nb_target_socket #(type IMP=int,
   // @uvm-ieee 1800.2-2020 auto 12.3.5.3.3
   function new (string name, uvm_component parent, IMP imp = null);
     super.new (name, parent);
-    if (imp == null) $cast(m_imp, parent);
-    else m_imp = imp;
+    if (imp == null) begin
+      $cast(m_imp, parent);
+    end
+
+    else begin
+      m_imp = imp;
+    end
+
     bw_port = new("bw_port", get_comp());
-    if (m_imp == null)
-       `uvm_error("UVM/TLM2/NOIMP", {"nb_target socket ", name,
-                                     " has no implementation"})
+    if (m_imp == null) begin
+      `uvm_error("UVM/TLM2/NOIMP", {"nb_target socket ", name,
+      " has no implementation"})
+    end
   endfunction
 
 
@@ -285,8 +316,11 @@ class uvm_tlm_b_passthrough_initiator_socket #(type T=uvm_tlm_generic_payload)
 
     if($cast(initiator_pt_socket, provider) ||
        $cast(target_pt_socket, provider)    ||
-       $cast(target_socket, provider))
+       $cast(target_socket, provider)) begin
+      
       return;
+    end
+
 
     c = get_comp();
     `uvm_error_context(get_type_name(), "type mismatch in connect -- connection cannot be completed", c)
@@ -319,8 +353,11 @@ class uvm_tlm_b_passthrough_target_socket #(type T=uvm_tlm_generic_payload)
     super.connect(provider);
 
     if($cast(target_pt_socket, provider)    ||
-       $cast(target_socket, provider))
+       $cast(target_socket, provider)) begin
+      
       return;
+    end
+
 
     c = get_comp();
     `uvm_error_context(get_type_name(),

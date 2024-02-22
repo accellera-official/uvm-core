@@ -4,7 +4,7 @@
 // Copyright 2017 Cisco Systems, Inc.
 // Copyright 2019-2020 Marvell International Ltd.
 // Copyright 2007-2022 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2011-2012 Paradigm Works
 // Copyright 2010-2013 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -24,6 +24,16 @@
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
+
 `ifndef UVM_VERSION_DEFINES_SVH
 `define UVM_VERSION_DEFINES_SVH
 
@@ -42,6 +52,7 @@
    `define UVM_VERSION_POST_2017_1_1
    `define UVM_VERSION_POST_2020_1_0
    `define UVM_VERSION_POST_2020_1_1
+   `define UVM_VERSION_POST_2020_2_0
    
 // These defines are used in earlier versions of UVM
 // They are provided here with mappings relevant to IEEE 1800.2 2020 v2.0  
@@ -49,7 +60,7 @@
   `define UVM_NAME UVM
   
   `define UVM_MAJOR_REV 2020
-  `define UVM_MINOR_REV 2.0
+  `define UVM_MINOR_REV 3.0
   
   `define UVM_VERSION_STRING uvm_pkg::UVM_VERSION_STRING
 

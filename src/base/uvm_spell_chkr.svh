@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2013 Verilab
 //   All Rights Reserved Worldwide
 //
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 
@@ -86,8 +96,11 @@ class uvm_spell_chkr #(type T=int);
       // A distance < 0 means either key, s, or both are empty.  This
       // should never happen here but we check for that condition just
       // in case.
-      if(distance < 0)
+      if(distance < 0) begin
+        
         continue;
+      end
+
 
       if(distance < min) begin
         // set a new minimum.  Clean out the queue since previous
@@ -107,22 +120,25 @@ class uvm_spell_chkr #(type T=int);
 
     // if (min == max) then the string table is empty
     if(min == max) begin
-	  `uvm_info("UVM/CONFIGDB/SPELLCHK",$sformatf("%s not located, no alternatives to suggest", s),UVM_NONE)
-    end	
-    else
-    // dump all the alternatives with the minimum distance    
-    begin
-	   	string q[$];
-	    
-	   	foreach(min_key[i]) begin
-     			q.push_back(min_key[i]);
-     			q.push_back("|");
-	   	end
-	   	if(q.size())
-	   		void'(q.pop_back());
-	   		
-	   	`uvm_info("UVM/CONFIGDB/SPELLCHK",$sformatf("%s not located, did you mean %s", s, `UVM_STRING_QUEUE_STREAMING_PACK(q)),UVM_NONE)
-    end	
+      `uvm_info("UVM/CONFIGDB/SPELLCHK",$sformatf("%s not located, no alternatives to suggest", s),UVM_NONE)
+    end    
+    else begin
+      // dump all the alternatives with the minimum distance    
+    
+      string q[$];
+        
+      foreach(min_key[i]) begin
+        q.push_back(min_key[i]);
+        q.push_back("|");
+      end
+      if(q.size()) begin
+               
+        void'(q.pop_back());
+      end
+
+               
+      `uvm_info("UVM/CONFIGDB/SPELLCHK",$sformatf("%s not located, did you mean %s", s, `UVM_STRING_QUEUE_STREAMING_PACK(q)),UVM_NONE)
+    end    
     
     return 0;
 
@@ -155,26 +171,35 @@ class uvm_spell_chkr #(type T=int);
     n = s.len() + 1;
     m = t.len() + 1;
 
-    if(n == 1 || m == 1)
-      return -1; //a negative return value means that one or both strings are empty.
+    if(n == 1 || m == 1) begin
+      
+      return -1;
+    end
+ //a negative return value means that one or both strings are empty.
 
     d = new[m*n];
 
-    //Step 2	
-    for(k = 0; k < n; k++)
+    //Step 2    
+    for(k = 0; k < n; k++) begin
+      
       d[k] = k;
+    end
 
-    for(k = 0; k < m; k++)
+
+    for(k = 0; k < m; k++) begin
+      
       d[k*n] = k;
+    end
 
-    //Steps 3 and 4	
+
+    //Steps 3 and 4    
     for(i = 1; i < n; i++) begin
       for(j = 1; j < m; j++) begin
 
         //Step 5
         cost = !(s[i-1] == t[j-1]);
 
-        //Step 6			 
+        //Step 6             
         d[j*n+i] = minimum(d[(j-1)*n+i]+1, d[j*n+i-1]+1, d[(j-1)*n+i-1]+cost);
 
       end
@@ -192,10 +217,16 @@ class uvm_spell_chkr #(type T=int);
 
     int min = a;
 
-    if(b < min)
+    if(b < min) begin
+      
       min = b;
-    if(c < min)
+    end
+
+    if(c < min) begin
+      
       min = c;
+    end
+
 
     return min;
 

@@ -6,7 +6,7 @@
 // Copyright 2014 Intel Corporation
 // Copyright 2020-2022 Marvell International Ltd.
 // Copyright 2007-2018 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2018 Qualcomm, Inc.
 // Copyright 2014 Semifore
 // Copyright 2018 Synopsys, Inc.
@@ -26,6 +26,16 @@
 //   the License or the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 typedef class m_uvm_printer_knobs;
@@ -346,8 +356,11 @@ protected function m_uvm_printer_knobs get_knobs() ; return knobs; endfunction
     if (get_root_enabled() &&
         istop() ||
         knobs.full_name ||
-        id == "...")
+        id == "...") begin
+      
       return id;
+    end
+
     return uvm_leaf_scope(id, scope_separator);
   endfunction
 
@@ -817,18 +830,30 @@ function void uvm_printer::print_field (string name,
   string sz_str, val_str;
 
   if(type_name == "") begin
-    if(radix == UVM_TIME)
+    if(radix == UVM_TIME) begin
+      
       type_name ="time";
-    else if(radix == UVM_STRING)
+    end
+
+    else if(radix == UVM_STRING) begin
+      
       type_name ="string";
-    else
+    end
+
+    else begin
+      
       type_name ="integral";
+    end
+
   end
 
   sz_str.itoa(size);
 
-  if(radix == UVM_NORADIX)
+  if(radix == UVM_NORADIX) begin
+    
     radix = get_default_radix();
+  end
+
 
   val_str = uvm_bitstream_to_string (value, size, radix,
                                      get_radix_string(radix));
@@ -854,18 +879,30 @@ function void uvm_printer::print_field_int (string name,
   string sz_str, val_str;
 
   if(type_name == "") begin
-    if(radix == UVM_TIME)
+    if(radix == UVM_TIME) begin
+      
       type_name ="time";
-    else if(radix == UVM_STRING)
+    end
+
+    else if(radix == UVM_STRING) begin
+      
       type_name ="string";
-    else
+    end
+
+    else begin
+      
       type_name ="integral";
+    end
+
   end
 
   sz_str.itoa(size);
 
-  if(radix == UVM_NORADIX)
+  if(radix == UVM_NORADIX) begin
+    
     radix = get_default_radix();
+  end
+
 
   val_str = uvm_integral_to_string (value, size, radix,
                                     get_radix_string(radix));
@@ -893,15 +930,15 @@ function void uvm_printer::flush ();
 
    element = get_bottom_element() ;
    if (element != null) begin
-      element.get_children(all_descendent_elements,1) ; //recursive
-      foreach (all_descendent_elements[i]) begin
-         m_recycled_elements.push_back(all_descendent_elements[i]) ;
-         all_descendent_elements[i].clear_children() ;
-      end
-      element.clear_children();
-      m_recycled_elements.push_back(element) ;
-      // now delete the stack
-      m_element_stack.delete() ;
+     element.get_children(all_descendent_elements,1) ; //recursive
+     foreach (all_descendent_elements[i]) begin
+       m_recycled_elements.push_back(all_descendent_elements[i]) ;
+       all_descendent_elements[i].clear_children() ;
+     end
+     element.clear_children();
+     m_recycled_elements.push_back(element) ;
+     // now delete the stack
+     m_element_stack.delete() ;
    end
    m_recur_states.delete();
    m_flushed = 1 ;
@@ -943,20 +980,55 @@ function bit uvm_printer::get_radix_enabled ();
 endfunction
 
 function void uvm_printer::set_radix_string (uvm_radix_enum radix, string prefix);
-   if (radix == UVM_DEC) knobs.dec_radix = prefix ;
-   else if (radix == UVM_BIN) knobs.bin_radix = prefix ;
-   else if (radix == UVM_OCT) knobs.oct_radix = prefix ;
-   else if (radix == UVM_UNSIGNED) knobs.unsigned_radix = prefix ;
-   else if (radix == UVM_HEX) knobs.hex_radix = prefix ;
-   else `uvm_warning("PRINTER_UNKNOWN_RADIX",$sformatf("set_radix_string called with unsupported radix %s",radix))
+   if (radix == UVM_DEC) begin
+     knobs.dec_radix = prefix ;
+   end
+
+   else if (radix == UVM_BIN) begin
+     knobs.bin_radix = prefix ;
+   end
+
+   else if (radix == UVM_OCT) begin
+     knobs.oct_radix = prefix ;
+   end
+
+   else if (radix == UVM_UNSIGNED) begin
+     knobs.unsigned_radix = prefix ;
+   end
+
+   else if (radix == UVM_HEX) begin
+     knobs.hex_radix = prefix ;
+   end
+
+   else begin
+     `uvm_warning("PRINTER_UNKNOWN_RADIX",$sformatf("set_radix_string called with unsupported radix %s",radix))
+   end
 endfunction
 function string uvm_printer::get_radix_string (uvm_radix_enum radix);
-   if (radix == UVM_DEC) return knobs.dec_radix ;
-   else if (radix == UVM_BIN) return knobs.bin_radix ;
-   else if (radix == UVM_OCT) return knobs.oct_radix ;
-   else if (radix == UVM_UNSIGNED) return knobs.unsigned_radix ;
-   else if (radix == UVM_HEX) return knobs.hex_radix ;
-   else return "";
+   if (radix == UVM_DEC) begin
+     return knobs.dec_radix ;
+   end
+
+   else if (radix == UVM_BIN) begin
+     return knobs.bin_radix ;
+   end
+
+   else if (radix == UVM_OCT) begin
+     return knobs.oct_radix ;
+   end
+
+   else if (radix == UVM_UNSIGNED) begin
+     return knobs.unsigned_radix ;
+   end
+
+   else if (radix == UVM_HEX) begin
+     return knobs.hex_radix ;
+   end
+
+   else begin
+     return "";
+   end
+
 endfunction
 
 function void uvm_printer::set_default_radix (uvm_radix_enum radix);
@@ -1016,13 +1088,25 @@ function int uvm_printer::get_end_elements ();
 endfunction
 
 function uvm_printer_element uvm_printer::get_bottom_element ();
-   if (m_element_stack.size() > 0) return m_element_stack[0] ;
-   else return null ;
+   if (m_element_stack.size() > 0) begin
+     return m_element_stack[0] ;
+   end
+
+   else begin
+     return null ;
+   end
+
 endfunction
 
 function uvm_printer_element uvm_printer::get_top_element ();
-   if (m_element_stack.size() > 0) return m_element_stack[$] ;
-   else return null ;
+   if (m_element_stack.size() > 0) begin
+     return m_element_stack[$] ;
+   end
+
+   else begin
+     return null ;
+   end
+
 endfunction
 
 function uvm_printer_element_proxy::new (string name="");
@@ -1045,26 +1129,29 @@ function void uvm_printer::push_element ( string name,
    element = get_unused_element() ;
    parent = get_top_element() ;
    if (knobs.full_name && (parent != null)) begin
-      name = $sformatf("%s.%s",parent.get_element_name(),name);
+     name = $sformatf("%s.%s",parent.get_element_name(),name);
    end
    element.set(name,type_name,size,value);
-   if (parent != null) parent.add_child(element) ;
+   if (parent != null) begin
+     parent.add_child(element) ;
+   end
+
    m_element_stack.push_back(element) ;
 endfunction
 
 function void uvm_printer::pop_element ();
    if (m_element_stack.size() > 1) begin
-      void'(m_element_stack.pop_back());
+     void'(m_element_stack.pop_back());
    end
 endfunction
 
 function uvm_printer_element uvm_printer::get_unused_element() ;
    uvm_printer_element element ;
    if (m_recycled_elements.size() > 0) begin
-      element = m_recycled_elements.pop_back() ;
+     element = m_recycled_elements.pop_back() ;
    end
    else begin
-      element = new() ;
+     element = new() ;
    end
    return element ;
 endfunction
@@ -1094,14 +1181,26 @@ endfunction
 
 function void uvm_printer::print_array_range(int min, int max);
   string tmpstr;
-  if(min == -1 && max == -1)
-     return;
-  if(min == -1)
-     min = max;
-  if(max == -1)
-     max = min;
-  if(max < min)
-     return;
+  if(min == -1 && max == -1) begin
+     
+    return;
+  end
+
+  if(min == -1) begin
+     
+    min = max;
+  end
+
+  if(max == -1) begin
+     
+    max = min;
+  end
+
+  if(max < min) begin
+     
+    return;
+  end
+
   print_generic_element("...", "...", "...", "...");
 endfunction
 
@@ -1112,8 +1211,11 @@ endfunction
 function void uvm_printer::print_object_header (string name,
                                                 uvm_object value,
                                                 byte scope_separator=".");
-  if(name == "")
+  if(name == "") begin
+    
     name = "<unnamed>";
+  end
+
 
   push_element(name,
                (value != null) ?  value.get_type_name() : "object",
@@ -1146,8 +1248,11 @@ function void uvm_printer::print_object (string name, uvm_object value,
     field_op = uvm_field_op::m_get_available_op() ;
     field_op.set(UVM_PRINT,this,null);
     value.do_execute_op(field_op);
-    if (field_op.user_hook_enabled())
+    if (field_op.user_hook_enabled()) begin
+      
       value.do_print(this);
+    end
+
     field_op.m_recycle();
 
     pop_element() ; // matches push in print_object_header
@@ -1220,9 +1325,18 @@ endfunction
 function uvm_policy::recursion_state_e uvm_printer::object_printed (uvm_object value,
                                                                     uvm_recursion_policy_enum recursion);
 
-   if (!m_recur_states.exists(value)) return NEVER ;
-   if (!m_recur_states[value].exists(recursion)) return NEVER ;
-   else return m_recur_states[value][recursion] ;
+   if (!m_recur_states.exists(value)) begin
+     return NEVER ;
+   end
+
+   if (!m_recur_states[value].exists(recursion)) begin
+     return NEVER ;
+   end
+
+   else begin
+     return m_recur_states[value][recursion] ;
+   end
+
 endfunction
 
 // print_real
@@ -1298,10 +1412,10 @@ function void uvm_printer_element::add_child(uvm_printer_element child) ;
 endfunction
 function void uvm_printer_element::get_children(ref uvm_printer_element children[$], input bit recurse) ;
    foreach (m_children[i]) begin
-      children.push_back(m_children[i]) ;
-      if (recurse) begin
-         m_children[i].get_children(children,1) ;
-      end
+     children.push_back(m_children[i]) ;
+     if (recurse) begin
+       m_children[i].get_children(children,1) ;
+     end
    end
 endfunction
 function void uvm_printer_element::clear_children() ;
@@ -1337,10 +1451,22 @@ function void uvm_table_printer::pop_element();
    size_str = popped.get_element_size() ;
    value_str = popped.get_element_value() ;
 
-   if ((name_str.len() + (get_indent() * level)) > m_max_name) m_max_name = (name_str.len() + (get_indent() * level));
-   if (type_name_str.len() > m_max_type) m_max_type = type_name_str.len();
-   if (size_str.len() > m_max_size) m_max_size = size_str.len();
-   if (value_str.len() > m_max_value) m_max_value = value_str.len();
+   if ((name_str.len() + (get_indent() * level)) > m_max_name) begin
+     m_max_name = (name_str.len() + (get_indent() * level));
+   end
+
+   if (type_name_str.len() > m_max_type) begin
+     m_max_type = type_name_str.len();
+   end
+
+   if (size_str.len() > m_max_size) begin
+     m_max_size = size_str.len();
+   end
+
+   if (value_str.len() > m_max_value) begin
+     m_max_value = value_str.len();
+   end
+
 
    super.pop_element() ;
 
@@ -1359,52 +1485,55 @@ function string uvm_table_printer::emit();
   string linefeed;
 
   if (!m_flushed) begin
-     `uvm_error("UVM/PRINT/NO_FLUSH","printer emit() method called twice without intervening uvm_printer::flush()")
+    `uvm_error("UVM/PRINT/NO_FLUSH","printer emit() method called twice without intervening uvm_printer::flush()")
   end
-  else m_flushed = 0 ;
+  else begin
+    m_flushed = 0 ;
+  end
+
   linefeed = {"\n", get_line_prefix()};
 
    begin
-      int q[5];
-      int m;
-      int qq[$];
+     int q[5];
+     int m;
+     int qq[$];
 
-      q = '{m_max_name,m_max_type,m_max_size,m_max_value,100};
-      qq = q.max;
-      m = qq[0];
-  	if(dash.len()<m) begin
-  		dash = {m{"-"}};
-  		m_space = {m{" "}};
-  	end
-  end
+     q = '{m_max_name,m_max_type,m_max_size,m_max_value,100};
+     qq = q.max;
+     m = qq[0];
+     if(dash.len()<m) begin
+       dash = {m{"-"}};
+       m_space = {m{" "}};
+     end
+   end
 
   // for backward compatibility
   if (knobs.header) begin
-     user_format = format_header();
-     if (user_format != "") begin
-        s = {s, user_format, linefeed};
-     end
-     else begin // branch taken if backward compatibility not used
-        string header;
-        string dash_id, dash_typ, dash_sz;
-        string head_id, head_typ, head_sz;
-        if (get_name_enabled()) begin
-          dashes = {dash.substr(1,m_max_name+2)};
-          header = {"Name",m_space.substr(1,m_max_name-2)};
-        end
-        if (get_type_name_enabled()) begin
-          dashes = {dashes, dash.substr(1,m_max_type+2)};
-          header = {header, "Type",m_space.substr(1,m_max_type-2)};
-        end
-        if (get_size_enabled()) begin
-          dashes = {dashes, dash.substr(1,m_max_size+2)};
-          header = {header, "Size",m_space.substr(1,m_max_size-2)};
-        end
-        dashes = {dashes, dash.substr(1,m_max_value), linefeed};
-        header = {header, "Value", m_space.substr(1,m_max_value-5), linefeed};
+    user_format = format_header();
+    if (user_format != "") begin
+      s = {s, user_format, linefeed};
+    end
+    else begin // branch taken if backward compatibility not used
+      string header;
+      string dash_id, dash_typ, dash_sz;
+      string head_id, head_typ, head_sz;
+      if (get_name_enabled()) begin
+        dashes = {dash.substr(1,m_max_name+2)};
+        header = {"Name",m_space.substr(1,m_max_name-2)};
+      end
+      if (get_type_name_enabled()) begin
+        dashes = {dashes, dash.substr(1,m_max_type+2)};
+        header = {header, "Type",m_space.substr(1,m_max_type-2)};
+      end
+      if (get_size_enabled()) begin
+        dashes = {dashes, dash.substr(1,m_max_size+2)};
+        header = {header, "Size",m_space.substr(1,m_max_size-2)};
+      end
+      dashes = {dashes, dash.substr(1,m_max_value), linefeed};
+      header = {header, "Value", m_space.substr(1,m_max_value-5), linefeed};
     
-        s = {s, dashes, header, dashes};
-     end
+      s = {s, dashes, header, dashes};
+    end
   end
 
 
@@ -1412,11 +1541,14 @@ function string uvm_table_printer::emit();
 
   // for backward compatibility
   if (knobs.footer) begin
-     user_format = format_footer();
-     if (user_format != "") s = {s, user_format, linefeed};
-     else begin // branch taken if backward compatibility not used
-        s = {s, dashes}; // add dashes for footer
-     end
+    user_format = format_footer();
+    if (user_format != "") begin
+      s = {s, user_format, linefeed};
+    end
+
+    else begin // branch taken if backward compatibility not used
+      s = {s, dashes}; // add dashes for footer
+    end
   end
 
   emit = {get_line_prefix(), s};
@@ -1440,10 +1572,10 @@ function string uvm_table_printer::m_emit_element(uvm_printer_element element, i
     if (user_format != "") begin
       result = {user_format, linefeed};
     end
-    else
-// end code for compatibility
+    else begin
+      // end code for compatibility
 
-    begin
+    
       string row_str;
       string name_str ;
       string value_str ;
@@ -1453,18 +1585,27 @@ function string uvm_table_printer::m_emit_element(uvm_printer_element element, i
       value_str = element.get_element_value() ;
       type_name_str = element.get_element_type_name() ;
       size_str = element.get_element_size() ;
-      if (get_name_enabled())
+      if (get_name_enabled()) begin
+        
         result = {result, m_space.substr(1,level * get_indent()), name_str,
                    m_space.substr(1,m_max_name-name_str.len()-(level*get_indent())+2)};
-      if (get_type_name_enabled())
+      end
+
+      if (get_type_name_enabled()) begin
+        
         result = {result, type_name_str, m_space.substr(1,m_max_type-type_name_str.len()+2)};
-      if (get_size_enabled())
+      end
+
+      if (get_size_enabled()) begin
+        
         result = {result, size_str, m_space.substr(1,m_max_size-size_str.len()+2)};
+      end
+
       result = {result, row_str, value_str, m_space.substr(1,m_max_value-value_str.len()), linefeed};
     end
   proxy.get_immediate_children(element,element_children) ;
   foreach (element_children[i]) begin
-     result = {result, m_emit_element(element_children[i],level+1)} ;
+    result = {result, m_emit_element(element_children[i],level+1)} ;
   end
   return result ;
 endfunction
@@ -1523,9 +1664,12 @@ function string uvm_tree_printer::emit();
   uvm_printer_element element ;
 
   if (!m_flushed) begin
-     `uvm_error("UVM/PRINT/NO_FLUSH","printer emit() method called twice without intervening uvm_printer::flush()")
+    `uvm_error("UVM/PRINT/NO_FLUSH","printer emit() method called twice without intervening uvm_printer::flush()")
   end
-  else m_flushed = 0 ;
+  else begin
+    m_flushed = 0 ;
+  end
+
 
   s = get_line_prefix() ;
   m_linefeed = m_newline == "" || m_newline == " " ? m_newline : {m_newline, get_line_prefix()};
@@ -1533,8 +1677,11 @@ function string uvm_tree_printer::emit();
   // backward compatibility
   if (knobs.header) begin
     user_format = format_header();
-    if (user_format != "")
+    if (user_format != "") begin
+      
       s = {s, user_format, m_linefeed};
+    end
+
   end
 
   s = {s,m_emit_element(get_bottom_element(),0)} ;
@@ -1542,12 +1689,18 @@ function string uvm_tree_printer::emit();
   // backward compatibility
   if (knobs.footer) begin
     user_format = format_footer();
-    if (user_format != "")
+    if (user_format != "") begin
+      
       s = {s, user_format, m_linefeed};
+    end
+
   end
 
-  if (m_newline == "" || m_newline == " ")
+  if (m_newline == "" || m_newline == " ") begin
+    
     s = {s, "\n"};
+  end
+
 
   return(s);
 endfunction
@@ -1578,40 +1731,55 @@ function string uvm_tree_printer::m_emit_element(uvm_printer_element element, in
     if (user_format != "") begin
       result = user_format;
     end
-    else
-// end code for compatibility
+    else begin
+      // end code for compatibility
 
-    begin
+    
       string value_str ;
 
       // Name (id)
       if (get_name_enabled()) begin
         result = {result,indent_str, element.get_element_name()};
-        if (element.get_element_name() != "" && element.get_element_name() != "...")
+        if (element.get_element_name() != "" && element.get_element_name() != "...") begin
+          
           result = {result, ": "};
+        end
+
       end
 
       // Type Name
       value_str = element.get_element_value();
-      if ((value_str.len() > 0) && (value_str[0] == "@")) // is an object w/ id_enabled() on
+      if ((value_str.len() > 0) && (value_str[0] == "@")) begin // is an object w/ id_enabled() on
+        
         result = {result,"(",element.get_element_type_name(),value_str,") "};
+      end
+
       else
         if (get_type_name_enabled() &&
-             (element.get_element_type_name() != "" ||
-              element.get_element_type_name() != "-" ||
-              element.get_element_type_name() != "..."))
+        (element.get_element_type_name() != "" ||
+        element.get_element_type_name() != "-" ||
+        element.get_element_type_name() != "...")) begin
+          
           result = {result,"(",element.get_element_type_name(),") "};
+        end
+
 
       // Size
       if (get_size_enabled()) begin
-        if (element.get_element_size() != "" || element.get_element_size() != "-")
-            result = {result,"(",element.get_element_size(),") "};
+        if (element.get_element_size() != "" || element.get_element_size() != "-") begin
+            
+          result = {result,"(",element.get_element_size(),") "};
+        end
+
       end
 
       if (element_children.size() > 0) begin
-         result = {result, string'(separators[0]), m_linefeed};
+        result = {result, string'(separators[0]), m_linefeed};
       end
-      else result = {result, value_str, " ", m_linefeed};
+      else begin
+        result = {result, value_str, " ", m_linefeed};
+      end
+
     end
 
     //process all children (if any) of this element
@@ -1632,7 +1800,7 @@ endfunction
 
 function uvm_table_printer uvm_table_printer::get_default() ;
    if (uvm_default_table_printer == null) begin
-      uvm_default_table_printer = new() ;
+     uvm_default_table_printer = new() ;
    end
    return uvm_default_table_printer ;
 endfunction
@@ -1663,7 +1831,7 @@ endfunction
 
 function uvm_tree_printer uvm_tree_printer::get_default() ;
    if (uvm_default_tree_printer == null) begin
-      uvm_default_tree_printer = new() ;
+     uvm_default_tree_printer = new() ;
    end
    return uvm_default_tree_printer ;
 endfunction
@@ -1681,7 +1849,7 @@ endfunction
 
 function uvm_line_printer uvm_line_printer::get_default() ;
    if (uvm_default_line_printer == null) begin
-      uvm_default_line_printer = new() ;
+     uvm_default_line_printer = new() ;
    end
    return uvm_default_line_printer ;
 endfunction
@@ -1705,10 +1873,16 @@ function void uvm_line_printer::flush() ;
 endfunction
 
 function string uvm_printer::get_radix_str(uvm_radix_enum radix);
-    if(knobs.show_radix == 0)
+    if(knobs.show_radix == 0) begin
+      
       return "";
-    if(radix == UVM_NORADIX)
+    end
+
+    if(radix == UVM_NORADIX) begin
+      
       radix = knobs.default_radix;
+    end
+
     return get_radix_string(radix);
 endfunction
 

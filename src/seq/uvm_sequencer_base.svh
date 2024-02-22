@@ -4,9 +4,9 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2013-2018 Cisco Systems, Inc.
 // Copyright 2014 Intel Corporation
-// Copyright 2020-2022 Marvell International Ltd.
+// Copyright 2020-2023 Marvell International Ltd.
 // Copyright 2007-2020 Mentor Graphics Corporation
-// Copyright 2013-2022 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2017 Synopsys, Inc.
 // Copyright 2020 Verific
@@ -27,6 +27,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 typedef uvm_config_db#(uvm_sequence_base) uvm_config_seq;
 typedef class uvm_sequence_request;
@@ -439,8 +449,11 @@ endfunction
 // -----------
 function void uvm_sequencer_base::build_phase(uvm_phase phase);
   super.build_phase(phase);
-  if (!uvm_config_db#(uvm_bitstream_t)::get(this, "", "wait_for_sequences_count", m_wait_for_sequences_count))
+  if (!uvm_config_db#(uvm_bitstream_t)::get(this, "", "wait_for_sequences_count", m_wait_for_sequences_count)) begin
+    
     void'(uvm_config_db#(int)::get(this, "", "wait_for_sequences_count", m_wait_for_sequences_count));
+  end
+
   
   if (m_wait_for_sequences_count < 1) begin
     `uvm_warning("UVM/SQR/WFSC", $sformatf("attempt to set wait_for_sequences_count to '%0d' will be ignored, values must be 1 or greater!", m_wait_for_sequences_count))
@@ -454,15 +467,21 @@ endfunction : build_phase
 function void uvm_sequencer_base::do_print (uvm_printer printer);
   super.do_print(printer);
   printer.print_array_header("arbitration_queue", arb_sequence_q.size());
-  foreach (arb_sequence_q[i])
+  foreach (arb_sequence_q[i]) begin
+    
     printer.print_string($sformatf("[%0d]", i),
        $sformatf("%s@seqid%0d",arb_sequence_q[i].request.name(),arb_sequence_q[i].sequence_id), "[");
+  end
+
   printer.print_array_footer(arb_sequence_q.size());
 
   printer.print_array_header("lock_queue", lock_list.size());
-  foreach(lock_list[i])
+  foreach(lock_list[i]) begin
+    
     printer.print_string($sformatf("[%0d]", i),
        $sformatf("%s@seqid%0d",lock_list[i].get_full_name(),lock_list[i].get_sequence_id()), "[");
+  end
+
   printer.print_array_footer(lock_list.size());
 endfunction
 
@@ -507,8 +526,11 @@ endfunction
 
 function int uvm_sequencer_base::m_register_sequence(uvm_sequence_base sequence_ptr);
 
-  if (sequence_ptr.m_get_sqr_sequence_id(m_sequencer_id, 1) > 0)
+  if (sequence_ptr.m_get_sqr_sequence_id(m_sequencer_id, 1) > 0) begin
+    
     return sequence_ptr.get_sequence_id();
+  end
+
 
   sequence_ptr.m_set_sqr_sequence_id(m_sequencer_id, g_sequence_id++);
   reg_sequences[sequence_ptr.get_sequence_id()] = sequence_ptr;
@@ -532,8 +554,11 @@ function uvm_sequence_base uvm_sequencer_base::m_find_sequence(int sequence_id);
     return(null);
   end
 
-  if (!reg_sequences.exists(sequence_id))
+  if (!reg_sequences.exists(sequence_id)) begin
+    
     return null;
+  end
+
   return reg_sequences[sequence_id];
 endfunction
 
@@ -542,8 +567,11 @@ endfunction
 // ---------------------
 
 function void uvm_sequencer_base::m_unregister_sequence(int sequence_id);
-  if (!reg_sequences.exists(sequence_id))
+  if (!reg_sequences.exists(sequence_id)) begin
+    
     return;
+  end
+
   reg_sequences.delete(sequence_id);
 endfunction
 
@@ -565,25 +593,25 @@ endfunction
 function void uvm_sequencer_base::grant_queued_locks();
     // remove and report any zombies
     begin
-       uvm_sequence_request zombies[$];
-       zombies = arb_sequence_q.find(item) with (item.request==SEQ_TYPE_LOCK && item.process_id.status inside {process::KILLED,process::FINISHED});
-       foreach(zombies[idx]) begin
-          `uvm_error("SEQLCKZMB", $sformatf("The task responsible for requesting a lock on sequencer '%s' for sequence '%s' has been killed, to avoid a deadlock the sequence will be removed from the arbitration queues", this.get_full_name(), zombies[idx].sequence_ptr.get_full_name()))
-          remove_sequence_from_queues(zombies[idx].sequence_ptr);
-       end
+      uvm_sequence_request zombies[$];
+      zombies = arb_sequence_q.find(item) with (item.request==SEQ_TYPE_LOCK && item.process_id.status inside {process::KILLED,process::FINISHED});
+      foreach(zombies[idx]) begin
+        `uvm_error("SEQLCKZMB", $sformatf("The task responsible for requesting a lock on sequencer '%s' for sequence '%s' has been killed, to avoid a deadlock the sequence will be removed from the arbitration queues", this.get_full_name(), zombies[idx].sequence_ptr.get_full_name()))
+        remove_sequence_from_queues(zombies[idx].sequence_ptr);
+      end
     end
  
     // grant the first lock request that is not blocked, if any
     begin
-       int lock_req_indices[$];
-       lock_req_indices = arb_sequence_q.find_first_index(item) with (item.request==SEQ_TYPE_LOCK && is_blocked(item.sequence_ptr) == 0);
-       if(lock_req_indices.size()) begin
-          uvm_sequence_request lock_req = arb_sequence_q[lock_req_indices[0]];
-          lock_list.push_back(lock_req.sequence_ptr);
-          m_set_arbitration_completed(lock_req.request_id);
-          arb_sequence_q.delete(lock_req_indices[0]);
-          m_update_lists();
-       end
+      int lock_req_indices[$];
+      lock_req_indices = arb_sequence_q.find_first_index(item) with (item.request==SEQ_TYPE_LOCK && is_blocked(item.sequence_ptr) == 0);
+      if(lock_req_indices.size()) begin
+        uvm_sequence_request lock_req = arb_sequence_q[lock_req_indices[0]];
+        lock_list.push_back(lock_req.sequence_ptr);
+        m_set_arbitration_completed(lock_req.request_id);
+        arb_sequence_q.delete(lock_req_indices[0]);
+        m_update_lists();
+      end
     end
 endfunction
 
@@ -599,8 +627,11 @@ task uvm_sequencer_base::m_select_sequence(output uvm_sequence_request selected_
       repeat(m_wait_for_sequences_count) begin
         wait_for_sequences();
         selected_sequence = m_choose_next_request();
-        if (selected_sequence != -1)
+        if (selected_sequence != -1) begin
+          
           break;
+        end
+
       end
       if (selected_sequence == -1) begin
         m_wait_for_available_sequence();
@@ -639,22 +670,34 @@ function int uvm_sequencer_base::m_choose_next_request();
 
   i = 0;
   while (i < arb_sequence_q.size()) begin
-     if ((arb_sequence_q[i].process_id.status == process::KILLED) ||
-         (arb_sequence_q[i].process_id.status == process::FINISHED)) begin
-        `uvm_error("SEQREQZMB", $sformatf("The task responsible for requesting a wait_for_grant on sequencer '%s' for sequence '%s' has been killed, to avoid a deadlock the sequence will be removed from the arbitration queues", this.get_full_name(), arb_sequence_q[i].sequence_ptr.get_full_name()))
-         remove_sequence_from_queues(arb_sequence_q[i].sequence_ptr);
-         continue;
-     end
+    if ((arb_sequence_q[i].process_id.status == process::KILLED) ||
+    (arb_sequence_q[i].process_id.status == process::FINISHED)) begin
+      `uvm_error("SEQREQZMB", $sformatf("The task responsible for requesting a wait_for_grant on sequencer '%s' for sequence '%s' has been killed, to avoid a deadlock the sequence will be removed from the arbitration queues", this.get_full_name(), arb_sequence_q[i].sequence_ptr.get_full_name()))
+      remove_sequence_from_queues(arb_sequence_q[i].sequence_ptr);
+      continue;
+    end
 
-    if (i < arb_sequence_q.size())
-      if (arb_sequence_q[i].request == SEQ_TYPE_REQ)
-        if (is_blocked(arb_sequence_q[i].sequence_ptr) == 0)
+    if (i < arb_sequence_q.size()) begin
+      
+      if (arb_sequence_q[i].request == SEQ_TYPE_REQ) begin
+        
+        if (is_blocked(arb_sequence_q[i].sequence_ptr) == 0) begin
+          
           if (arb_sequence_q[i].sequence_ptr.is_relevant() == 1) begin
             if (m_arbitration == UVM_SEQ_ARB_FIFO) begin
               return i;
             end
-            else avail_sequences.push_back(i);
+            else begin
+              avail_sequences.push_back(i);
+            end
+
           end
+        end
+
+      end
+
+    end
+
 
     i++;
   end
@@ -680,10 +723,16 @@ function int uvm_sequencer_base::m_choose_next_request();
         i--;
       end
     end
-    if (avail_sequences.size() < 1)
+    if (avail_sequences.size() < 1) begin
+      
       return -1;
-    if (avail_sequences.size() == 1)
+    end
+
+    if (avail_sequences.size() == 1) begin
+      
       return avail_sequences[0];
+    end
+
   end
 
   //  Weighted Priority Distribution
@@ -699,7 +748,7 @@ function int uvm_sequencer_base::m_choose_next_request();
     sum_priority_val = 0;
     for (i = 0; i < avail_sequences.size(); i++) begin
       if ((m_get_seq_item_priority(arb_sequence_q[avail_sequences[i]]) +
-           sum_priority_val) > temp) begin
+      sum_priority_val) > temp) begin
         return avail_sequences[i];
       end
       sum_priority_val += m_get_seq_item_priority(arb_sequence_q[avail_sequences[i]]);
@@ -797,33 +846,33 @@ task uvm_sequencer_base::m_wait_for_available_sequence();
       fork
         begin
           fork
-              begin
-                // One path in fork is for any wait_for_relevant to return
-                m_is_relevant_completed = 0;
+            begin
+              // One path in fork is for any wait_for_relevant to return
+              m_is_relevant_completed = 0;
 
-                for(i = 0; i < is_relevant_entries.size(); i++) begin
+              for(i = 0; i < is_relevant_entries.size(); i++) begin
                 fork
-                    automatic int k = i;
+                  automatic int k = i;
 
                   begin
                     arb_sequence_q[is_relevant_entries[k]].sequence_ptr.wait_for_relevant();
                     if ($realtime != m_last_wait_relevant_time) begin
-                       m_last_wait_relevant_time = $realtime ;
-                       m_wait_relevant_count = 0 ;
+                      m_last_wait_relevant_time = $realtime ;
+                      m_wait_relevant_count = 0 ;
                     end
                     else begin
-                       m_wait_relevant_count++ ;
-                       if (m_wait_relevant_count > m_max_zero_time_wait_relevant_count) begin
-                          `uvm_fatal("SEQRELEVANTLOOP",$sformatf("Zero time loop detected, passed wait_for_relevant %0d times without time advancing",m_wait_relevant_count))
-                       end
+                      m_wait_relevant_count++ ;
+                      if (m_wait_relevant_count > m_max_zero_time_wait_relevant_count) begin
+                        `uvm_fatal("SEQRELEVANTLOOP",$sformatf("Zero time loop detected, passed wait_for_relevant %0d times without time advancing",m_wait_relevant_count))
+                      end
                     end
                     m_is_relevant_completed = 1;
                   end
                 join_none
 
-                end
-                wait (m_is_relevant_completed > 0);
               end
+              wait (m_is_relevant_completed > 0);
+            end
 
             // The other path in the fork is for any queue entry to change
             begin
@@ -870,16 +919,16 @@ task uvm_sequencer_base::m_wait_for_arbitration_completed(int request_id);
   int lock_arb_size;
 
   // Search the list of arb_wait_q, see if this item is done
-  forever
-    begin
-      lock_arb_size  = m_lock_arb_size;
+  forever begin
+    
+    lock_arb_size  = m_lock_arb_size;
 
-      if (arb_completed.exists(request_id)) begin
-        arb_completed.delete(request_id);
-        return;
-      end
-      wait (lock_arb_size != m_lock_arb_size);
+    if (arb_completed.exists(request_id)) begin
+      arb_completed.delete(request_id);
+      return;
     end
+    wait (lock_arb_size != m_lock_arb_size);
+  end
 endtask
 
 
@@ -951,9 +1000,12 @@ task uvm_sequencer_base::wait_for_grant(uvm_sequence_base sequence_ptr,
   uvm_sequence_request req_s;
   int my_seq_id;
 
-  if (sequence_ptr == null)
+  if (sequence_ptr == null) begin
+    
     uvm_report_fatal("uvm_sequencer",
        "wait_for_grant passed null sequence_ptr", UVM_NONE);
+  end
+
 
   my_seq_id = m_register_sequence(sequence_ptr);
 
@@ -1005,11 +1057,17 @@ task uvm_sequencer_base::wait_for_item_done(uvm_sequence_base sequence_ptr,
   m_wait_for_item_sequence_id = -1;
   m_wait_for_item_transaction_id = -1;
 
-  if (transaction_id == -1)
+  if (transaction_id == -1) begin
+    
     wait (m_wait_for_item_sequence_id == sequence_id);
-  else
+  end
+
+  else begin
+    
     wait ((m_wait_for_item_sequence_id == sequence_id &&
            m_wait_for_item_transaction_id == transaction_id));
+  end
+
 endtask
 
 
@@ -1018,18 +1076,21 @@ endtask
 
 function bit uvm_sequencer_base::is_blocked(uvm_sequence_base sequence_ptr);
 
-  if (sequence_ptr == null)
+  if (sequence_ptr == null) begin
+    
     uvm_report_fatal("uvm_sequence_controller",
                      "is_blocked passed null sequence_ptr", UVM_NONE);
+  end
 
-    foreach (lock_list[i]) begin
-      if ((lock_list[i].get_inst_id() !=
-           sequence_ptr.get_inst_id()) &&
-          (is_child(lock_list[i], sequence_ptr) == 0)) begin
-        return 1;
-      end
+
+  foreach (lock_list[i]) begin
+    if ((lock_list[i].get_inst_id() !=
+    sequence_ptr.get_inst_id()) &&
+    (is_child(lock_list[i], sequence_ptr) == 0)) begin
+      return 1;
     end
-    return 0;
+  end
+  return 0;
 endfunction
 
 
@@ -1039,9 +1100,12 @@ endfunction
 function bit uvm_sequencer_base::has_lock(uvm_sequence_base sequence_ptr);
   int my_seq_id;
 
-  if (sequence_ptr == null)
+  if (sequence_ptr == null) begin
+    
     uvm_report_fatal("uvm_sequence_controller",
                      "has_lock passed null sequence_ptr", UVM_NONE);
+  end
+
   my_seq_id = m_register_sequence(sequence_ptr);
     foreach (lock_list[i]) begin
       if (lock_list[i].get_inst_id() == sequence_ptr.get_inst_id()) begin
@@ -1061,9 +1125,12 @@ task uvm_sequencer_base::m_lock_req(uvm_sequence_base sequence_ptr, bit lock);
   int my_seq_id;
   uvm_sequence_request new_req;
 
-  if (sequence_ptr == null)
+  if (sequence_ptr == null) begin
+    
     uvm_report_fatal("uvm_sequence_controller",
                      "lock_req passed null sequence_ptr", UVM_NONE);
+  end
+
 
   my_seq_id = m_register_sequence(sequence_ptr);
   new_req = new();
@@ -1104,18 +1171,21 @@ function void uvm_sequencer_base::m_unlock_req(uvm_sequence_base sequence_ptr);
   end
 
   begin
-	  int q[$];
-	  int seqid=sequence_ptr.get_inst_id();
-	  q=lock_list.find_first_index(item) with (item.get_inst_id() == seqid);
-	  if(q.size()==1) begin
-	      lock_list.delete(q[0]);
-		  grant_queued_locks(); // grant lock requests
-		  m_update_lists();
-	  end
-	  else
-		  uvm_report_warning("SQRUNL",
+    int q[$];
+    int seqid=sequence_ptr.get_inst_id();
+    q=lock_list.find_first_index(item) with (item.get_inst_id() == seqid);
+    if(q.size()==1) begin
+      lock_list.delete(q[0]);
+      grant_queued_locks(); // grant lock requests
+      m_update_lists();
+    end
+    else begin
+          
+      uvm_report_warning("SQRUNL",
            {"Sequence '", sequence_ptr.get_full_name(),
             "' called ungrab / unlock, but didn't have lock"}, UVM_NONE);
+    end
+
 
   end
 endfunction
@@ -1165,40 +1235,42 @@ function void uvm_sequencer_base::remove_sequence_from_queues(
 
   // Remove all queued items for this sequence and any child sequences
   i = 0;
-  do
-    begin
-      if (arb_sequence_q.size() > i) begin
-        if ((arb_sequence_q[i].sequence_id == seq_id) ||
-            (is_child(sequence_ptr, arb_sequence_q[i].sequence_ptr))) begin
-          if (sequence_ptr.get_sequence_state() == UVM_FINISHED)
-            `uvm_error("SEQFINERR", $sformatf("Parent sequence '%s' should not finish before all items from itself and items from descendent sequences are processed.  The item request from the sequence '%s' is being removed.", sequence_ptr.get_full_name(), arb_sequence_q[i].sequence_ptr.get_full_name()))
-          arb_sequence_q.delete(i);
-          m_update_lists();
+  do begin
+    
+    if (arb_sequence_q.size() > i) begin
+      if ((arb_sequence_q[i].sequence_id == seq_id) ||
+      (is_child(sequence_ptr, arb_sequence_q[i].sequence_ptr))) begin
+        if (sequence_ptr.get_sequence_state() == UVM_FINISHED) begin
+          `uvm_error("SEQFINERR", $sformatf("Parent sequence '%s' should not finish before all items from itself and items from descendent sequences are processed.  The item request from the sequence '%s' is being removed.", sequence_ptr.get_full_name(), arb_sequence_q[i].sequence_ptr.get_full_name()))
         end
-        else begin
-          i++;
-        end
+        arb_sequence_q.delete(i);
+        m_update_lists();
+      end
+      else begin
+        i++;
       end
     end
+  end
   while (i < arb_sequence_q.size());
 
   // remove locks for this sequence, and any child sequences
   i = 0;
-  do
-    begin
-      if (lock_list.size() > i) begin
-        if ((lock_list[i].get_inst_id() == sequence_ptr.get_inst_id()) ||
-            (is_child(sequence_ptr, lock_list[i]))) begin
-          if (sequence_ptr.get_sequence_state() == UVM_FINISHED)
-            `uvm_error("SEQFINERR", $sformatf("Parent sequence '%s' should not finish before locks from itself and descedent sequences are removed.  The lock held by the child sequence '%s' is being removed.",sequence_ptr.get_full_name(), lock_list[i].get_full_name()))
-          lock_list.delete(i);
-          m_update_lists();
+  do begin
+    
+    if (lock_list.size() > i) begin
+      if ((lock_list[i].get_inst_id() == sequence_ptr.get_inst_id()) ||
+      (is_child(sequence_ptr, lock_list[i]))) begin
+        if (sequence_ptr.get_sequence_state() == UVM_FINISHED) begin
+          `uvm_error("SEQFINERR", $sformatf("Parent sequence '%s' should not finish before locks from itself and descedent sequences are removed.  The lock held by the child sequence '%s' is being removed.",sequence_ptr.get_full_name(), lock_list[i].get_full_name()))
         end
-        else begin
-          i++;
-        end
+        lock_list.delete(i);
+        m_update_lists();
+      end
+      else begin
+        i++;
       end
     end
+  end
   while (i < lock_list.size());
 
   // Unregister the sequence_id, so that any returning data is dropped
@@ -1213,11 +1285,11 @@ function void uvm_sequencer_base::stop_sequences();
   uvm_sequence_base seq_ptr;
 
   seq_ptr = m_find_sequence(-1);
-  while (seq_ptr != null)
-    begin
-      kill_sequence(seq_ptr);
-      seq_ptr = m_find_sequence(-1);
-    end
+  while (seq_ptr != null) begin
+    
+    kill_sequence(seq_ptr);
+    seq_ptr = m_find_sequence(-1);
+  end
 endfunction
 
 
@@ -1264,7 +1336,7 @@ function bit uvm_sequencer_base::has_do_available();
 
   foreach (arb_sequence_q[i]) begin
     if ((arb_sequence_q[i].sequence_ptr.is_relevant() == 1) &&
-        (is_blocked(arb_sequence_q[i].sequence_ptr) == 0)) begin
+    (is_blocked(arb_sequence_q[i].sequence_ptr) == 0)) begin
       return 1;
     end
   end
@@ -1359,7 +1431,7 @@ function void uvm_sequencer_base::start_phase_sequence(uvm_phase phase);
       seq = sbr.read(this);
       if (seq == null) begin
         `uvm_info("UVM/SQR/PH/DEF/SB/NULL", {"Default phase sequence for phase '",
-                                             phase.get_name(),"' explicitly disabled"}, UVM_FULL)
+        phase.get_name(),"' explicitly disabled"}, UVM_FULL)
         return;
       end
     end
@@ -1371,15 +1443,15 @@ function void uvm_sequencer_base::start_phase_sequence(uvm_phase phase);
       wrapper = owr.read(this);
       if (wrapper == null) begin
         `uvm_info("UVM/SQR/PH/DEF/OW/NULL", {"Default phase sequence for phase '",
-                                             phase.get_name(),"' explicitly disabled"}, UVM_FULL)
+        phase.get_name(),"' explicitly disabled"}, UVM_FULL)
         return;
       end
 
       if (!$cast(seq, f.create_object_by_type(wrapper, get_full_name(),
-                                              wrapper.get_type_name()))
-          || seq == null) begin
+      wrapper.get_type_name()))
+      || seq == null) begin
         `uvm_warning("PHASESEQ", {"Default sequence for phase '",
-                                  phase.get_name(),"' %s is not a sequence type"})
+        phase.get_name(),"' %s is not a sequence type"})
         return;
       end
     end
@@ -1387,7 +1459,7 @@ function void uvm_sequencer_base::start_phase_sequence(uvm_phase phase);
 
   if (seq == null) begin
     `uvm_info("PHASESEQ", {"No default phase sequence for phase '",
-                           phase.get_name(),"'"}, UVM_FULL)
+    phase.get_name(),"'"}, UVM_FULL)
     return;
   end
 
@@ -1401,21 +1473,21 @@ function void uvm_sequencer_base::start_phase_sequence(uvm_phase phase);
 
   if (seq.get_randomize_enabled() && !seq.randomize()) begin
     `uvm_warning("STRDEFSEQ", {"Randomization failed for default sequence '",
-                               seq.get_type_name(),"' for phase '", phase.get_name(),"'"})
+    seq.get_type_name(),"' for phase '", phase.get_name(),"'"})
     return;
   end
 
   fork begin
-    uvm_sequence_process_wrapper w = new();
-    // reseed this process for random stability
-    w.pid = process::self();
-    w.seq = seq;
-    w.pid.srandom(uvm_create_random_seed(seq.get_type_name(), this.get_full_name()));
-    m_default_sequences[phase] = w;
-    // this will either complete naturally, or be killed later
-    seq.start(this);
-    m_default_sequences.delete(phase);
-  end
+      uvm_sequence_process_wrapper w = new();
+      // reseed this process for random stability
+      w.pid = process::self();
+      w.seq = seq;
+      w.pid.srandom(uvm_create_random_seed(seq.get_type_name(), this.get_full_name()));
+      m_default_sequences[phase] = w;
+      // this will either complete naturally, or be killed later
+      seq.start(this);
+      m_default_sequences.delete(phase);
+    end
   join_none
 
 endfunction
@@ -1425,15 +1497,15 @@ endfunction
 
 function void uvm_sequencer_base::stop_phase_sequence(uvm_phase phase);
     if (m_default_sequences.exists(phase)) begin
-        `uvm_info("PHASESEQ",
-                  {"Killing default sequence '", m_default_sequences[phase].seq.get_type_name(),
-                   "' for phase '", phase.get_name(), "'"}, UVM_FULL)
-        m_default_sequences[phase].seq.kill();
+      `uvm_info("PHASESEQ",
+      {"Killing default sequence '", m_default_sequences[phase].seq.get_type_name(),
+      "' for phase '", phase.get_name(), "'"}, UVM_FULL)
+      m_default_sequences[phase].seq.kill();
     end
     else begin
-        `uvm_info("PHASESEQ",
-                  {"No default sequence to kill for phase '", phase.get_name(), "'"},
-                  UVM_FULL)
+      `uvm_info("PHASESEQ",
+      {"No default sequence to kill for phase '", phase.get_name(), "'"},
+      UVM_FULL)
     end
 endfunction : stop_phase_sequence
 

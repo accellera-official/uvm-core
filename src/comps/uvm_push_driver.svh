@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2023 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -19,6 +19,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //
@@ -76,9 +86,12 @@ class uvm_push_driver #(type REQ=uvm_sequence_item,
 
   function void check_port_connections();
     if (req_export.size() != 1)
-    uvm_report_fatal("Connection Error",
+    begin
+      uvm_report_fatal("Connection Error",
                      $sformatf("Must connect to seq_item_port(%0d)",
                                req_export.size()), UVM_NONE);
+    end
+
   endfunction
   
   virtual function void end_of_elaboration_phase(uvm_phase phase);

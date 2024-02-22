@@ -4,7 +4,7 @@
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2010-2020 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2004-2018 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 //
@@ -24,6 +24,16 @@
 //--------------------------------------------------------------
 //
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
+
 //------------------------------------------------------------------------------
 // Title -- NODOCS -- Generic Register Operation Descriptors
 //
@@ -32,7 +42,6 @@
 // subtypes to convert from a protocol-specific address/data/rw operation to
 // a bus-independent, canonical r/w operation.
 //------------------------------------------------------------------------------
-
 
 //------------------------------------------------------------------------------
 // CLASS -- NODOCS -- uvm_reg_item
@@ -221,16 +230,25 @@ class uvm_reg_item extends uvm_sequence_item;
 
     if (value.size() > 1 && uvm_report_enabled(UVM_HIGH, UVM_INFO, "RegModel")) begin
       value_s = "'{";
-      foreach (value[i])
-         value_s = {value_s,$sformatf("%0h,",value[i])};
+      foreach (value[i]) begin
+         
+        value_s = {value_s,$sformatf("%0h,",value[i])};
+      end
+
       value_s[value_s.len()-1]="}";
     end
-    else
+    else begin
+      
       value_s = $sformatf("%0h",value[0]);
+    end
+
     s = {s, " value=",value_s};
 
-    if (element_kind == UVM_MEM)
+    if (element_kind == UVM_MEM) begin
+      
       s = {s, $sformatf(" offset=%0h",offset)};
+    end
+
     s = {s," map=",(map==null?"null":map.get_full_name())," path=",path.name()};
     s = {s," status=",status.name()};
     return s;
@@ -246,8 +264,9 @@ class uvm_reg_item extends uvm_sequence_item;
 
   virtual function void do_copy(uvm_object rhs);
     uvm_reg_item rhs_;
-    if (rhs == null)
-     `uvm_fatal("REG/NULL","do_copy: rhs argument is null")
+    if (rhs == null) begin
+      `uvm_fatal("REG/NULL","do_copy: rhs argument is null")
+    end
 
     if (!$cast(rhs_,rhs)) begin
       `uvm_error("WRONG_TYPE","Provided rhs is not of type uvm_reg_item")

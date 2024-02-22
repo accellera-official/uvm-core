@@ -5,7 +5,7 @@
 // Copyright 2014 Intel Corporation
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2007-2022 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2018 Qualcomm, Inc.
 // Copyright 2014 Semifore
 // Copyright 2018 Synopsys, Inc.
@@ -25,6 +25,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 //------------------------------------------------------------------------------
@@ -51,7 +61,7 @@ class uvm_packer extends uvm_policy;
    // @uvm-ieee 1800.2-2020 auto 16.5.2.3
    `uvm_object_utils(uvm_packer)
 
-    uvm_factory m_factory;	
+    uvm_factory m_factory;    
     local uvm_object m_object_references[int];
    
 
@@ -428,8 +438,11 @@ function void uvm_packer::get_packed_bits(ref bit unsigned stream[]);
   stream        = new[m_pack_iter];
   m_bits[31:0]  = m_pack_iter; /* Reserved bits */
   m_bits[63:32] = m_unpack_iter; /* Reserved bits */
-  for (int i=0;i<m_pack_iter;i++)
+  for (int i=0;i<m_pack_iter;i++) begin
+    
     stream[i] = m_bits[i];
+  end
+
 endfunction
 
 `define M__UVM_GET_PACKED(T) \
@@ -441,10 +454,12 @@ function void uvm_packer::get_packed_``T``s (ref T unsigned stream[] ); \
    m_bits[63:32] = m_unpack_iter; /* Reserved Bits */                   \
    stream = new[sz];                                                    \
    foreach (stream[i]) begin                                            \
-      if (i != sz-1 || (m_pack_iter % $bits(T)) == 0)                   \
-	v = m_bits[ i* $bits(T) +: $bits(T) ];                          \
-      else                                                              \
-	v = m_bits[ i* $bits(T) +: $bits(T) ] & ({$bits(T){1'b1}} >> ($bits(T)-(m_pack_iter%$bits(T)))); \
+      if (i != sz-1 || (m_pack_iter % $bits(T)) == 0) begin             \
+    v = m_bits[ i* $bits(T) +: $bits(T) ];                          \
+      end                                                               \
+      else begin                                                        \
+    v = m_bits[ i* $bits(T) +: $bits(T) ] & ({$bits(T){1'b1}} >> ($bits(T)-(m_pack_iter%$bits(T)))); \
+      end                                                               \
       stream[i] = v;                                                    \
    end                                                                  \
 endfunction 
@@ -464,8 +479,11 @@ function void uvm_packer::set_packed_bits (ref bit stream []);
 
   bit_size = stream.size();
 
-    for (int i=0;i<bit_size;i++)
+    for (int i=0;i<bit_size;i++) begin
+      
       m_bits[i] = stream[i];
+    end
+
 
   m_pack_iter = m_bits[31:0]; /* Reserved Bits */
   m_unpack_iter = m_bits[63:32]; /* Reserved Bits */
@@ -583,8 +601,11 @@ endfunction
 // ----------
 
 function void uvm_packer::pack_field(uvm_bitstream_t value, int size);
-  for (int i=0; i<size; i++)
-      m_bits[m_pack_iter+i] = value[i];
+  for (int i=0; i<size; i++) begin
+      
+    m_bits[m_pack_iter+i] = value[i];
+  end
+
   m_pack_iter += size;
 endfunction
   
@@ -593,8 +614,11 @@ endfunction
 // --------------
 
 function void uvm_packer::pack_field_int(uvm_integral_t value, int size);
-  for (int i=0; i<size; i++)
-      m_bits[m_pack_iter+i] = value[i];
+  for (int i=0; i<size; i++) begin
+      
+    m_bits[m_pack_iter+i] = value[i];
+  end
+
   m_pack_iter += size;
 endfunction
   
@@ -602,19 +626,25 @@ endfunction
 // -----------------
 
 function void uvm_packer::pack_bits(ref bit value[], input int size = -1);
-   if (size < 0)
+   if (size < 0) begin
+     
      size = value.size();
+   end
+
 
    if (size > value.size()) begin
-      `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
-                 $sformatf("pack_bits called with size '%0d', which exceeds value.size() of '%0d'",
-                           size,
-                           value.size()))
-      return;
+     `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
+     $sformatf("pack_bits called with size '%0d', which exceeds value.size() of '%0d'",
+     size,
+     value.size()))
+     return;
    end
    
-   for (int i=0; i<size; i++)
-       m_bits[m_pack_iter+i] = value[i];
+   for (int i=0; i<size; i++) begin
+       
+     m_bits[m_pack_iter+i] = value[i];
+   end
+
    m_pack_iter += size;
 endfunction 
 
@@ -624,26 +654,29 @@ endfunction
 function void uvm_packer::pack_bytes(ref byte value[], input int size = -1);
    int max_size = value.size() * $bits(byte);
    
-   if (size < 0)
+   if (size < 0) begin
+     
      size = max_size;
+   end
+
 
    if (size > max_size) begin
-      `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
-                 $sformatf("pack_bytes called with size '%0d', which exceeds value size of '%0d'",
-                           size,
-                           max_size))
-      return;
+     `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
+     $sformatf("pack_bytes called with size '%0d', which exceeds value size of '%0d'",
+     size,
+     max_size))
+     return;
    end
    else begin
-      int idx_select;
+     int idx_select;
 
-      for (int i=0; i<size; i++) begin
-           idx_select = i;
+     for (int i=0; i<size; i++) begin
+       idx_select = i;
          
-         m_bits[m_pack_iter+i] = value[idx_select / $bits(byte)][idx_select % $bits(byte)];
-      end
+       m_bits[m_pack_iter+i] = value[idx_select / $bits(byte)][idx_select % $bits(byte)];
+     end
    
-      m_pack_iter += size;
+     m_pack_iter += size;
    end
 endfunction 
 
@@ -653,26 +686,29 @@ endfunction
 function void uvm_packer::pack_ints(ref int value[], input int size = -1);
    int max_size = value.size() * $bits(int);
    
-   if (size < 0)
+   if (size < 0) begin
+     
      size = max_size;
+   end
+
 
    if (size > max_size) begin
-      `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
-                 $sformatf("pack_ints called with size '%0d', which exceeds value size of '%0d'",
-                           size,
-                           max_size))
-      return;
+     `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
+     $sformatf("pack_ints called with size '%0d', which exceeds value size of '%0d'",
+     size,
+     max_size))
+     return;
    end
    else begin
-      int idx_select;
+     int idx_select;
 
-      for (int i=0; i<size; i++) begin
-           idx_select = i;
+     for (int i=0; i<size; i++) begin
+       idx_select = i;
          
-         m_bits[m_pack_iter+i] = value[idx_select / $bits(int)][idx_select % $bits(int)];
-      end
+       m_bits[m_pack_iter+i] = value[idx_select / $bits(int)][idx_select % $bits(int)];
+     end
    
-      m_pack_iter += size;
+     m_pack_iter += size;
    end
 endfunction 
 
@@ -683,8 +719,8 @@ endfunction
 function void uvm_packer::pack_string(string value);
   byte b;
   foreach (value[index]) begin
-     m_bits[m_pack_iter +: 8] = value[index];
-     m_pack_iter += 8;
+    m_bits[m_pack_iter +: 8] = value[index];
+    m_pack_iter += 8;
   end
    m_bits[m_pack_iter +: 8] = 0;
    m_pack_iter += 8;
@@ -730,7 +766,7 @@ function void uvm_packer::unpack_object(uvm_object value);
     field_op.set(UVM_UNPACK,this,value);
     value.do_execute_op(field_op);
     if (field_op.user_hook_enabled()) begin
-       value.do_unpack(this);
+      value.do_unpack(this);
     end
     field_op.m_recycle();
     void'(pop_active_object());
@@ -770,7 +806,7 @@ function void uvm_packer::unpack_object_with_meta(inout uvm_object value);
   else begin
     uvm_object_wrapper __wrapper = unpack_object_wrapper();
     if ((__wrapper != null) && 
-        ((value == null) || (value.get_object_type() != __wrapper))) begin 
+    ((value == null) || (value.get_object_type() != __wrapper))) begin 
       value = __wrapper.create_object("");
       if (value == null) begin
         value = __wrapper.create_component("",null);
@@ -785,8 +821,11 @@ endfunction
 function uvm_object_wrapper uvm_packer::unpack_object_wrapper();
   string type_name;
   type_name = unpack_string();
-  if (m_factory == null)
+  if (m_factory == null) begin
+    
     m_factory = uvm_factory::get();
+  end
+
   if (m_factory.is_type_name_registered(type_name)) begin
     return m_factory.find_wrapper_by_name(type_name);
   end
@@ -821,8 +860,11 @@ function uvm_bitstream_t uvm_packer::unpack_field(int size);
   unpack_field = 'b0;
   if (enough_bits(size,"integral")) begin
     m_unpack_iter += size;
-    for (int i=0; i<size; i++)
-        unpack_field[i] = m_bits[m_unpack_iter-size+i];
+    for (int i=0; i<size; i++) begin
+        
+      unpack_field[i] = m_bits[m_unpack_iter-size+i];
+    end
+
   end
 endfunction
   
@@ -834,8 +876,11 @@ function uvm_integral_t uvm_packer::unpack_field_int(int size);
   unpack_field_int = 'b0;
   if (enough_bits(size,"integral")) begin
     m_unpack_iter += size;
-    for (int i=0; i<size; i++)
-        unpack_field_int[i] = m_bits[m_unpack_iter-size+i];
+    for (int i=0; i<size; i++) begin
+        
+      unpack_field_int[i] = m_bits[m_unpack_iter-size+i];
+    end
+
   end
 endfunction
   
@@ -843,21 +888,27 @@ endfunction
 // -------------------
 
 function void uvm_packer::unpack_bits(ref bit value[], input int size = -1);
-   if (size < 0)
+   if (size < 0) begin
+     
      size = value.size();
+   end
+
 
    if (size > value.size()) begin
-      `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
-                 $sformatf("unpack_bits called with size '%0d', which exceeds value.size() of '%0d'",
-                           size,
-                           value.size()))
-      return;
+     `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
+     $sformatf("unpack_bits called with size '%0d', which exceeds value.size() of '%0d'",
+     size,
+     value.size()))
+     return;
    end
    
    if (enough_bits(size, "integral")) begin
-      m_unpack_iter += size;
-      for (int i=0; i<size; i++)
-          value[i] = m_bits[m_unpack_iter-size+i];
+     m_unpack_iter += size;
+     for (int i=0; i<size; i++) begin
+          
+       value[i] = m_bits[m_unpack_iter-size+i];
+     end
+
    end
 endfunction
 
@@ -866,25 +917,28 @@ endfunction
 
 function void uvm_packer::unpack_bytes(ref byte value[], input int size = -1);
    int max_size = value.size() * $bits(byte);
-   if (size < 0)
+   if (size < 0) begin
+     
      size = max_size;
+   end
+
 
    if (size > max_size) begin
-      `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
-                 $sformatf("unpack_bytes called with size '%0d', which exceeds value size of '%0d'",
-                           size,
-                           value.size()))
-      return;
+     `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
+     $sformatf("unpack_bytes called with size '%0d', which exceeds value size of '%0d'",
+     size,
+     value.size()))
+     return;
    end
    else begin
-      if (enough_bits(size, "integral")) begin
-         m_unpack_iter += size;
+     if (enough_bits(size, "integral")) begin
+       m_unpack_iter += size;
 
-         for (int i=0; i<size; i++) begin
-              value[ i / $bits(byte) ][ i % $bits(byte) ] = m_bits[m_unpack_iter-size+i];
+       for (int i=0; i<size; i++) begin
+         value[ i / $bits(byte) ][ i % $bits(byte) ] = m_bits[m_unpack_iter-size+i];
          
-         end
-      end // if (enough_bits(size, "integral"))
+       end
+     end // if (enough_bits(size, "integral"))
    end
 endfunction
 
@@ -893,24 +947,27 @@ endfunction
 
 function void uvm_packer::unpack_ints(ref int value[], input int size = -1);
    int max_size = value.size() * $bits(int);
-   if (size < 0)
+   if (size < 0) begin
+     
      size = max_size;
+   end
+
 
    if (size > max_size) begin
-      `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
-                 $sformatf("unpack_ints called with size '%0d', which exceeds value size of '%0d'",
-                           size,
-                           value.size()))
-      return;
+     `uvm_error("UVM/BASE/PACKER/BAD_SIZE",
+     $sformatf("unpack_ints called with size '%0d', which exceeds value size of '%0d'",
+     size,
+     value.size()))
+     return;
    end
    else begin
-      if (enough_bits(size, "integral")) begin
-         m_unpack_iter += size;
+     if (enough_bits(size, "integral")) begin
+       m_unpack_iter += size;
 
-         for (int i=0; i<size; i++) begin
-              value[ i / $bits(int) ][ i % $bits(int) ] = m_bits[m_unpack_iter-size+i];
-         end   
-      end
+       for (int i=0; i<size; i++) begin
+         value[ i / $bits(int) ][ i % $bits(int) ] = m_bits[m_unpack_iter-size+i];
+       end   
+     end
    end
 endfunction
 
@@ -923,16 +980,19 @@ function string uvm_packer::unpack_string();
   int i; i=0;
 
   while(enough_bits(8,"string") && 
-        (m_bits[m_unpack_iter+:8] != 0) )
-  begin
+        (m_bits[m_unpack_iter+:8] != 0) ) begin
+  
     // silly, because cannot append byte/char to string
     unpack_string = {unpack_string," "};
-      unpack_string[i] = m_bits[m_unpack_iter +: 8];
+    unpack_string[i] = m_bits[m_unpack_iter +: 8];
     m_unpack_iter += 8;
     ++i;
   end
-  if(enough_bits(8,"string"))
+  if(enough_bits(8,"string")) begin
+    
     m_unpack_iter += 8;
+  end
+
 endfunction 
 
 

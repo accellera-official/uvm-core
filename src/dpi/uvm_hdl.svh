@@ -1,11 +1,11 @@
-//------------------------------------------------------------
+//----------------------------------------------------------------------
 // Copyright 2012 Accellera Systems Initiative
 // Copyright 2015 Analog Devices, Inc.
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2014 Cisco Systems, Inc.
-// Copyright 2022 Intel Corporation
+// Copyright 2022-2023 Intel Corporation
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2010 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //   
@@ -22,7 +22,16 @@
 //   CONDITIONS OF ANY KIND, either express or implied.  See
 //   the License for the specific language governing
 //   permissions and limitations under the License.
-//------------------------------------------------------------
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
 
 // TITLE -- NODOCS -- UVM HDL Backdoor Access support routines.
 //
@@ -94,8 +103,11 @@ typedef logic [UVM_HDL_MAX_WIDTH-1:0] uvm_hdl_data_t;
       void'(uvm_hdl_deposit(path, value));
       return;
     end
-    if (!uvm_hdl_force(path, value))
+    if (!uvm_hdl_force(path, value)) begin
+      
       return;
+    end
+
     #force_time;
     void'(uvm_hdl_release_and_read(path, value));
   endtask
@@ -167,6 +179,5 @@ typedef logic [UVM_HDL_MAX_WIDTH-1:0] uvm_hdl_data_t;
   endfunction
 
 `endif
-
 
 `endif

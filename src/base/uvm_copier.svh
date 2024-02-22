@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 // Copyright 2018 Cadence Design Systems, Inc.
-// Copyright 2018-2020 NVIDIA Corporation
+// Copyright 2018-2023 NVIDIA Corporation
 // Copyright 2018 Qualcomm, Inc.
 // Copyright 2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -19,6 +19,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //
@@ -49,9 +59,9 @@ class uvm_copier extends uvm_policy;
 
    // @uvm-ieee 1800.2-2020 auto 16.6.2.1
    function new(string name="uvm_copier") ; 
-	super.new(name);
+    super.new(name);
    endfunction
-	
+    
    // Implementation only.
 
   // Implementation only. Not present in the LRM.
@@ -94,7 +104,7 @@ class uvm_copier extends uvm_policy;
     field_op.set(UVM_COPY,this,rhs);
     lhs.do_execute_op(field_op);
     if (field_op.user_hook_enabled()) begin
-       lhs.do_copy(rhs);
+      lhs.do_copy(rhs);
     end
     field_op.m_recycle();
     m_recur_states[rhs][lhs][get_recursion_policy()] = uvm_policy::FINISHED;
@@ -103,19 +113,28 @@ class uvm_copier extends uvm_policy;
   
    // @uvm-ieee 1800.2-2020 auto 16.6.4.2
    virtual function recursion_state_e object_copied(
-	 			uvm_object lhs,
-  				uvm_object rhs,
-  				uvm_recursion_policy_enum recursion
+                 uvm_object lhs,
+                  uvm_object rhs,
+                  uvm_recursion_policy_enum recursion
   );
-  if (!m_recur_states.exists(rhs)) return NEVER ;
-  else if (!m_recur_states[rhs].exists(lhs)) return NEVER ;
-  else if (!m_recur_states[rhs][lhs].exists(recursion)) return NEVER ;
+  if (!m_recur_states.exists(rhs)) begin
+    return NEVER ;
+  end
+
+  else if (!m_recur_states[rhs].exists(lhs)) begin
+    return NEVER ;
+  end
+
+  else if (!m_recur_states[rhs][lhs].exists(recursion)) begin
+    return NEVER ;
+  end
+
   else begin
-     return m_recur_states[rhs][lhs][recursion];
+    return m_recur_states[rhs][lhs][recursion];
   end
   
   
-	
+    
 endfunction
 
 
@@ -125,12 +144,12 @@ endfunction
 
 // @uvm-ieee 1800.2-2020 auto 16.6.3
 virtual function void set_recursion_policy (uvm_recursion_policy_enum policy);
-	this.policy = policy;
+    this.policy = policy;
 endfunction
 
 // @uvm-ieee 1800.2-2020 auto 16.6.3
 virtual function uvm_recursion_policy_enum get_recursion_policy();
-	  return policy;
+      return policy;
 endfunction
 
 // Function: get_num_copies
@@ -139,8 +158,11 @@ endfunction
 //
 // @uvm-contrib This API is being considered for potential contribution to 1800.2
 function int unsigned get_num_copies(uvm_object rhs);
-  if (m_recur_states.exists(rhs))
+  if (m_recur_states.exists(rhs)) begin
+    
     return m_recur_states[rhs].size();
+  end
+
   return 0;
 endfunction : get_num_copies
 

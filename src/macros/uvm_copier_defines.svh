@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------
 // Copyright 2018 Cadence Design Systems, Inc.
-// Copyright 2018-2020 NVIDIA Corporation
+// Copyright 2018-2023 NVIDIA Corporation
 // Copyright 2018 Qualcomm, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -18,6 +18,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //
@@ -53,7 +63,7 @@ if (LVALUE != RVALUE) begin \
           if (($cast(LVALUE, RVALUE.create(RVALUE.get_name())) == 0) || \
               (LVALUE == null)) begin \
             `uvm_fatal("UVM/COPY/NULL_CREATE", \
-	               {"Could not create '", RVALUE.get_full_name(), \
+                   {"Could not create '", RVALUE.get_full_name(), \
                         "' of type '", RVALUE.get_type_name(), \
                         "', into '", `"LVALUE`", "'."}) \
           end \
@@ -64,11 +74,11 @@ if (LVALUE != RVALUE) begin \
         else begin \
            if (COPIER.object_copied(LVALUE, RVALUE, curr_pol__) == uvm_policy::STARTED) begin \
              `uvm_warning("UVM/COPY/LOOP", \
-	                  {"Loop detected in copy operation (LHS:'", \
-	  	         LVALUE.get_full_name(), \
-	  	         "', RHS:'", \
+                      {"Loop detected in copy operation (LHS:'", \
+                   LVALUE.get_full_name(), \
+                   "', RHS:'", \
                            RVALUE.get_full_name(), \
-	  	         "')"}) \
+                   "')"}) \
            end \
            else begin \
              COPIER.copy_object(LVALUE, RVALUE); \

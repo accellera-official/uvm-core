@@ -2,7 +2,7 @@
 //----------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -21,6 +21,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 //------------------------------------------------------------------------------
@@ -334,9 +344,15 @@ class uvm_tlm_transport_channel #(type REQ=int, type RSP=REQ)
   // @uvm-ieee 1800.2-2020 auto 12.2.9.2.2
   function bit nb_transport (REQ req, output RSP rsp );
     if(this.m_request_fifo.try_put(req)) 
-      return this.m_response_fifo.try_get(rsp);
+      begin
+        return this.m_response_fifo.try_get(rsp);
+      end
+
     else
-      return 0;
+      begin
+        return 0;
+      end
+
   endfunction
 
 endclass

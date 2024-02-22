@@ -3,7 +3,8 @@
 // Copyright 2007-2009 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2007-2022 Mentor Graphics Corporation
-// Copyright 2022 NVIDIA Corporation
+// Copyright 2024 Microsoft
+// Copyright 2022-2023 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -20,6 +21,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 // Class: uvm_phase_hopper
@@ -168,6 +179,13 @@ class uvm_phase_hopper extends uvm_object;
   // when ~run_phases~ returns.
   extern virtual task run_phases();
 
+  // Task: schedule_phase
+  // Performs actions associated with transitioning phase state to the UVM_PHASE_SCHEDULED state.
+  //
+  // If ~from_phase~ is not null, then phase tracing messages will include the name of the phase 
+  // that scheduled ~phase~.
+  extern protected virtual task schedule_phase(uvm_phase phase, uvm_phase from_phase = null);
+
   // Task: process_phase
   // Processes a phase.
   //
@@ -309,8 +327,11 @@ function bit uvm_phase_hopper::try_peek(inout uvm_phase phase);
 endfunction : try_peek
 
 function uvm_objection uvm_phase_hopper::get_objection();
-  if (m_objection == null)
+  if (m_objection == null) begin
+    
     m_objection = new("phase_hopper_objection");
+  end
+
   return m_objection;
 endfunction : get_objection
 
@@ -353,7 +374,7 @@ task uvm_phase_hopper::run_phases();
   // initiate by starting first phase in common domain
   uvm_phase ph;
   ph = uvm_domain::get_common_domain();
-  void'(this.try_put(ph));
+  schedule_phase(ph);
 
   fork
     begin
@@ -373,22 +394,40 @@ task uvm_phase_hopper::run_phases();
   wait_for_objection(UVM_ALL_DROPPED);
 endtask : run_phases
 
+// Inside the schedule stage 
+task uvm_phase_hopper::schedule_phase(uvm_phase phase, uvm_phase from_phase = null);
+  uvm_phase_state prev_state;
+  prev_state = phase.get_state();
+  if(prev_state < UVM_PHASE_SCHEDULED) begin
+    phase.set_state(UVM_PHASE_SCHEDULED);
+    wait_for_waiters(phase, prev_state);
+    void'(this.try_put(phase));
+    `UVM_PH_TRACE("PH/TRC/SCHEDULED",{"Scheduled from ", (from_phase != null) ? {"phase ",from_phase.get_full_name()}:"run_test"},phase,UVM_LOW)
+  end
+endtask : schedule_phase
+  
 // Inside the sync stage 
 task uvm_phase_hopper::sync_phase(uvm_phase phase);
   uvm_phase::edges_t edges;
   uvm_phase_state prev_state;
   // Scheduled phases must wait for all predecessors to complete
   phase.get_predecessors(edges);
-  foreach(edges[p])
+  foreach(edges[p]) begin
+    
     p.wait_for_state(UVM_PHASE_DONE);
+  end
+
 
   prev_state = phase.get_state();
   phase.set_state(UVM_PHASE_SYNCING);
   wait_for_waiters(phase, prev_state);
 
   phase.get_sync_relationships(edges);
-  foreach (edges[s])
+  foreach (edges[s]) begin
+    
     s.wait_for_state(UVM_PHASE_SYNCING, UVM_GTE);
+  end
+
 endtask : sync_phase
 
 // Inside the started stage
@@ -467,9 +506,12 @@ task uvm_phase_hopper::execute_phase(uvm_phase phase);
               phase_done = phase.get_objection();
               // OVM semantic: don't end until objection raised or stop request
               if (phase_done.get_objection_total(top) ||
-                  phase.m_use_ovm_run_semantic && imp.get_name() == "run") begin
-                if (!phase_done.m_top_all_dropped)
+              phase.m_use_ovm_run_semantic && imp.get_name() == "run") begin
+                if (!phase_done.m_top_all_dropped) begin
+                  
                   phase_done.wait_for(UVM_ALL_DROPPED, top);
+                end
+
                 `UVM_PH_TRACE("PH/TRC/EXE/ALLDROP","PHASE EXIT ALL_DROPPED",phase,UVM_DEBUG)
               end
               else begin
@@ -489,14 +531,17 @@ task uvm_phase_hopper::execute_phase(uvm_phase phase);
                 ready_to_end_count++;
                 `UVM_PH_TRACE("PH_READY_TO_END_CB","CALLING READY_TO_END CB",phase,UVM_HIGH)
                 phase.set_state(UVM_PHASE_READY_TO_END);
-                if (imp != null)
+                if (imp != null) begin
+                  
                   traverse_on(imp, null, phase, UVM_PHASE_READY_TO_END);
+                end
+
                 
                 uvm_wait_for_nba_region(); // Give traverse_on targets a chance to object 
                 
                 phase.wait_for_self_and_siblings_to_drop();
                 do_ready_to_end = (phase.get_state() == UVM_PHASE_EXECUTING) && 
-                                  (ready_to_end_count < phase.get_max_ready_to_end_iterations()) ; //when we don't wait in task above, we drop out of while loop
+                (ready_to_end_count < phase.get_max_ready_to_end_iterations()) ; //when we don't wait in task above, we drop out of while loop
               end
             end // ALL DROPPED
             
@@ -505,11 +550,14 @@ task uvm_phase_hopper::execute_phase(uvm_phase phase);
                 string delay_type;
                 time   delay_time;
                 uvm_object objectors[$];
-                if (top.phase_timeout == 0)
+                if (top.phase_timeout == 0) begin
+                  
                   wait(top.phase_timeout != 0);
+                end
+
                 `UVM_PH_TRACE("PH/TRC/TO_WAIT", 
-                              $sformatf("STARTING PHASE TIMEOUT WATCHDOG (timeout == %t)", top.phase_timeout), 
-                              phase, UVM_HIGH)
+                $sformatf("STARTING PHASE TIMEOUT WATCHDOG (timeout == %t)", top.phase_timeout), 
+                phase, UVM_HIGH)
                 `uvm_delay(top.phase_timeout)
                 if ($time == `UVM_DEFAULT_TIMEOUT) begin
                   delay_type = "Default";
@@ -525,21 +573,21 @@ task uvm_phase_hopper::execute_phase(uvm_phase phase);
                 foreach (objectors[i]) begin
                   uvm_phase p;
                   if ($cast(p, objectors[i])) begin
-		    uvm_objection p_done;
-		    p_done = p.get_objection();
+                    uvm_objection p_done;
+                    p_done = p.get_objection();
                     if ((p_done != null) && (p_done.get_objection_total() > 0)) begin
                       `UVM_PH_TRACE("PH/TRC/TIMEOUT/OBJCTN", 
-                                    $sformatf("Phase '%s' has outstanding objections:\n%s", p.get_full_name(), p_done.convert2string()),
-                                    phase,
-                                    UVM_LOW)
+                      $sformatf("Phase '%s' has outstanding objections:\n%s", p.get_full_name(), p_done.convert2string()),
+                      phase,
+                      UVM_LOW)
                     end
                   end // $cast
                 end // foreach (objectors[i])
                 
                 `uvm_fatal("PH_TIMEOUT",
-                           $sformatf("%s timeout of %0t hit, indicating a probable testbench issue",
-                                     delay_type, delay_time)
-                           )
+                $sformatf("%s timeout of %0t hit, indicating a probable testbench issue",
+                delay_type, delay_time)
+                )
                 
               end // if (phase.get_name() == "run")
               else begin
@@ -572,20 +620,20 @@ task uvm_phase_hopper::end_phase(uvm_phase phase);
       jump_phase = phase.get_jump_target();
       if(jump_phase != null) begin 
         `uvm_info("PH_JUMP",
-              $sformatf("phase %s (schedule %s, domain %s) is jumping to phase %s",
-                        phase.get_name(), 
-                        phase.get_schedule_name(), 
-                        phase.get_domain_name(), 
-                        jump_phase.get_name()),
-              UVM_MEDIUM)
+        $sformatf("phase %s (schedule %s, domain %s) is jumping to phase %s",
+        phase.get_name(), 
+        phase.get_schedule_name(), 
+        phase.get_domain_name(), 
+        jump_phase.get_name()),
+        UVM_MEDIUM)
       end
       else begin
         `uvm_info("PH_JUMP",
-              $sformatf("phase %s (schedule %s, domain %s) is ending prematurely",
-                        phase.get_name(), 
-                        phase.get_schedule_name(), 
-                        phase.get_domain_name()),
-              UVM_MEDIUM)
+        $sformatf("phase %s (schedule %s, domain %s) is ending prematurely",
+        phase.get_name(), 
+        phase.get_schedule_name(), 
+        phase.get_domain_name()),
+        UVM_MEDIUM)
       end
   
       wait_for_waiters(phase, prev_state); // LET ANY WAITERS ON READY_TO_END TO WAKE UP
@@ -596,8 +644,11 @@ task uvm_phase_hopper::end_phase(uvm_phase phase);
       // WAIT FOR PREDECESSORS:  // WAIT FOR PREDECESSORS:
       // function phases only
       uvm_task_phase task_phase;
-      if (!$cast(task_phase, phase.get_imp()))
+      if (!$cast(task_phase, phase.get_imp())) begin
+        
         phase.m_wait_for_pred();
+      end
+
     end
   
     //-------
@@ -606,8 +657,11 @@ task uvm_phase_hopper::end_phase(uvm_phase phase);
     // execute 'phase_ended' callbacks
     `UVM_PH_TRACE("PH_END","ENDING PHASE",phase,UVM_HIGH)
     phase.set_state(UVM_PHASE_ENDED);
-    if (imp != null)
+    if (imp != null) begin
+      
       traverse_on(imp, null, phase, UVM_PHASE_ENDED);
+    end
+
     wait_for_waiters(phase, prev_state);
   end // if (phase_type == UVM_PHASE_NODE)
  
@@ -621,10 +675,16 @@ task uvm_phase_hopper::cleanup_phase(uvm_phase phase);
     uvm_phase_state prev_state;
     prev_state = phase.get_state();
     // kill this phase's threads
-    if(phase.m_premature_end) 
+    if(phase.m_premature_end) begin 
+      
       phase.set_state(UVM_PHASE_JUMPING);
-    else
+    end
+
+    else begin
+      
       phase.set_state(UVM_PHASE_CLEANUP);
+    end
+
 
     if (phase.m_phase_proc != null) begin
       phase.m_phase_proc.kill();
@@ -632,8 +692,11 @@ task uvm_phase_hopper::cleanup_phase(uvm_phase phase);
     end
     wait_for_waiters(phase, prev_state);
     phase_done = phase.get_objection();
-    if (phase_done != null)
+    if (phase_done != null) begin
+      
       phase_done.clear();
+    end
+
   end // if (phase_type == UVM_PHASE_NODE)
   
 endtask : cleanup_phase
@@ -671,16 +734,18 @@ task uvm_phase_hopper::finish_phase(uvm_phase phase);
 
   wait_for_waiters(phase, prev_state);
   begin
-    if (phase_done != null)
+    if (phase_done != null) begin
+      
       phase_done.clear();
+    end
+
   end
 
   //-----------
   // SCHEDULE:
   //-----------
   if(jump_phase != null) begin
-    void'(this.try_put(jump_phase));
-    `UVM_PH_TRACE("PH/TRC/SCHEDULED",{"Scheduled from phase ",phase.get_full_name()},jump_phase,UVM_LOW)
+    schedule_phase(jump_phase, phase);
   end
   else begin
     uvm_phase::edges_t edges;
@@ -690,21 +755,16 @@ task uvm_phase_hopper::finish_phase(uvm_phase phase);
       // Need to sort the list
       uvm_phase succ;
 
-      foreach (edges[succ])
+      foreach (edges[succ]) begin
+        
         succ_q.push_back(succ);
+      end
+
       succ_q.sort with ( item.get_full_name() );
 
       // execute all the successors
       foreach (succ_q[i]) begin
-        uvm_phase_state succ_prev_state;
-        succ = succ_q[i];
-        succ_prev_state = succ.get_state();
-        if(succ_prev_state < UVM_PHASE_SCHEDULED) begin
-          succ.set_state(UVM_PHASE_SCHEDULED);
-          wait_for_waiters(succ, succ_prev_state);
-          void'(this.try_put(succ));
-        `UVM_PH_TRACE("PH/TRC/SCHEDULED",{"Scheduled from phase ",phase.get_full_name()},succ,UVM_LOW)
-        end
+        schedule_phase(succ_q[i], phase);
       end
     end
   end
@@ -731,8 +791,11 @@ function void uvm_phase_hopper::traverse_on(uvm_phase imp,
                                             uvm_component comp,
                                             uvm_phase node,
                                             uvm_phase_state state);
-  if (comp == null)
+  if (comp == null) begin
+    
     comp = uvm_root::get();
+  end
+
   imp.traverse(comp, node, state);
 endfunction : traverse_on
 

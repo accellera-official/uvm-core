@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2014-2022 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -19,6 +19,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 //------------------------------------------------------------------------------
@@ -65,8 +75,12 @@ class uvm_push_sequencer #(type REQ=uvm_sequence_item, RSP=REQ)
     int selected_sequence;
 
     fork
-      super.run_phase(phase);
-      forever
+      begin
+        super.run_phase(phase);
+      end
+
+      begin
+        forever
         begin
           m_safe_select_item(0, t);
           sequence_item_requested = 0;
@@ -74,6 +88,8 @@ class uvm_push_sequencer #(type REQ=uvm_sequence_item, RSP=REQ)
           m_wait_for_item_sequence_id = t.get_sequence_id();
           m_wait_for_item_transaction_id = t.get_transaction_id();
         end
+      end
+
     join
   endtask
 

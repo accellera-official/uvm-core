@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2014-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -21,6 +21,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `define UVM_TLM_FIFO_TASK_ERROR "fifo channel task not implemented"
 `define UVM_TLM_FIFO_FUNCTION_ERROR "fifo channel function not implemented"

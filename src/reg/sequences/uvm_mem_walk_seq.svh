@@ -3,7 +3,7 @@
 // Copyright 2010 AMD
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2004-2010 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 // 
@@ -23,6 +23,14 @@
 // -------------------------------------------------------------
 // 
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Title -- NODOCS -- Memory Walking-Ones Test Sequences
@@ -94,8 +102,8 @@ class uvm_mem_single_walk_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_reg_
       int n_bits;
 
       if (mem == null) begin
-         `uvm_error("uvm_mem_walk_seq", "No memory specified to run sequence on")
-         return;
+        `uvm_error("uvm_mem_walk_seq", "No memory specified to run sequence on")
+        return;
       end
 
       // Memories with some attributes are not to be tested
@@ -103,9 +111,12 @@ class uvm_mem_single_walk_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_reg_
                                              "NO_REG_TESTS", 0) != null ||
           uvm_resource_db#(bit)::get_by_name({"REG::",mem.get_full_name()},
                                              "NO_MEM_TESTS", 0) != null ||
-	  uvm_resource_db#(bit)::get_by_name({"REG::",mem.get_full_name()},
-                                             "NO_MEM_WALK_TEST", 0) != null )
-         return;
+      uvm_resource_db#(bit)::get_by_name({"REG::",mem.get_full_name()},
+                                             "NO_MEM_WALK_TEST", 0) != null ) begin
+         
+        return;
+      end
+
 
       n_bits = mem.get_n_bits();
 
@@ -114,66 +125,69 @@ class uvm_mem_single_walk_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_reg_
       
       // Walk the memory via each map
       foreach (maps[j]) begin
-         uvm_status_e status;
-         uvm_reg_data_t  val, exp, v;
+        uvm_status_e status;
+        uvm_reg_data_t  val, exp, v;
          
-         // Only deal with RW memories
-         if (mem.get_access(maps[j]) != "RW") continue;
+        // Only deal with RW memories
+        if (mem.get_access(maps[j]) != "RW") begin
+          continue;
+        end
 
-         `uvm_info("uvm_mem_walk_seq", $sformatf("Walking memory %s in map \"%s\"...",
-                                    mem.get_full_name(), maps[j].get_full_name()), UVM_LOW)
+
+        `uvm_info("uvm_mem_walk_seq", $sformatf("Walking memory %s in map \"%s\"...",
+        mem.get_full_name(), maps[j].get_full_name()), UVM_LOW)
          
-         // The walking process is, for address k:
-         // - Write ~k
-         // - Read k-1 and expect ~(k-1) if k > 0
-         // - Write k-1 at k-1
-         // - Read k and expect ~k if k == last address
-         for (int k = 0; k < mem.get_size(); k++) begin 
-            mem.write(status, k, ~k, UVM_FRONTDOOR, maps[j], this); 
+        // The walking process is, for address k:
+        // - Write ~k
+        // - Read k-1 and expect ~(k-1) if k > 0
+        // - Write k-1 at k-1
+        // - Read k and expect ~k if k == last address
+        for (int k = 0; k < mem.get_size(); k++) begin 
+          mem.write(status, k, ~k, UVM_FRONTDOOR, maps[j], this); 
 
+          if (status != UVM_IS_OK) begin
+            `uvm_error("uvm_mem_walk_seq", $sformatf("Status was %s when writing \"%s[%0d]\" through map \"%s\".",
+            status.name(), mem.get_full_name(), k, maps[j].get_full_name()))
+          end
+            
+          if (k > 0) begin
+            mem.read(status, k-1, val, UVM_FRONTDOOR, maps[j], this);
             if (status != UVM_IS_OK) begin
-               `uvm_error("uvm_mem_walk_seq", $sformatf("Status was %s when writing \"%s[%0d]\" through map \"%s\".",
-                                           status.name(), mem.get_full_name(), k, maps[j].get_full_name()))
+              `uvm_error("uvm_mem_walk_seq", $sformatf("Status was %s when reading \"%s[%0d]\" through map \"%s\".",
+              status.name(), mem.get_full_name(), k, maps[j].get_full_name()))
             end
-            
-            if (k > 0) begin
-               mem.read(status, k-1, val, UVM_FRONTDOOR, maps[j], this);
-               if (status != UVM_IS_OK) begin
-                  `uvm_error("uvm_mem_walk_seq", $sformatf("Status was %s when reading \"%s[%0d]\" through map \"%s\".",
-                                              status.name(), mem.get_full_name(), k, maps[j].get_full_name()))
-               end
-               else begin
-                  exp = ~(k-1) & ((1'b1<<n_bits)-1);
-                  if (val !== exp) begin
-                     `uvm_error("uvm_mem_walk_seq", $sformatf("\"%s[%0d]\" read back as 'h%h instead of 'h%h.",
-                                                 mem.get_full_name(), k-1, val, exp))
+            else begin
+              exp = ~(k-1) & ((1'b1<<n_bits)-1);
+              if (val !== exp) begin
+                `uvm_error("uvm_mem_walk_seq", $sformatf("\"%s[%0d]\" read back as 'h%h instead of 'h%h.",
+                mem.get_full_name(), k-1, val, exp))
                      
-                  end
-               end
+              end
+            end
                
-               mem.write(status, k-1, k-1, UVM_FRONTDOOR, maps[j], this);
-               if (status != UVM_IS_OK) begin
-                  `uvm_error("uvm_mem_walk_seq", $sformatf("Status was %s when writing \"%s[%0d]\" through map \"%s\".",
-                                              status.name(), mem.get_full_name(), k-1, maps[j].get_full_name()))
-               end
+            mem.write(status, k-1, k-1, UVM_FRONTDOOR, maps[j], this);
+            if (status != UVM_IS_OK) begin
+              `uvm_error("uvm_mem_walk_seq", $sformatf("Status was %s when writing \"%s[%0d]\" through map \"%s\".",
+              status.name(), mem.get_full_name(), k-1, maps[j].get_full_name()))
             end
+          end
             
-            if (k == mem.get_size() - 1) begin
-               mem.read(status, k, val, UVM_FRONTDOOR, maps[j], this);
-               if (status != UVM_IS_OK) begin
-                  `uvm_error("uvm_mem_walk_seq", $sformatf("Status was %s when reading \"%s[%0d]\" through map \"%s\".",
-                                              status.name(), mem.get_full_name(), k, maps[j].get_full_name()))
-               end
-               else begin
-                  exp = ~(k) & ((1'b1<<n_bits)-1);
-                  if (val !== exp) begin
-                     `uvm_error("uvm_mem_walk_seq", $sformatf("\"%s[%0d]\" read back as 'h%h instead of 'h%h.",
-                                                 mem.get_full_name(), k, val, exp))
-                     
-                  end
-               end
+          if (k == mem.get_size() - 1) begin
+            mem.read(status, k, val, UVM_FRONTDOOR, maps[j], this);
+            if (status != UVM_IS_OK) begin
+              `uvm_error("uvm_mem_walk_seq", $sformatf("Status was %s when reading \"%s[%0d]\" through map \"%s\".",
+              status.name(), mem.get_full_name(), k, maps[j].get_full_name()))
             end
-         end
+            else begin
+              exp = ~(k) & ((1'b1<<n_bits)-1);
+              if (val !== exp) begin
+                `uvm_error("uvm_mem_walk_seq", $sformatf("\"%s[%0d]\" read back as 'h%h instead of 'h%h.",
+                mem.get_full_name(), k, val, exp))
+                     
+              end
+            end
+          end
+        end
       end
    endtask: body
 
@@ -228,8 +242,8 @@ class uvm_mem_walk_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_reg_item));
    virtual task body();
 
       if (model == null) begin
-         `uvm_error("uvm_mem_walk_seq", "No register model specified to run sequence on")
-         return;
+        `uvm_error("uvm_mem_walk_seq", "No register model specified to run sequence on")
+        return;
       end
 
       uvm_report_info("STARTING_SEQ",{"\n\nStarting ",get_name()," sequence...\n"},UVM_LOW);
@@ -255,32 +269,38 @@ class uvm_mem_walk_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_reg_item));
           uvm_resource_db#(bit)::get_by_name({"REG::",blk.get_full_name()},
                                              "NO_MEM_TESTS", 0) != null ||
           uvm_resource_db#(bit)::get_by_name({"REG::",blk.get_full_name()},
-                                             "NO_MEM_ACCESS_TEST", 0) != null )
-         return;
+                                             "NO_MEM_ACCESS_TEST", 0) != null ) begin
+         
+        return;
+      end
+
       
       // Iterate over all memories, checking accesses
       blk.get_memories(mems, UVM_NO_HIER);
       foreach (mems[i]) begin
-         // Memories with some attributes are not to be tested
-         if (uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
-                                                "NO_REG_TESTS", 0) != null ||
-             uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
-                                                "NO_MEM_TESTS", 0) != null ||
-	     uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
-                                                "NO_MEM_WALK_TEST", 0) != null )
-           continue;
+        // Memories with some attributes are not to be tested
+        if (uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
+        "NO_REG_TESTS", 0) != null ||
+        uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
+        "NO_MEM_TESTS", 0) != null ||
+        uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
+        "NO_MEM_WALK_TEST", 0) != null ) begin
+           
+          continue;
+        end
+
          
-         mem_seq.mem = mems[i];
-         mem_seq.start(null, this);
+        mem_seq.mem = mems[i];
+        mem_seq.start(null, this);
       end
 
       begin
-         uvm_reg_block blks[$];
+        uvm_reg_block blks[$];
          
-         blk.get_blocks(blks);
-         foreach (blks[i]) begin
-            do_block(blks[i]);
-         end
+        blk.get_blocks(blks);
+        foreach (blks[i]) begin
+          do_block(blks[i]);
+        end
       end
    endtask: do_block
 

@@ -1,7 +1,8 @@
 //----------------------------------------------------------------------
 // Copyright 2010-2018 Cadence Design Systems, Inc.
+// Copyright 2023 Intel Corporation
 // Copyright 2010-2017 Mentor Graphics Corporation
-// Copyright 2013-2022 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2010-2013 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -19,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //
 // Top-level file that includes all of the C/C++ files required
@@ -59,6 +70,10 @@ extern "C" {
 #include "uvm_regex.cc"
 #include "uvm_hdl.c"
 #include "uvm_svcmd_dpi.c"
+//#ifdef UVM_PLI_POLLING_ENABLE
+#include "uvm_hdl_polling.c"
+//#endif
+
 
 #ifdef __cplusplus
 }

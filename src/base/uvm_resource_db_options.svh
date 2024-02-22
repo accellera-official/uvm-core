@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // Copyright 2018 Cadence Design Systems, Inc.
 // Copyright 2017 Cisco Systems, Inc.
-// Copyright 2018-2020 NVIDIA Corporation
+// Copyright 2018-2023 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -18,6 +18,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //----------------------------------------------------------------------
 // Title -- NODOCS -- UVM Resource Database
@@ -63,7 +73,10 @@ class uvm_resource_db_options;
 
 
   static function void turn_on_tracing();
-     if (!ready) init();
+     if (!ready) begin
+       init();
+     end
+
     tracing = 1;
   endfunction
 
@@ -75,7 +88,10 @@ class uvm_resource_db_options;
 
 
   static function void turn_off_tracing();
-     if (!ready) init();
+     if (!ready) begin
+       init();
+     end
+
     tracing = 0;
   endfunction
 
@@ -87,7 +103,10 @@ class uvm_resource_db_options;
 
 
   static function bit is_tracing();
-    if (!ready) init();
+    if (!ready) begin
+      init();
+    end
+
     return tracing;
   endfunction
 
@@ -99,7 +118,7 @@ class uvm_resource_db_options;
      clp = uvm_cmdline_processor::get_inst();
 
      if (clp.get_arg_matches("+UVM_RESOURCE_DB_TRACE", trace_args)) begin
-        tracing = 1;
+       tracing = 1;
      end
 
      ready = 1;

@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2012 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //----------------------------------------------------------------------
 // Title -- NODOCS -- UVM TLM Generic Payload & Extensions
@@ -401,21 +411,24 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
         printer.print_generic ($sformatf("[%0d]",i), "byte", 8,
             $sformatf("'h%h%s",m_data[i],((be=='hFF) ? "" : " x")));
       end
-      else 
+      else begin 
+        
         printer.print_generic ($sformatf("[%0d]",i), "byte", 8,
                                $sformatf("'h%h",m_data[i]));
+      end
+
     end
     printer.print_array_footer();
 
     begin
-    string name;
-    printer.print_array_header("extensions", m_extensions.num(), "aa(obj,obj)");
-    foreach (m_extensions[ext_]) begin
-      uvm_tlm_extension_base ext = m_extensions[ext_];
-      name = {"[",ext.get_name(),"]"};
-      printer.print_object(name, ext, "[");
-    end
-    printer.print_array_footer();
+      string name;
+      printer.print_array_header("extensions", m_extensions.num(), "aa(obj,obj)");
+      foreach (m_extensions[ext_]) begin
+        uvm_tlm_extension_base ext = m_extensions[ext_];
+        name = {"[",ext.get_name(),"]"};
+        printer.print_object(name, ext, "[");
+      end
+      printer.print_array_footer();
     end
   endfunction
 
@@ -437,8 +450,11 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
     m_byte_enable_length = gp.m_byte_enable_length;
 
     m_extensions.delete();
-    foreach (gp.m_extensions[ext])
-       $cast(m_extensions[ext], gp.m_extensions[ext].clone());
+    foreach (gp.m_extensions[ext]) begin
+       
+      $cast(m_extensions[ext], gp.m_extensions[ext].clone());
+    end
+
     
   endfunction
    
@@ -454,8 +470,8 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
       ((VALUE) != (gp.VALUE)) ) begin \
         string name = (NAME == "") ? `"VALUE`" : NAME; \
         void'( comparer.compare_string(name, \
-				$sformatf("%s'(%s)", `"TYPE`", VALUE.name()), \
-				$sformatf("%s'(%s)", `"TYPE`", gp.VALUE.name())) ); \
+                $sformatf("%s'(%s)", `"TYPE`", VALUE.name()), \
+                $sformatf("%s'(%s)", `"TYPE`", gp.VALUE.name())) ); \
   end 
 
   // Function: do_compare
@@ -482,47 +498,53 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
     `m_uvm_tlm_fast_compare_int(m_streaming_width, UVM_UNSIGNED)
    
     if ( (!comparer.get_threshold() || (comparer.get_result() < comparer.get_threshold())) &&
-	 m_byte_enable_length == gp.m_byte_enable_length ) begin
+     m_byte_enable_length == gp.m_byte_enable_length ) begin
 
-       for (int i=0; i < m_byte_enable_length && i < m_byte_enable.size(); i++) begin
-	  `m_uvm_tlm_fast_compare_int(m_byte_enable[i], UVM_HEX, $sformatf("m_byte_enable[%0d]", i))
-       end
+      for (int i=0; i < m_byte_enable_length && i < m_byte_enable.size(); i++) begin
+        `m_uvm_tlm_fast_compare_int(m_byte_enable[i], UVM_HEX, $sformatf("m_byte_enable[%0d]", i))
+      end
     end
 
     if ( (!comparer.get_threshold() || (comparer.get_result() < comparer.get_threshold())) &&
-	 m_length == gp.m_length ) begin
+     m_length == gp.m_length ) begin
      
-        byte unsigned be;
-        for (int i=0; i < m_length && i < m_data.size(); i++) begin
-          if (m_byte_enable_length) begin
-            be = m_byte_enable[i % m_byte_enable_length];
-          end
-          else begin
-	    be = 8'hFF;
-          end
-	   `m_uvm_tlm_fast_compare_int(m_data[i] & be, UVM_HEX, $sformatf("m_data[%0d] & %0x", i, be))
+      byte unsigned be;
+      for (int i=0; i < m_length && i < m_data.size(); i++) begin
+        if (m_byte_enable_length) begin
+          be = m_byte_enable[i % m_byte_enable_length];
         end
-     end
+        else begin
+          be = 8'hFF;
+        end
+        `m_uvm_tlm_fast_compare_int(m_data[i] & be, UVM_HEX, $sformatf("m_data[%0d] & %0x", i, be))
+      end
+    end
 
-     if ( !comparer.get_threshold() || (comparer.get_result() < comparer.get_threshold()) )
-      foreach (m_extensions[ext_]) begin
+     if ( !comparer.get_threshold() || (comparer.get_result() < comparer.get_threshold()) ) begin
+      
+       foreach (m_extensions[ext_]) begin
          uvm_tlm_extension_base ext = ext_;
          uvm_tlm_extension_base rhs_ext = gp.m_extensions.exists(ext) ?
                                           gp.m_extensions[ext] : null;
 
-	   void'(comparer.compare_object(ext.get_name(),
+         void'(comparer.compare_object(ext.get_name(),
                                          m_extensions[ext], rhs_ext));
-	 
-	 if ( !comparer.get_threshold() || (comparer.get_result() < comparer.get_threshold()) )
-	   break;
-	 
-      end
+     
+         if ( !comparer.get_threshold() || (comparer.get_result() < comparer.get_threshold()) ) begin
+       
+           break;
+         end
+
+     
+       end
+     end
+
 
     if (comparer.get_result()) begin
-       string msg = $sformatf("GP miscompare between '%s' and '%s':\nlhs = %s\nrhs = %s",
-			      get_full_name(), gp.get_full_name(), 
-			      this.convert2string(), gp.convert2string());
-       comparer.print_msg(msg);
+      string msg = $sformatf("GP miscompare between '%s' and '%s':\nlhs = %s\nrhs = %s",
+                  get_full_name(), gp.get_full_name(), 
+                  this.convert2string(), gp.convert2string());
+      comparer.print_msg(msg);
     end
 
     return (comparer.get_result() == 0);
@@ -556,24 +578,28 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
   // @uvm-ieee 1800.2-2020 auto 12.3.4.2.4
   function void do_pack(uvm_packer packer);
     super.do_pack(packer);
-    if (m_length > m_data.size())
-       `uvm_fatal("PACK_DATA_ARR",
-         $sformatf("Data array m_length property (%0d) greater than m_data.size (%0d)",
-         m_length,m_data.size()))
-    if (m_byte_enable_length > m_byte_enable.size())
-       `uvm_fatal("PACK_DATA_ARR",
-         $sformatf("Data array m_byte_enable_length property (%0d) greater than m_byte_enable.size (%0d)",
-         m_byte_enable_length,m_byte_enable.size()))
+    if (m_length > m_data.size()) begin
+      `uvm_fatal("PACK_DATA_ARR",
+      $sformatf("Data array m_length property (%0d) greater than m_data.size (%0d)",
+      m_length,m_data.size()))
+    end
+    if (m_byte_enable_length > m_byte_enable.size()) begin
+      `uvm_fatal("PACK_DATA_ARR",
+      $sformatf("Data array m_byte_enable_length property (%0d) greater than m_byte_enable.size (%0d)",
+      m_byte_enable_length,m_byte_enable.size()))
+    end
     `uvm_pack_intN  (m_address,64)
     `uvm_pack_enumN (m_command,32)
     `uvm_pack_intN  (m_length,32)
     `uvm_pack_intN  (m_dmi,1)
-    for (int i=0; i<m_length; i++)
+    for (int i=0; i<m_length; i++) begin
       `uvm_pack_intN(m_data[i],8)
+    end
     `uvm_pack_enumN (m_response_status,32)
     `uvm_pack_intN  (m_byte_enable_length,32)
-    for (int i=0; i<m_byte_enable_length; i++)
+    for (int i=0; i<m_byte_enable_length; i++) begin
       `uvm_pack_intN(m_byte_enable[i],8)
+    end
     `uvm_pack_intN  (m_streaming_width,32)
 
   endfunction
@@ -596,16 +622,24 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
     `uvm_unpack_enumN (m_command, 32, uvm_tlm_command_e)
     `uvm_unpack_intN  (m_length,32)
     `uvm_unpack_intN (m_dmi, 1)
-    if (m_data.size() < m_length)
+    if (m_data.size() < m_length) begin
+      
       m_data = new[m_length];
-    foreach (m_data[i])
+    end
+
+    for(int i=0; i < m_length; i++) begin
       `uvm_unpack_intN(m_data[i],8)
+    end
     `uvm_unpack_enumN (m_response_status, 32, uvm_tlm_response_status_e)
     `uvm_unpack_intN  (m_byte_enable_length,32)
-    if (m_byte_enable.size() < m_byte_enable_length)
+    if (m_byte_enable.size() < m_byte_enable_length) begin
+      
       m_byte_enable = new[m_byte_enable_length];
-    for (int i=0; i<m_byte_enable_length; i++)
+    end
+
+    for (int i=0; i<m_byte_enable_length; i++) begin
       `uvm_unpack_intN(m_byte_enable[i],8)
+    end
     `uvm_unpack_intN  (m_streaming_width,32)
 
   endfunction
@@ -614,8 +648,11 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
   // Function- do_record
   //
   function void do_record(uvm_recorder recorder);
-    if (!is_recording_enabled())
+    if (!is_recording_enabled()) begin
+      
       return;
+    end
+
     super.do_record(recorder);
     `uvm_record_int("address",m_address,$bits(m_address))
     `uvm_record_string("command",m_command.name())
@@ -624,14 +661,19 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
     `uvm_record_string("response_status",m_response_status.name())
     `uvm_record_int("streaming_width",m_streaming_width,$bits(m_streaming_width))
 
-    for (int i=0; i < m_length; i++)
+    for (int i=0; i < m_length; i++) begin
       `uvm_record_int($sformatf("\\data[%0d] ", i), m_data[i], $bits(m_data[i]))
-
-    for (int i=0; i < m_byte_enable_length; i++)
+    end
+    
+    for (int i=0; i < m_byte_enable_length; i++) begin
       `uvm_record_int($sformatf("\\byte_en[%0d] ", i), m_byte_enable[i], $bits(m_byte_enable[i]))
-
-    foreach (m_extensions[ext])
+    end
+    
+    foreach (m_extensions[ext]) begin
+      
       recorder.record_object(ext.get_name(),m_extensions[ext]);
+    end
+
   endfunction
 
 
@@ -646,10 +688,16 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
              m_command.name(), m_address);
 
     for(int unsigned i = 0; i < m_length; i++) begin
-      if (!m_byte_enable_length || (m_byte_enable[i % m_byte_enable_length] == 'hFF))
+      if (!m_byte_enable_length || (m_byte_enable[i % m_byte_enable_length] == 'hFF)) begin
+        
         $sformat(s, " %02x", m_data[i]);
-      else
+      end
+
+      else begin
+        
         $sformat(s, " --");
+      end
+
       msg = { msg , s };
     end
 
@@ -894,13 +942,34 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
   virtual function string get_response_string();
 
     case(m_response_status)
-      UVM_TLM_OK_RESPONSE                : return "OK";
-      UVM_TLM_INCOMPLETE_RESPONSE        : return "INCOMPLETE";
-      UVM_TLM_GENERIC_ERROR_RESPONSE     : return "GENERIC_ERROR";
-      UVM_TLM_ADDRESS_ERROR_RESPONSE     : return "ADDRESS_ERROR";
-      UVM_TLM_COMMAND_ERROR_RESPONSE     : return "COMMAND_ERROR";
-      UVM_TLM_BURST_ERROR_RESPONSE       : return "BURST_ERROR";
-      UVM_TLM_BYTE_ENABLE_ERROR_RESPONSE : return "BYTE_ENABLE_ERROR";
+      UVM_TLM_OK_RESPONSE                : begin
+        return "OK";
+      end
+
+      UVM_TLM_INCOMPLETE_RESPONSE        : begin
+        return "INCOMPLETE";
+      end
+
+      UVM_TLM_GENERIC_ERROR_RESPONSE     : begin
+        return "GENERIC_ERROR";
+      end
+
+      UVM_TLM_ADDRESS_ERROR_RESPONSE     : begin
+        return "ADDRESS_ERROR";
+      end
+
+      UVM_TLM_COMMAND_ERROR_RESPONSE     : begin
+        return "COMMAND_ERROR";
+      end
+
+      UVM_TLM_BURST_ERROR_RESPONSE       : begin
+        return "BURST_ERROR";
+      end
+
+      UVM_TLM_BYTE_ENABLE_ERROR_RESPONSE : begin
+        return "BYTE_ENABLE_ERROR";
+      end
+
     endcase
 
     // we should never get here
@@ -923,10 +992,16 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
   // @uvm-ieee 1800.2-2020 auto 12.3.4.2.44
   function uvm_tlm_extension_base set_extension(uvm_tlm_extension_base ext);
     uvm_tlm_extension_base ext_handle = ext.get_type_handle();
-    if(!m_extensions.exists(ext_handle))
+    if(!m_extensions.exists(ext_handle)) begin
+      
       set_extension = null;
-    else
+    end
+
+    else begin
+      
       set_extension = m_extensions[ext_handle];
+    end
+
     m_extensions[ext_handle] = ext;
   endfunction
 
@@ -948,8 +1023,11 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
    
   // @uvm-ieee 1800.2-2020 auto 12.3.4.2.43
   function uvm_tlm_extension_base get_extension(uvm_tlm_extension_base ext_handle);
-    if(!m_extensions.exists(ext_handle))
+    if(!m_extensions.exists(ext_handle)) begin
+      
       return null;
+    end
+
     return m_extensions[ext_handle];
   endfunction
    
@@ -960,10 +1038,15 @@ class uvm_tlm_generic_payload extends uvm_sequence_item;
    
   // @uvm-ieee 1800.2-2020 auto 12.3.4.2.45
   function void clear_extension(uvm_tlm_extension_base ext_handle);
-    if(m_extensions.exists(ext_handle))
+    if(m_extensions.exists(ext_handle)) begin
+      
       m_extensions.delete(ext_handle);
-    else
+    end
+
+    else begin
+      
       `uvm_info("GP_EXT", $sformatf("Unable to find extension to clear"), UVM_MEDIUM)
+    end
   endfunction
 
 
@@ -1100,8 +1183,11 @@ class uvm_tlm_extension #(type T=int) extends uvm_tlm_extension_base;
    // using the <uvm_tlm_generic_payload::get_extension()> method.
    //
   static function this_type ID();
-    if (m_my_tlm_ext_type == null)
+    if (m_my_tlm_ext_type == null) begin
+      
       m_my_tlm_ext_type = new();
+    end
+
     return m_my_tlm_ext_type;
   endfunction
 

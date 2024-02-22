@@ -3,7 +3,7 @@
 // Copyright 2010 AMD
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2020 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2023 NVIDIA Corporation
 // Copyright 2004-2018 Synopsys, Inc.
 // Copyright 2020 Verific
 //    All Rights Reserved Worldwide
@@ -23,6 +23,16 @@
 //    permissions and limitations under the License.
 // -------------------------------------------------------------
 //
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 typedef class uvm_reg_cbs;
 
@@ -65,8 +75,8 @@ virtual class uvm_reg_backdoor extends uvm_object;
       uvm_reg_data_t value_array[];
       uvm_callback_iter#(uvm_reg_backdoor, uvm_reg_cbs) iter = new(this);
       for(uvm_reg_cbs cb = iter.last(); cb != null; cb=iter.prev()) begin
-         rw.get_value_array(value_array);
-         cb.decode(value_array);
+        rw.get_value_array(value_array);
+        cb.decode(value_array);
       end
       `uvm_do_obj_callbacks(uvm_reg_backdoor,uvm_reg_cbs,this,post_read(rw))
       post_read(rw);
@@ -81,8 +91,8 @@ virtual class uvm_reg_backdoor extends uvm_object;
       pre_write(rw);
       `uvm_do_obj_callbacks(uvm_reg_backdoor,uvm_reg_cbs,this,pre_write(rw))
       for(uvm_reg_cbs cb = iter.first(); cb != null; cb = iter.next()) begin
-         rw.get_value_array(rw_value);
-         cb.encode(rw_value);
+        rw.get_value_array(rw_value);
+        cb.encode(rw_value);
       end
    endtask
 
@@ -182,45 +192,48 @@ endtask
 function void uvm_reg_backdoor::start_update_thread(uvm_object element);
    uvm_reg rg;
    if (this.m_update_thread.exists(element)) begin
-      this.kill_update_thread(element);
+     this.kill_update_thread(element);
    end
-   if (!$cast(rg,element))
-     return; // only regs supported at this time
+   if (!$cast(rg,element)) begin
+     
+     return;
+   end
+ // only regs supported at this time
 
    fork
-      begin
-         uvm_reg_field fields[$];
+     begin
+       uvm_reg_field fields[$];
 
 `ifdef UVM_USE_PROCESS_CONTAINER         
-         this.m_update_thread[element] = new(process::self());
+       this.m_update_thread[element] = new(process::self());
 `else
-         this.m_update_thread[element] = process::self();
+       this.m_update_thread[element] = process::self();
 `endif
       
-         rg.get_fields(fields);
-         forever begin
-            uvm_status_e status;
-            uvm_reg_data_t  val;
-            uvm_reg_item r_item = new("bd_r_item");
-            r_item.set_element(rg);
-            r_item.set_element_kind(UVM_REG);
-            this.read(r_item);
-            val = r_item.get_value(0);
-            if (r_item.get_status() != UVM_IS_OK) begin
-               `uvm_error("RegModel", $sformatf("Backdoor read of register '%s' failed.",
-                          rg.get_name()))
-            end
-            foreach (fields[i]) begin
-               if (this.is_auto_updated(fields[i])) begin
-                  uvm_reg_data_t tmp;
-                  tmp = (val >> fields[i].get_lsb_pos()) & ((1 << fields[i].get_n_bits())-1);
-                  r_item.set_value(tmp, 0);
-                  fields[i].do_predict(r_item);
-                end
-            end
-            this.wait_for_change(element);
+       rg.get_fields(fields);
+       forever begin
+         uvm_status_e status;
+         uvm_reg_data_t  val;
+         uvm_reg_item r_item = new("bd_r_item");
+         r_item.set_element(rg);
+         r_item.set_element_kind(UVM_REG);
+         this.read(r_item);
+         val = r_item.get_value(0);
+         if (r_item.get_status() != UVM_IS_OK) begin
+           `uvm_error("RegModel", $sformatf("Backdoor read of register '%s' failed.",
+           rg.get_name()))
          end
-      end
+         foreach (fields[i]) begin
+           if (this.is_auto_updated(fields[i])) begin
+             uvm_reg_data_t tmp;
+             tmp = (val >> fields[i].get_lsb_pos()) & ((1 << fields[i].get_n_bits())-1);
+             r_item.set_value(tmp, 0);
+             fields[i].do_predict(r_item);
+           end
+         end
+         this.wait_for_change(element);
+       end
+     end
    join_none
 endfunction
 
@@ -231,12 +244,12 @@ function void uvm_reg_backdoor::kill_update_thread(uvm_object element);
    if (this.m_update_thread.exists(element)) begin
 
 `ifdef UVM_USE_PROCESS_CONTAINER
-      this.m_update_thread[element].p.kill();
+     this.m_update_thread[element].p.kill();
 `else 
-      this.m_update_thread[element].kill();
+     this.m_update_thread[element].kill();
 `endif
 
-      this.m_update_thread.delete(element);
+     this.m_update_thread.delete(element);
    end
 endfunction
 

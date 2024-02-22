@@ -6,7 +6,7 @@
 // Copyright 2011 Cypress Semiconductor Corp.
 // Copyright 2021 Marvell International Ltd.
 // Copyright 2010-2014 Mentor Graphics Corporation
-// Copyright 2012-2020 NVIDIA Corporation
+// Copyright 2012-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2014 Synopsys, Inc.
 // Copyright 2017 Verific
@@ -26,6 +26,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 typedef class uvm_phase;
 
@@ -119,8 +129,11 @@ class uvm_config_db#(type T=int) extends uvm_resource_db#(T);
     imp = uvm_config_db_implementation_t #(T)::get_imp();
     cs = uvm_coreservice_t::get();
 
-    if(cntxt == null) 
+    if(cntxt == null) begin 
+      
       cntxt = cs.get_root();
+    end
+
 
     if(!m_rsc.exists(cntxt)) begin
       m_rsc[cntxt] = new;
@@ -231,7 +244,10 @@ class uvm_config_db_options;
 
 
   static function void turn_on_tracing();
-     if (!ready) init();
+     if (!ready) begin
+       init();
+     end
+
     tracing = 1;
   endfunction
 
@@ -243,7 +259,10 @@ class uvm_config_db_options;
 
 
   static function void turn_off_tracing();
-     if (!ready) init();
+     if (!ready) begin
+       init();
+     end
+
     tracing = 0;
   endfunction
 
@@ -255,7 +274,10 @@ class uvm_config_db_options;
 
 
   static function bit is_tracing();
-    if (!ready) init();
+    if (!ready) begin
+      init();
+    end
+
     return tracing;
   endfunction
 
@@ -267,7 +289,7 @@ class uvm_config_db_options;
      clp = uvm_cmdline_processor::get_inst();
 
      if (clp.get_arg_matches("+UVM_CONFIG_DB_TRACE", trace_args)) begin
-        tracing = 1;
+       tracing = 1;
      end
 
      ready = 1;

@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------
 // Copyright 2018 Cadence Design Systems, Inc.
-// Copyright 2018 NVIDIA Corporation
+// Copyright 2018-2023 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -17,6 +17,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //
@@ -112,8 +122,8 @@ begin                                                              \
                          __tmp_string_val__,                       \
                          OBJ)                                      \
     if (__tmp_success_val__ &&                                     \
-	uvm_enum_wrapper#(TYPE)::from_name(__tmp_string_val__,     \
-					   __tmp_val__)) begin     \
+    uvm_enum_wrapper#(TYPE)::from_name(__tmp_string_val__,     \
+                       __tmp_val__)) begin     \
        VAL = __tmp_val__;                                          \
        SUCCESS = __tmp_success_val__;                              \
     end                                                            \
@@ -121,12 +131,12 @@ begin                                                              \
   if (!SUCCESS) begin                                              \
      typedef bit [$bits(TYPE)-1:0] __tmp_int_t__;                  \
      __tmp_int_t__                 __tmp_int_val__;                \
-     bit 			   __tmp_success_val__;            \
+     bit                __tmp_success_val__;            \
      `uvm_resource_int_read(__tmp_success_val__,                   \
-			    RSRC,                                  \
-			    __tmp_int_t__,                         \
-			    __tmp_int_val__,                       \
-			    OBJ)                                   \
+                RSRC,                                  \
+                __tmp_int_t__,                         \
+                __tmp_int_val__,                       \
+                OBJ)                                   \
      if (__tmp_success_val__) begin                                \
        VAL = TYPE'(__tmp_int_val__);                               \
        SUCCESS = __tmp_success_val__;                              \
@@ -150,12 +160,12 @@ begin                                                              \
   if (!SUCCESS) begin                                              \
      typedef bit [63:0] __tmp_int_t__;                             \
      __tmp_int_t__      __tmp_int_val__;                           \
-     bit 	        __tmp_success_val__;                       \
+     bit             __tmp_success_val__;                       \
      `uvm_resource_int_read(__tmp_success_val__,                   \
-			    RSRC,                                  \
-			    __tmp_int_t__,                         \
-			    __tmp_int_val__,                       \
-			    OBJ)                                   \
+                RSRC,                                  \
+                __tmp_int_t__,                         \
+                __tmp_int_val__,                       \
+                OBJ)                                   \
      if (__tmp_success_val__) begin                                \
        VAL = $bitstoreal(__tmp_int_val__);                         \
        SUCCESS = __tmp_success_val__;                              \

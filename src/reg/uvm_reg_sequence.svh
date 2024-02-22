@@ -3,7 +3,7 @@
 // Copyright 2010 AMD
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2004-2018 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 //
@@ -22,11 +22,20 @@
 //    permissions and limitations under the License.
 // -------------------------------------------------------------
 //
- 
-  
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 // TITLE -- NODOCS -- Register Sequence Classes
 //------------------------------------------------------------------------------
+
 //
 // This section defines the base classes used for register stimulus generation.
 //------------------------------------------------------------------------------
@@ -124,13 +133,13 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
   virtual task body();
     if (m_sequencer == null) begin
       `uvm_fatal("NO_SEQR", {"Sequence executing as translation sequence, ",
-         "but is not associated with a sequencer (m_sequencer == null)"})
+      "but is not associated with a sequencer (m_sequencer == null)"})
     end
     if (reg_seqr == null) begin
       `uvm_warning("REG_XLATE_NO_SEQR",
-         {"Executing RegModel translation sequence on sequencer ",
-       m_sequencer.get_full_name(),"' does not have an upstream sequencer defined. ",
-       "Execution of register items available only via direct calls to 'do_reg_item'"})
+      {"Executing RegModel translation sequence on sequencer ",
+      m_sequencer.get_full_name(),"' does not have an upstream sequencer defined. ",
+      "Execution of register items available only via direct calls to 'do_reg_item'"})
       wait(0);
     end
     `uvm_info("REG_XLATE_SEQ_START",
@@ -157,10 +166,12 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
   // @uvm-ieee 1800.2-2020 auto 19.4.1.4.3
   virtual task do_reg_item(uvm_reg_item rw);
      string rws=rw.convert2string();
-    if (m_sequencer == null)
-     `uvm_fatal("REG/DO_ITEM/NULL","do_reg_item: m_sequencer is null") 
-    if (adapter == null)
-     `uvm_fatal("REG/DO_ITEM/NULL","do_reg_item: adapter handle is null") 
+    if (m_sequencer == null) begin
+      `uvm_fatal("REG/DO_ITEM/NULL","do_reg_item: m_sequencer is null")
+    end
+    if (adapter == null) begin
+      `uvm_fatal("REG/DO_ITEM/NULL","do_reg_item: adapter handle is null")
+    end
 
     `uvm_info("DO_RW_ACCESS",{"Doing transaction: ",rws},UVM_HIGH)
 
@@ -169,13 +180,22 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
       rw.parent = this;
     end
 
-    if (rw.kind == UVM_WRITE)
+    if (rw.kind == UVM_WRITE) begin
+      
       rw.local_map.do_bus_write(rw, m_sequencer, adapter);
-    else
+    end
+
+    else begin
+      
       rw.local_map.do_bus_read(rw, m_sequencer, adapter);
+    end
+
     
-    if (parent_select == LOCAL)
-       rw.parent = upstream_parent;
+    if (parent_select == LOCAL) begin
+       
+      rw.parent = upstream_parent;
+    end
+
   endtask
 
 
@@ -207,10 +227,14 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
                           input  uvm_object        extension = null,
                           input  string            fname = "",
                           input  int               lineno = 0);
-      if (rg == null)
+      if (rg == null) begin
         `uvm_error("NO_REG","Register argument is null")
-      else
+      end
+      else begin
+        
         rg.write(status,value,path,map,this,prior,extension,fname,lineno);
+      end
+
    endtask
 
 
@@ -225,10 +249,14 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
                          input  uvm_object        extension = null,
                          input  string            fname = "",
                          input  int               lineno = 0);
-      if (rg == null)
+      if (rg == null) begin
         `uvm_error("NO_REG","Register argument is null")
-      else
+      end
+      else begin
+        
         rg.read(status,value,path,map,this,prior,extension,fname,lineno);
+      end
+
    endtask
 
 
@@ -242,10 +270,14 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
                          input  uvm_object        extension = null,
                          input  string            fname = "",
                          input  int               lineno = 0);
-      if (rg == null)
+      if (rg == null) begin
         `uvm_error("NO_REG","Register argument is null")
-      else
+      end
+      else begin
+        
         rg.poke(status,value,kind,this,extension,fname,lineno);
+      end
+
    endtask
 
 
@@ -259,10 +291,14 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
                          input  uvm_object        extension = null,
                          input  string            fname = "",
                          input  int               lineno = 0);
-      if (rg == null)
+      if (rg == null) begin
         `uvm_error("NO_REG","Register argument is null")
-      else
+      end
+      else begin
+        
         rg.peek(status,value,kind,this,extension,fname,lineno);
+      end
+
    endtask
 
    
@@ -277,10 +313,14 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
                            input  uvm_object        extension = null,
                            input  string            fname = "",
                            input  int               lineno = 0);
-      if (rg == null)
+      if (rg == null) begin
         `uvm_error("NO_REG","Register argument is null")
-      else
+      end
+      else begin
+        
         rg.update(status,path,map,this,prior,extension,fname,lineno);
+      end
+
    endtask
 
 
@@ -296,10 +336,14 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
                            input  uvm_object    extension = null,
                            input  string        fname = "",
                            input  int           lineno = 0);
-      if (rg == null)
+      if (rg == null) begin
         `uvm_error("NO_REG","Register argument is null")
-      else
+      end
+      else begin
+        
         rg.mirror(status,check,path,map,this,prior,extension,fname,lineno);
+      end
+
    endtask
 
   
@@ -316,10 +360,14 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
                           input  uvm_object        extension = null,
                           input  string            fname = "",
                           input  int               lineno = 0);
-      if (mem == null)
+      if (mem == null) begin
         `uvm_error("NO_MEM","Memory argument is null")
-      else
+      end
+      else begin
+        
         mem.write(status,offset,value,path,map,this,prior,extension,fname,lineno);
+      end
+
    endtask
 
 
@@ -335,10 +383,14 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
                          input  uvm_object        extension = null,
                          input  string            fname = "",
                          input  int               lineno = 0);
-      if (mem == null)
+      if (mem == null) begin
         `uvm_error("NO_MEM","Memory argument is null")
-      else
+      end
+      else begin
+        
         mem.read(status,offset,value,path,map,this,prior,extension,fname,lineno);
+      end
+
    endtask
 
 
@@ -353,10 +405,14 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
                          input  uvm_object        extension = null,
                          input  string            fname = "",
                          input  int               lineno = 0);
-      if (mem == null)
+      if (mem == null) begin
         `uvm_error("NO_MEM","Memory argument is null")
-      else
+      end
+      else begin
+        
         mem.poke(status,offset,value,kind,this,extension,fname,lineno);
+      end
+
    endtask
 
 
@@ -371,10 +427,14 @@ class uvm_reg_sequence #(type BASE=uvm_sequence #(uvm_reg_item)) extends BASE;
                          input  uvm_object        extension = null,
                          input  string            fname = "",
                          input  int               lineno = 0);
-      if (mem == null)
+      if (mem == null) begin
         `uvm_error("NO_MEM","Memory argument is null")
-      else
+      end
+      else begin
+        
         mem.peek(status,offset,value,kind,this,extension,fname,lineno);
+      end
+
    endtask
 
    
@@ -394,28 +454,129 @@ endclass
 // @uvm-ieee 1800.2-2020 auto 19.4.2.1
 virtual class uvm_reg_frontdoor extends uvm_reg_sequence #(uvm_sequence #(uvm_sequence_item));
 
-   `uvm_object_abstract_utils(uvm_reg_frontdoor)
+  `uvm_object_abstract_utils(uvm_reg_frontdoor)
 
 
-   // Variable -- NODOCS -- rw_info
-   //
-   // Holds information about the register being read or written
-   //
-   uvm_reg_item rw_info;
+  // Variable -- NODOCS -- rw_info
+  //
+  // Holds information about the register being read or written
+  //
+  uvm_reg_item rw_info;
+  
+  // Variable -- NODOCS -- sequencer
+  //
+  // Sequencer executing the operation
+  //
+  uvm_sequencer_base sequencer;
+  
+  /// Implementation artifacts
+  semaphore m_frontdoor_mutex;
+  typedef uvm_process_guard#(uvm_reg_frontdoor) m_guard_t;
+  m_guard_t m_mutex_guard;
+  string    fname;
+  int       lineno;
 
-   // Variable -- NODOCS -- sequencer
-   //
-   // Sequencer executing the operation
-   //
-   uvm_sequencer_base sequencer;
+  // @uvm-ieee 1800.2-2020 auto 19.4.2.3
+  extern function new(string name="");
+  
+  // Task: atomic_lock
+  // Establishes an exclusive atomic lock for the current
+  // process.
+  //
+  // Calls to <start> by processes other than the process
+  // that has established the atomic lock will be blocked
+  // until the atomic lock has been released.
+  // 
+  // The lock can be released via <atomic_unlock>.
+  //
+  // @uvm-contrib This API is being considered for potential contribution to 1800.2
+  extern virtual task atomic_lock();
+  
+  // Function: atomic_unlock
+  // Releases the lock acquired via <atomic_lock>.
+  //
+  // A warning shall be generated if ~atomic_unlock~ is called
+  // without a corresponding <atomic_lock>.
+  //
+  // @uvm-contrib This API is being considered for potential contribution to 1800.2
+  extern virtual function void atomic_unlock();
+  
+  // Task: start
+  // Starts the frontdoor sequence.
+  //
+  // If the calling process has not already acquired an atomic
+  // lock via <atomic_lock>, then start will call <atomic_lock>
+  // automatically to establish a lock.
+  //
+  // When the calling process has established a lock, either in
+  // advance of the call to ~start~ or by ~start~ itself, then
+  // ~super.start()~ is called, and passed the corresponding
+  // arguments from ~frontdoor.start()~.
+  //
+  // @uvm-contrib This API is being considered for potential contribution to 1800.2
+  extern virtual task start( uvm_sequencer_base sequencer,
+                             uvm_sequence_base parent_sequence = null,
+                             int this_priority = -1,
+                             bit call_pre_post = 1 );
 
-
-   // @uvm-ieee 1800.2-2020 auto 19.4.2.3
-   function new(string name="");
-      super.new(name);
-   endfunction
-
-   string fname;
-   int lineno;
-
+  extern function void process_guard_triggered(m_guard_t guard);
+  
+  
 endclass: uvm_reg_frontdoor
+
+// uvm_reg_frontdoor implementations
+
+function uvm_reg_frontdoor::new(string name="");
+  super.new(name);
+  m_frontdoor_mutex = new(1);
+endfunction
+
+task uvm_reg_frontdoor::atomic_lock();
+  m_guard_t l_mutex_guard = new("atomic_guard", this);
+  m_frontdoor_mutex.get(1);
+  m_mutex_guard = l_mutex_guard;
+endtask : atomic_lock
+
+function void uvm_reg_frontdoor::atomic_unlock();
+  if (m_mutex_guard == null) begin
+    `uvm_warning("REG_FD_UNLOCK",
+                 $sformatf("Attempt to unlock frontdoor '%s' when it wasn't locked!",
+                           get_full_name()))
+    return;
+  end
+  m_frontdoor_mutex.put(1);
+  void'(m_mutex_guard.clear());
+endfunction : atomic_unlock
+
+task uvm_reg_frontdoor::start( uvm_sequencer_base sequencer,
+                               uvm_sequence_base parent_sequence = null,
+                               int this_priority = -1,
+                               bit call_pre_post = 1 );
+  bit self_locked;
+  if ((m_mutex_guard == null) ||
+      (m_mutex_guard.get_process() != process::self())) begin
+    `uvm_warning("UVM/REG/FRNTDR",
+                 $sformatf("Call to start() for frontdoor sequence '%s', executing on '%s', was not protected by atomic_lock()/atomic_unlock().",
+                           this.get_full_name(),
+                           (sequencer == null) ? "<NULL>" : sequencer.get_full_name()))
+    atomic_lock();
+    self_locked = 1;
+  end
+  
+  super.start(sequencer, parent_sequence, this_priority, call_pre_post);
+  
+  if (self_locked) begin
+    atomic_unlock();
+  end
+endtask : start
+
+function void uvm_reg_frontdoor::process_guard_triggered(m_guard_t guard);
+  // It's possible an atomic lock is killed before acquiring the mutex.  If so, we can
+  // ignore it.
+  if (guard == m_mutex_guard) begin
+    `uvm_warning("UVM/REG/FRNTDR",
+                 $sformatf("Locking process was killed, releasing atomic lock for frontdoor: '%s'",
+                           get_full_name()))
+    atomic_unlock();
+  end
+endfunction : process_guard_triggered

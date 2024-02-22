@@ -3,7 +3,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2013 Cisco Systems, Inc.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2014 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -22,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 //------------------------------------------------------------------------------
@@ -97,8 +107,11 @@ virtual class uvm_sequence #(type REQ = uvm_sequence_item,
 
   // @uvm-ieee 1800.2-2020 auto 14.3.3.2
   function REQ get_current_item();
-    if (!$cast(param_sequencer, m_sequencer))
+    if (!$cast(param_sequencer, m_sequencer)) begin
+      
       uvm_report_fatal("SGTCURR", "Failure to cast m_sequencer to the parameterized sequencer", UVM_NONE);
+    end
+
     return (param_sequencer.get_current_item());
   endfunction
 

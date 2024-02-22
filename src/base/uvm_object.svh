@@ -5,7 +5,7 @@
 // Copyright 2017-2018 Cisco Systems, Inc.
 // Copyright 2020-2022 Marvell International Ltd.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2018 Synopsys, Inc.
 // Copyright 2017 Verific
@@ -25,6 +25,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 typedef class uvm_report_object;
@@ -801,8 +811,11 @@ endfunction
 // ------
 
 function void uvm_object::reseed ();
-  if(get_uvm_seeding())
+  if(get_uvm_seeding()) begin
+    
     this.srandom(uvm_create_random_seed(get_type_name(), get_full_name()));
+  end
+
 endfunction
 
 
@@ -829,7 +842,10 @@ endfunction
 function uvm_object_wrapper uvm_object::get_object_type();
   uvm_coreservice_t cs = uvm_coreservice_t::get();                                                     
   uvm_factory factory=cs.get_factory();
-  if(get_type_name() == "<unknown>") return null;
+  if(get_type_name() == "<unknown>") begin
+    return null;
+  end
+
   return factory.find_wrapper_by_name(get_type_name());
 endfunction
 
@@ -870,7 +886,10 @@ endfunction
 // -----
  
 function void uvm_object::print(uvm_printer printer=null);
-  if (printer==null) printer = uvm_printer::get_default();
+  if (printer==null) begin
+    printer = uvm_printer::get_default();
+  end
+
   $fwrite(printer.get_file(),sprint(printer)); 
 endfunction
 
@@ -881,7 +900,10 @@ endfunction
 function string uvm_object::sprint(uvm_printer printer=null);
   string name;
 
-  if(printer==null) printer = uvm_printer::get_default();
+  if(printer==null) begin
+    printer = uvm_printer::get_default();
+  end
+
   if (printer.get_active_object_depth() == 0) begin
     printer.flush() ;
     name  = printer.get_root_enabled() ? get_full_name() : get_name();
@@ -939,10 +961,16 @@ endfunction
 function uvm_object uvm_object::clone();
   uvm_object tmp;
   tmp = this.create(get_name());
-  if(tmp == null)
+  if(tmp == null) begin
+    
     uvm_report_warning("CRFLD", $sformatf("The create method failed for %s,  object cannot be cloned", get_name()), UVM_NONE);
-  else
+  end
+
+  else begin
+    
     tmp.copy(this);
+  end
+
   return(tmp);
 endfunction
 
@@ -955,19 +983,25 @@ uvm_coreservice_t coreservice ;
 uvm_copier m_copier;
 
   if(rhs == null)  begin
-	`uvm_error("OBJ/COPY","Passing a null object to be copied")
-	return;
+    `uvm_error("OBJ/COPY","Passing a null object to be copied")
+    return;
   end
 
   if(copier == null) begin
-	coreservice = uvm_coreservice_t::get() ;
-       m_copier = coreservice.get_default_copier() ;
- end
-   else 
-	m_copier = copier;
+    coreservice = uvm_coreservice_t::get() ;
+    m_copier = coreservice.get_default_copier() ;
+  end
+   else begin 
+    
+     m_copier = copier;
+   end
+
   // Copier is available. check depth as and flush it. Sec 5.3.8.1
-	if(m_copier.get_active_object_depth() == 0) 
-		m_copier.flush();
+    if(m_copier.get_active_object_depth() == 0) begin 
+        
+      m_copier.flush();
+    end
+
 
   m_copier.copy_object(this,rhs);
 endfunction
@@ -986,9 +1020,15 @@ endfunction
 
 function bit  uvm_object::compare (uvm_object rhs,
                                    uvm_comparer comparer=null);
-  if (comparer == null) comparer = uvm_comparer::get_default();
-  if (comparer.get_active_object_depth() == 0) 
+  if (comparer == null) begin
+    comparer = uvm_comparer::get_default();
+  end
+
+  if (comparer.get_active_object_depth() == 0) begin 
+    
     comparer.flush() ;
+  end
+
   compare = comparer.compare_object(get_name(),this,rhs);
 
 endfunction
@@ -1026,10 +1066,16 @@ endfunction
 // ------
 
 function void uvm_object::m_pack (inout uvm_packer packer);
-  if (packer == null)
+  if (packer == null) begin
+    
     packer  = uvm_packer::get_default();
-  if(packer.get_active_object_depth() == 0) 
-    packer.flush(); 
+  end
+
+  if(packer.get_active_object_depth() == 0) begin 
+    
+    packer.flush();
+  end
+ 
   packer.pack_object(this);
   
 endfunction
@@ -1081,8 +1127,9 @@ endfunction
 // -------
 
 function void uvm_object::do_pack (uvm_packer packer );
-  if (packer == null)
+  if (packer == null) begin
     `uvm_error("UVM/OBJ/PACK/NULL", "uvm_object::do_pack called with null packer!")
+  end
   return;
 endfunction
 
@@ -1091,10 +1138,16 @@ endfunction
 // ------------
   
 function void uvm_object::m_unpack_pre (inout uvm_packer packer);
-  if (packer == null)
+  if (packer == null) begin
+    
     packer  = uvm_packer::get_default();
-  if(packer.get_active_object_depth() == 0) 
-    packer.flush(); 
+  end
+
+  if(packer.get_active_object_depth() == 0) begin 
+    
+    packer.flush();
+  end
+ 
 
 endfunction
   
@@ -1161,8 +1214,9 @@ endfunction
 // ---------
 
 function void uvm_object::do_unpack (uvm_packer packer);
-  if (packer == null)
+  if (packer == null) begin
     `uvm_error("UVM/OBJ/UNPACK/NULL", "uvm_object::do_unpack called with null packer!")
+  end
   return;
 endfunction
 
@@ -1172,8 +1226,11 @@ endfunction
 
 function void uvm_object::record (uvm_recorder recorder=null);
 
-  if(recorder == null)
+  if(recorder == null) begin
+    
     return;
+  end
+
 
   recorder.record_object(get_name(), this);
 endfunction
@@ -1227,11 +1284,17 @@ function void  uvm_object::set_object_local (string     field_name,
     uvm_resource#(uvm_object) rsrc  = new(field_name);
     if (clone && (value != null)) begin
       uvm_object cc  = value.clone();
-      if (cc != null) cc.set_name(field_name);
+      if (cc != null) begin
+        cc.set_name(field_name);
+      end
+
       rsrc.write(cc);
     end
-    else
+    else begin
+      
       rsrc.write(value);
+    end
+
     rsrc_base = rsrc;
   end
   field_op.set(UVM_SET, null, rsrc_base);

@@ -4,7 +4,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2013 Cisco Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -21,6 +21,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 // Title -- NODOCS -- UVM Run-Time Phases
 // 
@@ -58,7 +68,10 @@ class uvm_pre_reset_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_pre_reset_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="pre_reset"); 
@@ -79,7 +92,10 @@ class uvm_reset_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_reset_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="reset"); 
@@ -100,7 +116,10 @@ class uvm_post_reset_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_post_reset_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="post_reset"); 
@@ -122,7 +141,10 @@ class uvm_pre_configure_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_pre_configure_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="pre_configure"); 
@@ -144,7 +166,10 @@ class uvm_configure_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_configure_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="configure"); 
@@ -165,7 +190,10 @@ class uvm_post_configure_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_post_configure_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="post_configure"); 
@@ -186,7 +214,10 @@ class uvm_pre_main_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_pre_main_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="pre_main"); 
@@ -208,7 +239,10 @@ class uvm_main_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_main_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="main"); 
@@ -230,7 +264,10 @@ class uvm_post_main_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_post_main_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="post_main"); 
@@ -252,7 +289,10 @@ class uvm_pre_shutdown_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_pre_shutdown_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="pre_shutdown"); 
@@ -274,7 +314,10 @@ class uvm_shutdown_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_shutdown_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="shutdown"); 
@@ -296,7 +339,10 @@ class uvm_post_shutdown_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_post_shutdown_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="post_shutdown"); 

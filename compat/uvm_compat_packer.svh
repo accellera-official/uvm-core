@@ -1,7 +1,7 @@
 //
 //------------------------------------------------------------------------------
 // Copyright 2022 Marvell International Ltd.
-// Copyright 2022 NVIDIA Corporation
+// Copyright 2022-2023 NVIDIA Corporation
 //
 //   All Rights Reserved Worldwide
 //
@@ -19,6 +19,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 //
 // CLASS: uvm_compat_packer
 //
@@ -411,7 +421,15 @@ endfunction
 
 function void pack_object(uvm_object value);
   uvm_field_op field_op;
-  
+
+  if (value == null) begin
+     if (use_metadata) begin
+        m_bits[m_pack_iter +: 4] = 0;
+        m_pack_iter += 4;
+     end
+     return;
+  end
+
   push_active_object(value);
   field_op = uvm_field_op::m_get_available_op() ;
   field_op.set(UVM_PACK,this,value);
@@ -444,7 +462,9 @@ function void unpack_object(uvm_pkg::uvm_object value);
   end
   else begin
     if (value == null) begin
-      `uvm_error("UVM/COMPAT_PACKER/UNPACK_NN2N", "attempt to unpack a non-null object into a null object!")
+       if (use_metadata && !is_null()) begin
+         `uvm_error("UVM/COMPAT_PACKER/UNPACK_NN2N", "attempt to unpack a non-null object into a null object!")
+       end
       return;
     end
     if ((get_active_object_depth() > 1) && use_metadata) m_unpack_iter += 4; // advance past the !null

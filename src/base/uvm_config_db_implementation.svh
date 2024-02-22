@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------
 // Copyright 2021-2022 Marvell International Ltd.
-// Copyright 2022 NVIDIA Corporation
+// Copyright 2022-2023 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -17,6 +17,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 typedef class uvm_phase;
 
@@ -56,14 +66,20 @@ virtual class uvm_config_db_implementation_t #(type T=int) extends uvm_object;
     //   3) a new creation of uvm_config_db_default_implementation_t#(T)
     // @uvm-contrib
    static function void set_imp(uvm_config_db_implementation_t #(T) imp = null);
-      if (imp == null) begin
-         uvm_coreservice_t cs = uvm_coreservice_t::get();
-         uvm_factory factory = cs.get_factory();
-         if (factory.find_override_by_type(uvm_config_db_implementation_t#(T)::get_type(),"") == uvm_config_db_implementation_t#(T)::get_type()) begin // no override registered
+      if (imp == null) 
+        begin
+          uvm_coreservice_t cs = uvm_coreservice_t::get();
+          uvm_factory factory = cs.get_factory();
+          if (factory.find_override_by_type(uvm_config_db_implementation_t#(T)::get_type(),"") == uvm_config_db_implementation_t#(T)::get_type()) 
+          begin // no override registered
             imp = uvm_config_db_default_implementation_t #(T)::type_id::create();
-         end
-         else imp = uvm_config_db_implementation_t #(T)::type_id::create();
-      end
+          end
+          else 
+          begin
+            imp = uvm_config_db_implementation_t #(T)::type_id::create();
+          end
+
+        end
       m_config_db_imp = imp ;
    endfunction : set_imp
 
@@ -74,7 +90,11 @@ virtual class uvm_config_db_implementation_t #(type T=int) extends uvm_object;
     // returns that same instance.
     // @uvm-contrib
    static function uvm_config_db_implementation_t #(T) get_imp();
-      if (m_config_db_imp == null) set_imp();
+      if (m_config_db_imp == null) 
+        begin
+          set_imp();
+        end
+
       return m_config_db_imp;
    endfunction : get_imp
 
@@ -172,20 +192,35 @@ class uvm_config_db_default_implementation_t #(type T=int) extends uvm_config_db
     uvm_coreservice_t cs = uvm_coreservice_t::get();
 
     if(cntxt == null) 
-      cntxt = cs.get_root();
+      begin
+        cntxt = cs.get_root();
+      end
+
     if(inst_name == "") 
-      inst_name = cntxt.get_full_name();
+      begin
+        inst_name = cntxt.get_full_name();
+      end
+
     else if(cntxt.get_full_name() != "") 
-      inst_name = {cntxt.get_full_name(), ".", inst_name};
+      begin
+        inst_name = {cntxt.get_full_name(), ".", inst_name};
+      end
+
  
     rq = rp.lookup_name(inst_name, field_name, uvm_resource#(T)::get_type(), 0);
     r = uvm_resource#(T)::get_highest_precedence(rq);
     
     if(uvm_config_db_options::is_tracing())
-      show_msg("CFGDB/GET", "Configuration","read", inst_name, field_name, cntxt, r);
+      begin
+        show_msg("CFGDB/GET", "Configuration","read", inst_name, field_name, cntxt, r);
+      end
+
 
     if(r == null)
-      return 0;
+      begin
+        return 0;
+      end
+
 
     value = r.read(cntxt);
 
@@ -208,38 +243,59 @@ class uvm_config_db_default_implementation_t #(type T=int) extends uvm_config_db
     uvm_coreservice_t cs;
 
     if (p != null)
-      rstate = p.get_randstate();
+      begin
+        rstate = p.get_randstate();
+      end
+
 
     cs = uvm_coreservice_t::get();
 
     if(cntxt == null)
-      cntxt = cs.get_root();
-    if(cntxt != cs.get_root()) begin
-      if(inst_name != "")
-        inst_name = {cntxt.get_full_name(),".",inst_name};
-      else
-        inst_name = cntxt.get_full_name();
-    end
+      begin
+        cntxt = cs.get_root();
+      end
+
+    if(cntxt != cs.get_root()) 
+      begin
+        if(inst_name != "")
+        begin
+          inst_name = {cntxt.get_full_name(),".",inst_name};
+        end
+
+        else
+        begin
+          inst_name = cntxt.get_full_name();
+        end
+
+      end
 
     waiter = new(inst_name, field_name);
 
     if(!m_waiters.exists(field_name))
-      m_waiters[field_name] = new;
+      begin
+        m_waiters[field_name] = new;
+      end
+
     m_waiters[field_name].push_back(waiter);
 
     if (p != null)
-      p.set_randstate(rstate);
+      begin
+        p.set_randstate(rstate);
+      end
+
 
     // wait on the waiter to trigger
     @waiter.trigger;
   
     // Remove the waiter from the waiter list 
-    for(int i=0; i<m_waiters[field_name].size(); ++i) begin
-      if(m_waiters[field_name].get(i) == waiter) begin
-        m_waiters[field_name].delete(i);
-        break;
-      end
-    end 
+    for(int i=0; i<m_waiters[field_name].size(); ++i) 
+      begin
+        if(m_waiters[field_name].get(i) == waiter) 
+        begin
+          m_waiters[field_name].delete(i);
+          break;
+        end
+      end 
   endtask : wait_modified
 
   // Function: trigger_modified
@@ -248,14 +304,19 @@ class uvm_config_db_default_implementation_t #(type T=int) extends uvm_config_db
   virtual function void trigger_modified(string inst_name,
                                          string field_name);
     //trigger any waiters
-    if(m_waiters.exists(field_name)) begin
-      m_uvm_waiter w;
-      for(int i=0; i<m_waiters[field_name].size(); ++i) begin
-        w = m_waiters[field_name].get(i);
-        if(uvm_is_match(inst_name,w.inst_name) )
-           ->w.trigger;  
+    if(m_waiters.exists(field_name)) 
+      begin
+        m_uvm_waiter w;
+        for(int i=0; i<m_waiters[field_name].size(); ++i) 
+        begin
+          w = m_waiters[field_name].get(i);
+          if(uvm_is_match(inst_name,w.inst_name) )
+            begin
+              ->w.trigger;
+            end
+  
+        end
       end
-    end
 
   endfunction : trigger_modified    
 
@@ -284,29 +345,42 @@ class uvm_config_db_default_implementation_t #(type T=int) extends uvm_config_db
     //take care of random stability during allocation
     process p = process::self();
     if (p != null)
+      begin
         rstate = p.get_randstate();
+      end
+
 
     top = cs.get_root();
     curr_phase = top.m_current_phase;
 
-    if (cntxt == null) cntxt = top;
-    if (inst_name == "") inst_name = cntxt.get_full_name();
-    else if(cntxt.get_full_name() != "") begin
-      string slash_or_blank = "" ;
-      string close_or_blank = "" ;
-      string separator = "." ;
-      if (inst_name[0] == "/" && inst_name.len()>2 && inst_name[inst_name.len()-1] == "/") begin //regex
-         slash_or_blank = "/";
-         close_or_blank = ")/" ;
-         separator = "\.(" ;
-         inst_name = inst_name.substr(1,inst_name.len()-2); //strip enclosing "/"
+    if (cntxt == null) 
+      begin
+        cntxt = top;
       end
-      inst_name = {slash_or_blank, 
+
+    if (inst_name == "") 
+      begin
+        inst_name = cntxt.get_full_name();
+      end
+
+    else if(cntxt.get_full_name() != "") 
+      begin
+        string slash_or_blank = "" ;
+        string close_or_blank = "" ;
+        string separator = "." ;
+        if (inst_name[0] == "/" && inst_name.len()>2 && inst_name[inst_name.len()-1] == "/") 
+          begin //regex
+            slash_or_blank = "/";
+            close_or_blank = ")/" ;
+            separator = "\.(" ;
+            inst_name = inst_name.substr(1,inst_name.len()-2); //strip enclosing "/"
+          end
+        inst_name = {slash_or_blank, 
                    cntxt.get_full_name(), 
                    separator, 
                    inst_name, 
                    close_or_blank};
-    end
+      end
 
     // Insert the token in the middle to prevent cache
     // oddities like i=foobar,f=xyz and i=foo,f=barxyz.
@@ -314,19 +388,27 @@ class uvm_config_db_default_implementation_t #(type T=int) extends uvm_config_db
     // in field names
     lookup = {inst_name, "__M_UVM__", field_name};
 
-    if(!pool.exists(lookup)) begin
-       r = new(field_name);
-       rp.set_scope(r, inst_name);
-       pool.add(lookup, r);
-    end
-    else begin
-      r = pool.get(lookup);
-    end
+    if(!pool.exists(lookup)) 
+      begin
+        r = new(field_name);
+        rp.set_scope(r, inst_name);
+        pool.add(lookup, r);
+      end
+    else 
+      begin
+        r = pool.get(lookup);
+      end
       
     if(curr_phase != null && curr_phase.get_name() == "build")
-      precedence = cs.get_resource_pool_default_precedence() - (cntxt.get_depth());
+      begin
+        precedence = cs.get_resource_pool_default_precedence() - (cntxt.get_depth());
+      end
+
     else
-      precedence = cs.get_resource_pool_default_precedence();
+      begin
+        precedence = cs.get_resource_pool_default_precedence();
+      end
+
 
     rp.set_precedence(r, precedence);
     r.write(value, cntxt);
@@ -336,10 +418,16 @@ class uvm_config_db_default_implementation_t #(type T=int) extends uvm_config_db
     trigger_modified(inst_name, field_name);
     
     if (p != null)
+      begin
         p.set_randstate(rstate);
+      end
+
 
     if(uvm_config_db_options::is_tracing())
-      show_msg("CFGDB/SET", "Configuration","set", inst_name, field_name, cntxt, r);
+      begin
+        show_msg("CFGDB/SET", "Configuration","set", inst_name, field_name, cntxt, r);
+      end
+
 
   endfunction : set
 
@@ -356,11 +444,20 @@ class uvm_config_db_default_implementation_t #(type T=int) extends uvm_config_db
     uvm_coreservice_t cs = uvm_coreservice_t::get();
 
     if(cntxt == null)
-      cntxt = cs.get_root();
+      begin
+        cntxt = cs.get_root();
+      end
+
     if(inst_name == "")
-      inst_name = cntxt.get_full_name();
+      begin
+        inst_name = cntxt.get_full_name();
+      end
+
     else if(cntxt.get_full_name() != "")
-      inst_name = {cntxt.get_full_name(), ".", inst_name};
+      begin
+        inst_name = {cntxt.get_full_name(), ".", inst_name};
+      end
+
 
     return (uvm_resource_db#(T)::get_by_name(inst_name,field_name,rpterr) != null);  
   endfunction : exists

@@ -5,7 +5,7 @@
 // Copyright 2012-2017 Cisco Systems, Inc.
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2013-2022 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2014 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -24,6 +24,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 typedef class uvm_sequencer_base;
 
@@ -475,7 +485,10 @@ class uvm_phase extends uvm_object;
   protected uvm_phase m_end_node;
   // Track the currently executing real task phases (used for debug)
   static protected edges_t m_executing_phases;
-  function uvm_phase get_begin_node(); if (m_imp != null) return this; return null; endfunction
+  function uvm_phase get_begin_node(); if (m_imp != null) begin
+    return this;
+  end
+ return null; endfunction
   function uvm_phase get_end_node();   return m_end_node; endfunction
 
   // Implementation - Synchronization
@@ -556,10 +569,10 @@ class uvm_phase extends uvm_object;
   endfunction
 
   virtual function void m_get_transitive_children(ref uvm_phase phases[$]);
-    foreach (m_successors[succ])
-    begin
-        phases.push_back(succ);
-        succ.m_get_transitive_children(phases);
+    foreach (m_successors[succ]) begin
+    
+      phases.push_back(succ);
+      succ.m_get_transitive_children(phases);
     end
   endfunction
   
@@ -571,10 +584,10 @@ class uvm_phase extends uvm_object;
      imp = get_imp();
      // Only nodes with a non-null uvm_task_phase imp have objections
      if ((get_phase_type() != UVM_PHASE_NODE) || (imp == null) || !$cast(tp, imp)) begin
-	return null;
+       return null;
      end
      if (phase_done == null) begin
-	   phase_done = uvm_objection::type_id::create({get_name(), "_objection"});
+       phase_done = uvm_objection::type_id::create({get_name(), "_objection"});
      end
      
      return phase_done;
@@ -698,8 +711,11 @@ function uvm_phase::new(string name="uvm_phase",
   // The common domain is the only thing that initializes m_state.  All
   // other states are initialized by being 'added' to a schedule.
   if ((name == "common") &&
-      (phase_type == UVM_PHASE_DOMAIN))
+      (phase_type == UVM_PHASE_DOMAIN)) begin
+    
     m_state = UVM_PHASE_DORMANT;
+  end
+
    
   m_run_count = 0;
   m_parent = parent;
@@ -707,14 +723,26 @@ function uvm_phase::new(string name="uvm_phase",
   begin
     uvm_cmdline_processor clp = uvm_cmdline_processor::get_inst();
     string val;
-    if (clp.get_arg_value("+UVM_PHASE_TRACE", val))
+    if (clp.get_arg_value("+UVM_PHASE_TRACE", val)) begin
+      
       m_phase_trace = 1;
-    else
+    end
+
+    else begin
+      
       m_phase_trace = 0;
-    if (clp.get_arg_value("+UVM_USE_OVM_RUN_SEMANTIC", val))
+    end
+
+    if (clp.get_arg_value("+UVM_USE_OVM_RUN_SEMANTIC", val)) begin
+      
       m_use_ovm_run_semantic = 1;
-    else
+    end
+
+    else begin
+      
       m_use_ovm_run_semantic = 0;
+    end
+
   end
 
    
@@ -743,83 +771,92 @@ function void uvm_phase::add(uvm_phase phase,
   uvm_phase new_node, begin_node, end_node, tmp_node;
   uvm_phase_state_change state_chg;
 
-  if (phase == null)
-      `uvm_fatal("PH/NULL", "add: phase argument is null")
+  if (phase == null) begin
+    `uvm_fatal("PH/NULL", "add: phase argument is null")
+  end
 
   if (with_phase != null && with_phase.get_phase_type() == UVM_PHASE_IMP) begin
     string nm = with_phase.get_name();
     with_phase = find(with_phase);
-    if (with_phase == null)
+    if (with_phase == null) begin
       `uvm_fatal("PH_BAD_ADD",
-         {"cannot find with_phase '",nm,"' within node '",get_name(),"'"})
+      {"cannot find with_phase '",nm,"' within node '",get_name(),"'"})
+    end
   end
 
   if (before_phase != null && before_phase.get_phase_type() == UVM_PHASE_IMP) begin
     string nm = before_phase.get_name();
     before_phase = find(before_phase);
-    if (before_phase == null)
+    if (before_phase == null) begin
       `uvm_fatal("PH_BAD_ADD",
-         {"cannot find before_phase '",nm,"' within node '",get_name(),"'"})
+      {"cannot find before_phase '",nm,"' within node '",get_name(),"'"})
+    end
   end
 
   if (after_phase != null && after_phase.get_phase_type() == UVM_PHASE_IMP) begin
     string nm = after_phase.get_name();
     after_phase = find(after_phase);
-    if (after_phase == null)
+    if (after_phase == null) begin
       `uvm_fatal("PH_BAD_ADD",
-         {"cannot find after_phase '",nm,"' within node '",get_name(),"'"})
+      {"cannot find after_phase '",nm,"' within node '",get_name(),"'"})
+    end
   end
 
   if (start_with_phase != null && start_with_phase.get_phase_type() == UVM_PHASE_IMP) begin
     string nm = start_with_phase.get_name();
     start_with_phase = find(start_with_phase);
-    if (start_with_phase == null)
+    if (start_with_phase == null) begin
       `uvm_fatal("PH_BAD_ADD",
-         {"cannot find start_with_phase '",nm,"' within node '",get_name(),"'"})
+      {"cannot find start_with_phase '",nm,"' within node '",get_name(),"'"})
+    end
   end
 
   if (end_with_phase != null && end_with_phase.get_phase_type() == UVM_PHASE_IMP) begin
-     string nm = end_with_phase.get_name();
-     end_with_phase = find(end_with_phase);
-     if (end_with_phase == null)
+    string nm = end_with_phase.get_name();
+    end_with_phase = find(end_with_phase);
+    if (end_with_phase == null) begin
       `uvm_fatal("PH_BAD_ADD",
-         {"cannot find end_with_phase '",nm,"' within node '",get_name(),"'"})
+      {"cannot find end_with_phase '",nm,"' within node '",get_name(),"'"})
+    end
   end
 
-  if (((with_phase != null) + (after_phase != null) + (start_with_phase != null)) > 1)
+  if (((with_phase != null) + (after_phase != null) + (start_with_phase != null)) > 1) begin
     `uvm_fatal("PH_BAD_ADD",
-       "only one of with_phase/after_phase/start_with_phase may be specified as they all specify predecessor")
+    "only one of with_phase/after_phase/start_with_phase may be specified as they all specify predecessor")
+  end
 
-  if (((with_phase != null) + (before_phase != null) + (end_with_phase != null)) > 1)
+  if (((with_phase != null) + (before_phase != null) + (end_with_phase != null)) > 1) begin
     `uvm_fatal("PH_BAD_ADD",
-       "only one of with_phase/before_phase/end_with_phase may be specified as they all specify successor")
+    "only one of with_phase/before_phase/end_with_phase may be specified as they all specify successor")
+  end
 
   if (before_phase == this || 
      after_phase == m_end_node || 
      with_phase == m_end_node ||
      start_with_phase == m_end_node ||
-     end_with_phase == m_end_node) 
+     end_with_phase == m_end_node) begin
     `uvm_fatal("PH_BAD_ADD",
-       "cannot add before begin node, after end node, or with end nodes")
+    "cannot add before begin node, after end node, or with end nodes")
+  end
 
   if (before_phase != null && after_phase != null) begin
     if (!after_phase.is_before(before_phase)) begin
       `uvm_fatal("PH_BAD_ADD",{"Phase '",before_phase.get_name(),
-                 "' is not before phase '",after_phase.get_name(),"'"})
+      "' is not before phase '",after_phase.get_name(),"'"})
     end
   end
 
   if (before_phase != null && start_with_phase != null) begin
     if (!start_with_phase.is_before(before_phase)) begin
       `uvm_fatal("PH_BAD_ADD",{"Phase '",before_phase.get_name(),
-                 "' is not before phase '",start_with_phase.get_name(),"'"})
+      "' is not before phase '",start_with_phase.get_name(),"'"})
     end
   end
 
   if (end_with_phase != null && after_phase != null) begin
     if (!after_phase.is_before(end_with_phase)) begin
-       `uvm_fatal("PH_BAD_ADD",{"Phase '",end_with_phase.get_name(),
-                 "' is not before phase '",after_phase.get_name(),"'"})
+      `uvm_fatal("PH_BAD_ADD",{"Phase '",end_with_phase.get_name(),
+      "' is not before phase '",after_phase.get_name(),"'"})
     end
   end
 
@@ -857,18 +894,18 @@ function void uvm_phase::add(uvm_phase phase,
   if (m_phase_trace) begin
     uvm_phase_type typ = phase.get_phase_type();
     `uvm_info("PH/TRC/ADD_PH",
-      {get_name()," (",m_phase_type.name(),") ADD_PHASE: phase=",phase.get_full_name()," (",
-      typ.name(),", inst_id=",$sformatf("%0d",phase.get_inst_id()),")",
-      " with_phase=",   (with_phase == null)   ? "null" : with_phase.get_name(), 
-      " start_with_phase=",   (start_with_phase == null)   ? "null" : start_with_phase.get_name(), 
-      " end_with_phase=",   (end_with_phase == null)   ? "null" : end_with_phase.get_name(), 
-      " after_phase=",  (after_phase == null)  ? "null" : after_phase.get_name(),
-      " before_phase=", (before_phase == null) ? "null" : before_phase.get_name(), 
-      " new_node=",     (new_node == null)     ? "null" : {new_node.get_name(),
-                                                           " inst_id=",
-                                                           $sformatf("%0d",new_node.get_inst_id())},
-      " begin_node=",   (begin_node == null)   ? "null" : begin_node.get_name(),
-      " end_node=",     (end_node == null)     ? "null" : end_node.get_name()},UVM_DEBUG)
+    {get_name()," (",m_phase_type.name(),") ADD_PHASE: phase=",phase.get_full_name()," (",
+    typ.name(),", inst_id=",$sformatf("%0d",phase.get_inst_id()),")",
+    " with_phase=",   (with_phase == null)   ? "null" : with_phase.get_name(), 
+    " start_with_phase=",   (start_with_phase == null)   ? "null" : start_with_phase.get_name(), 
+    " end_with_phase=",   (end_with_phase == null)   ? "null" : end_with_phase.get_name(), 
+    " after_phase=",  (after_phase == null)  ? "null" : after_phase.get_name(),
+    " before_phase=", (before_phase == null) ? "null" : before_phase.get_name(), 
+    " new_node=",     (new_node == null)     ? "null" : {new_node.get_name(),
+    " inst_id=",
+    $sformatf("%0d",new_node.get_inst_id())},
+    " begin_node=",   (begin_node == null)   ? "null" : begin_node.get_name(),
+    " end_node=",     (end_node == null)     ? "null" : end_node.get_name()},UVM_DEBUG)
   end
 
 
@@ -877,10 +914,16 @@ function void uvm_phase::add(uvm_phase phase,
   if (with_phase != null) begin
     // all pre-existing predecessors to with_phase are predecessors to the new phase
     begin_node.m_predecessors = with_phase.m_predecessors;
-    foreach (with_phase.m_predecessors[pred]) pred.m_successors[begin_node] = 1;
+    foreach (with_phase.m_predecessors[pred]) begin
+      pred.m_successors[begin_node] = 1;
+    end
+
     // all pre-existing successors to with_phase are successors to this phase
     end_node.m_successors = with_phase.m_successors;
-    foreach (with_phase.m_successors[succ]) succ.m_predecessors[end_node] = 1;
+    foreach (with_phase.m_successors[succ]) begin
+      succ.m_predecessors[end_node] = 1;
+    end
+
   end
   
   if (start_with_phase != null) begin
@@ -899,7 +942,7 @@ function void uvm_phase::add(uvm_phase phase,
   end
   
   if (end_with_phase != null) begin
-     // all pre-existing successors to end_with_phase are successors to the new phase
+    // all pre-existing successors to end_with_phase are successors to the new phase
     end_node.m_successors = end_with_phase.m_successors;
     foreach (end_with_phase.m_successors[succ]) begin
       succ.m_predecessors[end_node] = 1;
@@ -945,8 +988,8 @@ function void uvm_phase::add(uvm_phase phase,
     // pre-existing successors to after_phase are now successors to this phase
     if (before_phase == null && end_with_phase == null) begin
       foreach (after_phase.m_successors[succ]) begin
-       succ.m_predecessors.delete(after_phase);
-       succ.m_predecessors[end_node] = 1;
+        succ.m_predecessors.delete(after_phase);
+        succ.m_predecessors[end_node] = 1;
       end
       end_node.m_successors = after_phase.m_successors;
       after_phase.m_successors.delete();
@@ -966,10 +1009,16 @@ function void uvm_phase::add(uvm_phase phase,
 
 
   // Transition nodes to DORMANT state
-  if (new_node == null)
+  if (new_node == null) begin
+    
     tmp_node = phase;
-  else
+  end
+
+  else begin
+    
     tmp_node = new_node;
+  end
+
 
   state_chg = uvm_phase_state_change::type_id::create(tmp_node.get_name());
   state_chg.m_phase = tmp_node;
@@ -1002,14 +1051,29 @@ endfunction
 function uvm_phase uvm_phase::get_schedule(bit hier=0);
   uvm_phase sched;
   sched = this;
-  if (hier)
-    while (sched.m_parent != null && (sched.m_parent.get_phase_type() == UVM_PHASE_SCHEDULE))
+  if (hier) begin
+    
+    while (sched.m_parent != null && (sched.m_parent.get_phase_type() == UVM_PHASE_SCHEDULE)) begin
+      
       sched = sched.m_parent;
-  if (sched.m_phase_type == UVM_PHASE_SCHEDULE)
+    end
+
+  end
+
+  if (sched.m_phase_type == UVM_PHASE_SCHEDULE) begin
+    
     return sched;
-  if (sched.m_phase_type == UVM_PHASE_NODE)
-    if (m_parent != null && m_parent.m_phase_type != UVM_PHASE_DOMAIN)
+  end
+
+  if (sched.m_phase_type == UVM_PHASE_NODE) begin
+    
+    if (m_parent != null && m_parent.m_phase_type != UVM_PHASE_DOMAIN) begin
+      
       return m_parent;
+    end
+
+  end
+
   return null;
 endfunction
 
@@ -1020,12 +1084,19 @@ endfunction
 function uvm_domain uvm_phase::get_domain();
   uvm_phase phase;
   phase = this;
-  while (phase != null && phase.m_phase_type != UVM_PHASE_DOMAIN)
+  while (phase != null && phase.m_phase_type != UVM_PHASE_DOMAIN) begin
+    
     phase = phase.m_parent;
-  if (phase == null) // no parent domain 
+  end
+
+  if (phase == null) begin // no parent domain 
+    
     return null;
-  if(!$cast(get_domain,phase))
-      `uvm_fatal("PH/INTERNAL", "get_domain: m_phase_type is DOMAIN but $cast to uvm_domain fails")
+  end
+
+  if(!$cast(get_domain,phase)) begin
+    `uvm_fatal("PH/INTERNAL", "get_domain: m_phase_type is DOMAIN but $cast to uvm_domain fails")
+  end
 endfunction
 
 
@@ -1035,8 +1106,11 @@ endfunction
 function string uvm_phase::get_domain_name();
   uvm_domain domain;
   domain = get_domain();
-  if (domain == null)
+  if (domain == null) begin
+    
     return "unknown";
+  end
+
   return domain.get_name();
 endfunction
 
@@ -1048,8 +1122,11 @@ function string uvm_phase::get_schedule_name(bit hier=0);
   uvm_phase sched;
   string s;
   sched = get_schedule(hier);
-  if (sched == null)
+  if (sched == null) begin
+    
     return "";
+  end
+
   s = sched.get_name();
   while (sched.m_parent != null && sched.m_parent != sched &&
           (sched.m_parent.get_phase_type() == UVM_PHASE_SCHEDULE)) begin
@@ -1065,14 +1142,23 @@ endfunction
 
 function string uvm_phase::get_full_name();
   string dom, sch;
-  if (m_phase_type == UVM_PHASE_IMP)
+  if (m_phase_type == UVM_PHASE_IMP) begin
+    
     return get_name();
+  end
+
   get_full_name = get_domain_name();
   sch = get_schedule_name();
-  if (sch != "")
+  if (sch != "") begin
+    
     get_full_name = {get_full_name, ".", sch};
-  if (m_phase_type != UVM_PHASE_DOMAIN && m_phase_type != UVM_PHASE_SCHEDULE)
+  end
+
+  if (m_phase_type != UVM_PHASE_DOMAIN && m_phase_type != UVM_PHASE_SCHEDULE) begin
+    
     get_full_name = {get_full_name, ".", get_name()};
+  end
+
 endfunction
 
 
@@ -1119,10 +1205,16 @@ endfunction
 // set_state
 // ---------
 function void uvm_phase::set_state(uvm_phase_state state);
-  if (m_state == state)
+  if (m_state == state) begin
+    
     return;
-  if (state == UVM_PHASE_STARTED)
+  end
+
+  if (state == UVM_PHASE_STARTED) begin
+    
     m_run_count++;
+  end
+
   // TODO: Seems like there should be an official way to set these values...
   m_state_chg.m_jump_to = m_jump_phase;
   m_state_chg.m_prev_state = m_state;
@@ -1152,8 +1244,11 @@ function void uvm_phase::m_print_successors();
   uvm_phase found;
   static string spaces = "                                                 ";
   static int level;
-  if (m_phase_type == UVM_PHASE_DOMAIN)
+  if (m_phase_type == UVM_PHASE_DOMAIN) begin
+    
     level = 0;
+  end
+
   `uvm_info("UVM/PHASE/SUCC",$sformatf("%s%s (%s) id=%0d",spaces.substr(0,level*2),get_name(), m_phase_type.name(),get_inst_id()),UVM_NONE)
   level++;
   foreach (m_successors[succ]) begin
@@ -1172,17 +1267,23 @@ function uvm_phase uvm_phase::m_find_predecessor(uvm_phase phase, bit stay_in_sc
   if (phase == null) begin
     return null ;
   end
-  if (phase == m_imp || phase == this)
+  if (phase == m_imp || phase == this) begin
+    
     return this;
+  end
+
   foreach (m_predecessors[pred]) begin
     uvm_phase orig;
     orig = (orig_phase==null) ? this : orig_phase;
     if (!stay_in_scope || 
-        (pred.get_schedule() == orig.get_schedule()) ||
-        (pred.get_domain() == orig.get_domain())) begin
+    (pred.get_schedule() == orig.get_schedule()) ||
+    (pred.get_domain() == orig.get_domain())) begin
       found = pred.m_find_predecessor(phase,stay_in_scope,orig);
-      if (found != null)
+      if (found != null) begin
+        
         return found;
+      end
+
     end
   end
   return null;
@@ -1195,17 +1296,23 @@ endfunction
 function uvm_phase uvm_phase::m_find_predecessor_by_name(string name, bit stay_in_scope=1, uvm_phase orig_phase=null);
   uvm_phase found;
   //$display("  FIND PRED node '",name,"' - checking against ",get_name()," (",m_phase_type.name()," id=",$sformatf("%0d",get_inst_id()),(m_imp==null)?"":{"/",$sformatf("%0d",m_imp.get_inst_id())},")");
-  if (get_name() == name)
+  if (get_name() == name) begin
+    
     return this;
+  end
+
   foreach (m_predecessors[pred]) begin
     uvm_phase orig;
     orig = (orig_phase==null) ? this : orig_phase;
     if (!stay_in_scope || 
-        (pred.get_schedule() == orig.get_schedule()) ||
-        (pred.get_domain() == orig.get_domain())) begin
+    (pred.get_schedule() == orig.get_schedule()) ||
+    (pred.get_domain() == orig.get_domain())) begin
       found = pred.m_find_predecessor_by_name(name,stay_in_scope,orig);
-      if (found != null)
+      if (found != null) begin
+        
         return found;
+      end
+
     end
   end
   return null;
@@ -1223,17 +1330,17 @@ function uvm_phase uvm_phase::m_find_successor(uvm_phase phase, bit stay_in_scop
   end
   if (phase == m_imp || phase == this) begin
     return this;
-    end
+  end
   foreach (m_successors[succ]) begin
     uvm_phase orig;
     orig = (orig_phase==null) ? this : orig_phase;
     if (!stay_in_scope || 
-        (succ.get_schedule() == orig.get_schedule()) ||
-        (succ.get_domain() == orig.get_domain())) begin
+    (succ.get_schedule() == orig.get_schedule()) ||
+    (succ.get_domain() == orig.get_domain())) begin
       found = succ.m_find_successor(phase,stay_in_scope,orig);
       if (found != null) begin
         return found;
-        end
+      end
     end
   end
   return null;
@@ -1246,17 +1353,23 @@ endfunction
 function uvm_phase uvm_phase::m_find_successor_by_name(string name, bit stay_in_scope=1, uvm_phase orig_phase=null);
   uvm_phase found;
   //$display("  FIND SUCC node '",name,"' - checking against ",get_name()," (",m_phase_type.name()," id=",$sformatf("%0d",get_inst_id()),(m_imp==null)?"":{"/",$sformatf("%0d",m_imp.get_inst_id())},")");
-  if (get_name() == name)
+  if (get_name() == name) begin
+    
     return this;
+  end
+
   foreach (m_successors[succ]) begin
     uvm_phase orig;
     orig = (orig_phase==null) ? this : orig_phase;
     if (!stay_in_scope || 
-        (succ.get_schedule() == orig.get_schedule()) ||
-        (succ.get_domain() == orig.get_domain())) begin
+    (succ.get_schedule() == orig.get_schedule()) ||
+    (succ.get_domain() == orig.get_domain())) begin
       found = succ.m_find_successor_by_name(name,stay_in_scope,orig);
-      if (found != null)
+      if (found != null) begin
+        
         return found;
+      end
+
     end
   end
   return null;
@@ -1269,11 +1382,17 @@ endfunction
 function uvm_phase uvm_phase::find(uvm_phase phase, bit stay_in_scope=1);
   // TBD full search
   //$display({"\nFIND node '",phase.get_name(),"' within ",get_name()," (scope ",m_phase_type.name(),")", (stay_in_scope) ? " staying within scope" : ""});
-  if (phase == m_imp || phase == this)
+  if (phase == m_imp || phase == this) begin
+    
     return phase;
+  end
+
   find = m_find_predecessor(phase,stay_in_scope,this);
-  if (find == null)
+  if (find == null) begin
+    
     find = m_find_successor(phase,stay_in_scope,this);
+  end
+
 endfunction
 
 
@@ -1283,11 +1402,17 @@ endfunction
 function uvm_phase uvm_phase::find_by_name(string name, bit stay_in_scope=1);
   // TBD full search
   //$display({"\nFIND node named '",name,"' within ",get_name()," (scope ",m_phase_type.name(),")", (stay_in_scope) ? " staying within scope" : ""});
-  if (get_name() == name)
+  if (get_name() == name) begin
+    
     return this;
+  end
+
   find_by_name = m_find_predecessor_by_name(name,stay_in_scope,this);
-  if (find_by_name == null)
+  if (find_by_name == null) begin
+    
     find_by_name = m_find_successor_by_name(name,stay_in_scope,this);
+  end
+
 endfunction
 
 
@@ -1324,26 +1449,32 @@ function void uvm_phase::get_adjacent_predecessor_nodes(ref uvm_phase pred[]);
    int idx;
 
    // Get all predecessors (including TERMINALS, SCHEDULES, etc.)
-   foreach (m_predecessors[p])
+   foreach (m_predecessors[p]) begin
+     
      predecessors[p] = 1;
+   end
+
 
    // Replace any terminal / schedule nodes with their predecessors,
    // recursively.
    do begin
-      done = 1;
-      foreach (predecessors[p]) begin
-         if (p.get_phase_type() != UVM_PHASE_NODE) begin
-            predecessors.delete(p);
-            foreach (p.m_predecessors[next_p])
-              predecessors[next_p] = 1;
-            done = 0;
+     done = 1;
+     foreach (predecessors[p]) begin
+       if (p.get_phase_type() != UVM_PHASE_NODE) begin
+         predecessors.delete(p);
+         foreach (p.m_predecessors[next_p]) begin
+              
+           predecessors[next_p] = 1;
          end
-      end
+
+         done = 0;
+       end
+     end
    end while (!done); 
 
    pred = new [predecessors.size()];
    foreach (predecessors[p]) begin
-      pred[idx++] = p;
+     pred[idx++] = p;
    end
 endfunction : get_adjacent_predecessor_nodes
 
@@ -1353,42 +1484,57 @@ function void uvm_phase::get_adjacent_successor_nodes(ref uvm_phase succ[]);
    int idx;
 
    // Get all successors (including TERMINALS, SCHEDULES, etc.)
-   foreach (m_successors[s])
+   foreach (m_successors[s]) begin
+     
      successors[s] = 1;
+   end
+
 
    // Replace any terminal / schedule nodes with their successors,
    // recursively.
    do begin
-      done = 1;
-      foreach (successors[s]) begin
-         if (s.get_phase_type() != UVM_PHASE_NODE) begin
-            successors.delete(s);
-            foreach (s.m_successors[next_s])
-              successors[next_s] = 1;
-            done = 0;
+     done = 1;
+     foreach (successors[s]) begin
+       if (s.get_phase_type() != UVM_PHASE_NODE) begin
+         successors.delete(s);
+         foreach (s.m_successors[next_s]) begin
+              
+           successors[next_s] = 1;
          end
-      end
+
+         done = 0;
+       end
+     end
    end while (!done); 
 
    succ = new [successors.size()];
    foreach (successors[s]) begin
-      succ[idx++] = s;
+     succ[idx++] = s;
    end
 endfunction : get_adjacent_successor_nodes
 
 function void uvm_phase::get_predecessors(ref edges_t predecessors);
-  foreach (m_predecessors[p])
+  foreach (m_predecessors[p]) begin
+    
     predecessors[p] = 1;
+  end
+
 endfunction : get_predecessors
 
 function void uvm_phase::get_successors(ref edges_t successors);
-  foreach (m_successors[p])
+  foreach (m_successors[p]) begin
+    
     successors[p] = 1;
+  end
+
 endfunction : get_successors
 
 function void uvm_phase::get_sync_relationships(ref edges_t relationships);
-  foreach (m_sync[i])
+  foreach (m_sync[i]) begin
+    
     relationships[m_sync[i]] = 1;
+  end
+
 endfunction : get_sync_relationships
 
 // Internal implementation, more efficient than calling get_predessor_nodes on all
@@ -1400,9 +1546,15 @@ function void uvm_phase::get_predecessors_for_successors(output edges_t pred_of_
     get_adjacent_successor_nodes(successors);
           
     // get all predecessors to these successors
-    foreach (successors[s])
-      foreach (successors[s].m_predecessors[pred])
+    foreach (successors[s]) begin
+      
+      foreach (successors[s].m_predecessors[pred]) begin
+        
         pred_of_succ[pred] = 1;
+      end
+
+    end
+
     
     // replace any terminal nodes with their predecessors, recursively.
     // we are only interested in "real" phase nodes
@@ -1411,8 +1563,11 @@ function void uvm_phase::get_predecessors_for_successors(output edges_t pred_of_
       foreach (pred_of_succ[pred]) begin
         if (pred.get_phase_type() != UVM_PHASE_NODE) begin
           pred_of_succ.delete(pred); 
-          foreach (pred.m_predecessors[next_pred])
+          foreach (pred.m_predecessors[next_pred]) begin
+            
             pred_of_succ[next_pred] = 1;
+          end
+
           done =0;
         end
       end
@@ -1456,15 +1611,18 @@ task uvm_phase::m_wait_for_pred();
     if (m_phase_trace) begin
       if (pred_of_succ.num()) begin
         string s = "( ";
-        foreach (pred_of_succ[pred])
+        foreach (pred_of_succ[pred]) begin
+          
           s = {s, pred.get_full_name()," "};
+        end
+
         s = {s, ")"};
         `UVM_PH_TRACE("PH/TRC/WAIT_PRED_OF_SUCC",
-              {"*** All pred to succ ",s," in READY_TO_END state, so ending phase ***"},this,UVM_HIGH)
+        {"*** All pred to succ ",s," in READY_TO_END state, so ending phase ***"},this,UVM_HIGH)
       end
       else begin
         `UVM_PH_TRACE("PH/TRC/WAIT_PRED_OF_SUCC",
-                    "*** No pred to succ other than myself, so ending phase ***",this,UVM_HIGH)
+        "*** No pred to succ other than myself, so ending phase ***",this,UVM_HIGH)
       end
     end
 
@@ -1486,17 +1644,23 @@ function void uvm_phase::m_report_null_objection(uvm_object obj,
    string m_obj_name = (obj == null) ? "uvm_top" : obj.get_full_name();
    
    if ((action == "raise") || (action == "drop")) begin
-      if (count != 1)
-        m_action = $sformatf("%s %0d objections", action, count);
-      else
-        m_action = $sformatf("%s an objection", action); 
+     if (count != 1) begin
+        
+       m_action = $sformatf("%s %0d objections", action, count);
+     end
+
+     else begin
+        
+       m_action = $sformatf("%s an objection", action);
+     end
+ 
    end
    else if (action == "get_objection_count") begin
-      m_action = "call get_objection_count";
+     m_action = "call get_objection_count";
    end
 
    if (this.get_phase_type() == UVM_PHASE_IMP) begin
-      m_addon = " (This is a UVM_PHASE_IMP, you have to query the schedule to find the UVM_PHASE_NODE)";
+     m_addon = " (This is a UVM_PHASE_IMP, you have to query the schedule to find the UVM_PHASE_NODE)";
    end
    
    `uvm_error("UVM/PH/NULL_OBJECTION",
@@ -1517,10 +1681,16 @@ function void uvm_phase::raise_objection (uvm_object obj,
                                                    int count=1);
   uvm_objection phase_done;
   phase_done = get_objection();
-  if (phase_done != null)
+  if (phase_done != null) begin
+    
     phase_done.raise_objection(obj,description,count);
-  else
+  end
+
+  else begin
+    
     m_report_null_objection(obj, description, count, "raise");
+  end
+
 endfunction
 
 
@@ -1532,10 +1702,16 @@ function void uvm_phase::drop_objection (uvm_object obj,
                                                   int count=1);
   uvm_objection phase_done;
   phase_done = get_objection();
-  if (phase_done != null)
+  if (phase_done != null) begin
+    
     phase_done.drop_objection(obj,description,count);
-  else
+  end
+
+  else begin
+    
     m_report_null_objection(obj, description, count, "drop");
+  end
+
 endfunction
 
 // get_objection_count
@@ -1544,11 +1720,14 @@ endfunction
 function int uvm_phase::get_objection_count (uvm_object obj=null);
   uvm_objection phase_done;
   phase_done = get_objection();
-  if (phase_done != null)
+  if (phase_done != null) begin
+    
     return phase_done.get_objection_count(obj);
+  end
+
   else begin
-     m_report_null_objection(obj, "" , 0, "get_objection_count");
-     return 0;
+    m_report_null_objection(obj, "" , 0, "get_objection_count");
+    return 0;
   end
 endfunction : get_objection_count
 
@@ -1558,11 +1737,14 @@ endfunction : get_objection_count
 function int uvm_phase::get_objection_total (uvm_object obj=null);
   uvm_objection phase_done;
   phase_done = get_objection();
-  if (phase_done != null)
+  if (phase_done != null) begin
+    
     return phase_done.get_objection_total(obj);
+  end
+
   else begin
-     m_report_null_objection(obj, "" , 0, "get_objection_total");
-     return 0;
+    m_report_null_objection(obj, "" , 0, "get_objection_total");
+    return 0;
   end
 endfunction : get_objection_total
 
@@ -1608,14 +1790,26 @@ function void uvm_phase::sync(uvm_domain target,
     // this is a 2-way ('with') sync and we check first in case it is already there
     uvm_phase from_node, to_node;
     int found_to[$], found_from[$];
-    if(with_phase == null) with_phase = phase;
+    if(with_phase == null) begin
+      with_phase = phase;
+    end
+
     from_node = find(phase);
     to_node = target.find(with_phase);
-    if(from_node == null || to_node == null) return;
+    if(from_node == null || to_node == null) begin
+      return;
+    end
+
     found_to = from_node.m_sync.find_index(node) with (node == to_node);
     found_from = to_node.m_sync.find_index(node) with (node == from_node);
-    if (found_to.size() == 0) from_node.m_sync.push_back(to_node);
-    if (found_from.size() == 0) to_node.m_sync.push_back(from_node);
+    if (found_to.size() == 0) begin
+      from_node.m_sync.push_back(to_node);
+    end
+
+    if (found_from.size() == 0) begin
+      to_node.m_sync.push_back(from_node);
+    end
+
   end
 endfunction
 
@@ -1643,7 +1837,10 @@ function void uvm_phase::unsync(uvm_domain target,
     while (queue.size()) begin
       uvm_phase node;
       node = queue.pop_front();
-      if (node.m_imp != null) unsync(target,node.m_imp);
+      if (node.m_imp != null) begin
+        unsync(target,node.m_imp);
+      end
+
       foreach (node.m_successors[succ]) begin
         if (!visited.exists(succ)) begin
           queue.push_back(succ);
@@ -1656,14 +1853,26 @@ function void uvm_phase::unsync(uvm_domain target,
     // this is a 2-way ('with') sync and we check first in case it is already there
     uvm_phase from_node, to_node;
     int found_to[$], found_from[$];
-    if(with_phase == null) with_phase = phase;
+    if(with_phase == null) begin
+      with_phase = phase;
+    end
+
     from_node = find(phase);
     to_node = target.find(with_phase);
-    if(from_node == null || to_node == null) return;
+    if(from_node == null || to_node == null) begin
+      return;
+    end
+
     found_to = from_node.m_sync.find_index(node) with (node == to_node);
     found_from = to_node.m_sync.find_index(node) with (node == from_node);
-    if (found_to.size()) from_node.m_sync.delete(found_to[0]);
-    if (found_from.size()) to_node.m_sync.delete(found_from[0]);
+    if (found_to.size()) begin
+      from_node.m_sync.delete(found_to[0]);
+    end
+
+    if (found_from.size()) begin
+      to_node.m_sync.delete(found_from[0]);
+    end
+
   end
 endfunction
 
@@ -1673,12 +1882,30 @@ endfunction
   
 task uvm_phase::wait_for_state(uvm_phase_state state, uvm_wait_op op=UVM_EQ);
   case (op)
-    UVM_EQ:  wait((state&m_state) != 0);
-    UVM_NE:  wait((state&m_state) == 0);
-    UVM_LT:  wait(m_state <  state);
-    UVM_LTE: wait(m_state <= state);
-    UVM_GT:  wait(m_state >  state);
-    UVM_GTE: wait(m_state >= state);
+    UVM_EQ:  begin
+      wait((state&m_state) != 0);
+    end
+
+    UVM_NE:  begin
+      wait((state&m_state) == 0);
+    end
+
+    UVM_LT:  begin
+      wait(m_state <  state);
+    end
+
+    UVM_LTE: begin
+      wait(m_state <= state);
+    end
+
+    UVM_GT:  begin
+      wait(m_state >  state);
+    end
+
+    UVM_GTE: begin
+      wait(m_state >= state);
+    end
+
   endcase
 endtask
 
@@ -1710,9 +1937,9 @@ function void uvm_phase::set_jump_phase(uvm_phase phase) ;
     end
     else begin
       `uvm_error("JMPPHIDL", { "Attempting to jump from phase \"",
-                               get_name(), "\" which is not currently active (current state is ",
-                               state.name(), "). The jump will not happen until the phase becomes ",
-                               "active."})
+      get_name(), "\" which is not currently active (current state is ",
+      state.name(), "). The jump will not happen until the phase becomes ",
+      "active."})
     end
   end
   
@@ -1742,13 +1969,13 @@ function void uvm_phase::set_jump_phase(uvm_phase phase) ;
     else begin
       m_jump_fwd = 1;
       `uvm_info("PH_JUMPF",$sformatf("jumping forward to phase %s", phase.get_name()),
-                UVM_DEBUG)
+      UVM_DEBUG)
     end
   end
   else begin
     m_jump_bkwd = 1;
     `uvm_info("PH_JUMPB",$sformatf("jumping backward to phase %s", phase.get_name()),
-              UVM_DEBUG)
+    UVM_DEBUG)
   end
   
   m_jump_phase = d;
@@ -1816,8 +2043,11 @@ function void uvm_phase::clear(uvm_phase_state state = UVM_PHASE_DORMANT);
   phase_done = get_objection();
   set_state(state);
   m_phase_proc = null;
-  if (phase_done != null)
+  if (phase_done != null) begin
+    
     phase_done.clear(this);
+  end
+
 endfunction
 
 
@@ -1829,8 +2059,11 @@ endfunction
 // - do not clear the end phase or beyond 
 function void uvm_phase::clear_successors(uvm_phase_state state = UVM_PHASE_DORMANT, 
     uvm_phase end_state=null);
-  if(this == end_state) 
+  if(this == end_state) begin 
+    
     return;
+  end
+
   clear(state);
   foreach(m_successors[succ]) begin
     succ.clear_successors(state, end_state);
@@ -1914,8 +2147,11 @@ endfunction
 // Using a depth-first traversal, kill all the successor phases of the
 // current phase.
 function void uvm_phase::kill_successors();
-  foreach (m_successors[succ])
+  foreach (m_successors[succ]) begin
+    
     succ.kill_successors();
+  end
+
   kill();
 endfunction
 
@@ -1926,8 +2162,11 @@ endfunction
 function void uvm_phase::m_terminate_phase();
   uvm_objection phase_done;
   phase_done = get_objection();
-  if (phase_done != null)
+  if (phase_done != null) begin
+    
     phase_done.clear(this);
+  end
+
 endfunction
 
 
@@ -1943,15 +2182,15 @@ function void uvm_phase::m_print_termination_state();
   top = cs.get_root();
   if (phase_done != null) begin
     `uvm_info("PH_TERMSTATE",
-              $sformatf("phase %s outstanding objections = %0d",
-                        get_name(), phase_done.get_objection_total(top)),
-              UVM_DEBUG)
+    $sformatf("phase %s outstanding objections = %0d",
+    get_name(), phase_done.get_objection_total(top)),
+    UVM_DEBUG)
   end
   else begin
     `uvm_info("PH_TERMSTATE",
-              $sformatf("phase %s has no outstanding objections",
-                        get_name()),
-              UVM_DEBUG)
+    $sformatf("phase %s has no outstanding objections",
+    get_name()),
+    UVM_DEBUG)
   end
 endfunction
 

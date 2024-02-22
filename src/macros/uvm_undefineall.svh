@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2020 NVIDIA Corporation
+// Copyright 2020-2023 NVIDIA Corporation
 // Copyright 2010 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -19,6 +19,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 // This file undefs all macros that are defined by the UVM library. This can
 // be used to load uvm into multiple scopes using a single compilation.
 

@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // Copyright 2018 Cadence Design Systems, Inc.
 // Copyright 2018 Cisco Systems, Inc.
-// Copyright 2018-2021 NVIDIA Corporation
+// Copyright 2018-2023 NVIDIA Corporation
 // Copyright 2018 Qualcomm, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -19,6 +19,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `ifndef UVM_PACKER_DEFINES_SVH
  `define UVM_PACKER_DEFINES_SVH

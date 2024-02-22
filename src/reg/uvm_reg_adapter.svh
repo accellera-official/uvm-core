@@ -3,7 +3,7 @@
 // Copyright 2010 AMD
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2004-2018 Synopsys, Inc.
 //    All Rights Reserved Worldwide
@@ -23,7 +23,17 @@
 //    permissions and limitations under the License.
 // -------------------------------------------------------------
 //
- 
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
+
 //------------------------------------------------------------------------------
 // Title -- NODOCS -- Classes for Adapting Between Register and Bus Operations
 //
@@ -192,9 +202,15 @@ class uvm_reg_tlm_adapter extends uvm_reg_adapter;
      uvm_reg_addr_t addr=rw.addr;
 
      if (rw.kind == UVM_WRITE)
-        gp.set_command(UVM_TLM_WRITE_COMMAND);
+       begin
+         gp.set_command(UVM_TLM_WRITE_COMMAND);
+       end
+
      else
-        gp.set_command(UVM_TLM_READ_COMMAND);
+       begin
+         gp.set_command(UVM_TLM_READ_COMMAND);
+       end
+
 
      gp.set_address(addr);
 
@@ -206,10 +222,11 @@ class uvm_reg_tlm_adapter extends uvm_reg_adapter;
      gp.m_data = new [gp.get_streaming_width()];
      gp.m_length = nbytes; 
 
-     for (int i = 0; i < nbytes; i++) begin
-        gp.m_data[i] = rw.data[i*8+:8];
-        gp.m_byte_enable[i] = (i > nbytes) ? 8'h00 : (rw.byte_en[i] ? 8'hFF : 8'h00);
-     end
+     for (int i = 0; i < nbytes; i++) 
+       begin
+         gp.m_data[i] = rw.data[i*8+:8];
+         gp.m_byte_enable[i] = (i > nbytes) ? 8'h00 : (rw.byte_en[i] ? 8'hFF : 8'h00);
+       end
 
      return gp;
 
@@ -224,28 +241,43 @@ class uvm_reg_tlm_adapter extends uvm_reg_adapter;
     uvm_tlm_gp gp;
     int nbytes;
 
-    if (bus_item == null)
-     `uvm_fatal("REG/NULL_ITEM","bus2reg: bus_item argument is null") 
+    if (bus_item == null) 
+      begin
+        `uvm_fatal("REG/NULL_ITEM","bus2reg: bus_item argument is null")
+      end
 
-    if (!$cast(gp,bus_item)) begin
-      `uvm_error("WRONG_TYPE","Provided bus_item is not of type uvm_tlm_gp")
-      return;
-    end
+    if (!$cast(gp,bus_item)) 
+      begin
+        `uvm_error("WRONG_TYPE","Provided bus_item is not of type uvm_tlm_gp")
+        return;
+      end
 
     if (gp.get_command() == UVM_TLM_WRITE_COMMAND)
-      rw.kind = UVM_WRITE;
+      begin
+        rw.kind = UVM_WRITE;
+      end
+
     else
-      rw.kind = UVM_READ;
+      begin
+        rw.kind = UVM_READ;
+      end
+
 
     rw.addr = gp.get_address();
 
     rw.byte_en = 0;
     foreach (gp.m_byte_enable[i])
-      rw.byte_en[i] = gp.m_byte_enable[i];
+      begin
+        rw.byte_en[i] = gp.m_byte_enable[i];
+      end
+
 
     rw.data = 0;
     foreach (gp.m_data[i])
-      rw.data[i*8+:8] = gp.m_data[i];
+      begin
+        rw.data[i*8+:8] = gp.m_data[i];
+      end
+
 
     rw.status = (gp.is_response_ok()) ? UVM_IS_OK : UVM_NOT_OK;
 

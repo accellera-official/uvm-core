@@ -1,9 +1,9 @@
 //
-// -------------------------------------------------------------
+//----------------------------------------------------------------------
 // Copyright 2010 AMD
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2020 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2023 NVIDIA Corporation
 // Copyright 2010-2012 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 //
@@ -20,8 +20,16 @@
 //    CONDITIONS OF ANY KIND, either express or implied.  See
 //    the License for the specific language governing
 //    permissions and limitations under the License.
-// -------------------------------------------------------------
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
 //
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
 
 typedef class uvm_reg_indirect_ftdr_seq;
 
@@ -72,7 +80,7 @@ class uvm_reg_indirect_data extends uvm_reg;
       // Add a frontdoor to each indirectly-accessed register
       // for every address map this register is in.
       foreach (m_maps[map]) begin
-         add_frontdoors(map);
+        add_frontdoors(map);
       end
    endfunction
    
@@ -84,17 +92,23 @@ class uvm_reg_indirect_data extends uvm_reg;
    
    local function void add_frontdoors(uvm_reg_map map);
       foreach (m_tbl[i]) begin
-         uvm_reg_indirect_ftdr_seq fd;
-         if (m_tbl[i] == null) begin
-            `uvm_error(get_full_name(),
-                       $sformatf("Indirect register #%0d is NULL", i))
-            continue;
-         end
-         fd = new(m_idx, i, this);
-         if (m_tbl[i].is_in_map(map))
-            m_tbl[i].set_frontdoor(fd, map);
-         else
-            map.add_reg(m_tbl[i], -1, "RW", 1, fd);
+        uvm_reg_indirect_ftdr_seq fd;
+        if (m_tbl[i] == null) begin
+          `uvm_error(get_full_name(),
+          $sformatf("Indirect register #%0d is NULL", i))
+          continue;
+        end
+        fd = new(m_idx, i, this);
+        if (m_tbl[i].is_in_map(map)) begin
+            
+          m_tbl[i].set_frontdoor(fd, map);
+        end
+
+        else begin
+            
+          map.add_reg(m_tbl[i], -1, "RW", 1, fd);
+        end
+
       end
    endfunction
    
@@ -102,15 +116,15 @@ class uvm_reg_indirect_data extends uvm_reg;
                                      uvm_predict_e     kind = UVM_PREDICT_DIRECT,
                                      uvm_reg_byte_en_t be = -1);
       if (m_idx.get() >= m_tbl.size()) begin
-         `uvm_error(get_full_name(), $sformatf("Address register %s has a value (%0d) greater than the maximum indirect register array size (%0d)", m_idx.get_full_name(), m_idx.get(), m_tbl.size()))
-         rw.set_status(UVM_NOT_OK);
-         return;
+        `uvm_error(get_full_name(), $sformatf("Address register %s has a value (%0d) greater than the maximum indirect register array size (%0d)", m_idx.get_full_name(), m_idx.get(), m_tbl.size()))
+        rw.set_status(UVM_NOT_OK);
+        return;
       end
 
       //NOTE limit to 2**32 registers
       begin
-         int unsigned idx = m_idx.get();
-         m_tbl[idx].do_predict(rw, kind, be);
+        int unsigned idx = m_idx.get();
+        m_tbl[idx].do_predict(rw, kind, be);
       end
    endfunction
 
@@ -159,39 +173,39 @@ class uvm_reg_indirect_data extends uvm_reg;
                       input  int               lineno = 0);
 
       if (path == UVM_DEFAULT_DOOR) begin
-         uvm_reg_block blk = get_parent();
-         path = blk.get_default_door();
+        uvm_reg_block blk = get_parent();
+        path = blk.get_default_door();
       end
       
       if (path == UVM_BACKDOOR) begin
-         `uvm_warning(get_full_name(), "Cannot backdoor-write an indirect data access register. Switching to frontdoor.")
-         path = UVM_FRONTDOOR;
+        `uvm_warning(get_full_name(), "Cannot backdoor-write an indirect data access register. Switching to frontdoor.")
+        path = UVM_FRONTDOOR;
       end
 
       // Can't simply call super.write() because it'll call set()
       begin
-         uvm_reg_item rw;
+        uvm_reg_item rw;
 
-         XatomicX(1);
+        XatomicX(1);
 
-         rw = uvm_reg_item::type_id::create("write_item",,get_full_name());
-         rw.set_element(this);
-         rw.set_element_kind(UVM_REG);
-         rw.set_kind(UVM_WRITE);
-         rw.set_value(value,0);
-         rw.set_door(path);
-         rw.set_map(map);
-         rw.set_parent_sequence(parent);
-         rw.set_priority(prior);
-         rw.set_extension(extension);
-         rw.set_fname(fname);
-         rw.set_line(lineno);
+        rw = uvm_reg_item::type_id::create("write_item",,get_full_name());
+        rw.set_element(this);
+        rw.set_element_kind(UVM_REG);
+        rw.set_kind(UVM_WRITE);
+        rw.set_value(value,0);
+        rw.set_door(path);
+        rw.set_map(map);
+        rw.set_parent_sequence(parent);
+        rw.set_priority(prior);
+        rw.set_extension(extension);
+        rw.set_fname(fname);
+        rw.set_line(lineno);
          
-         do_write(rw);
+        do_write(rw);
 
-         status = rw.get_status();
+        status = rw.get_status();
 
-         XatomicX(0);
+        XatomicX(0);
       end
    endtask
 
@@ -206,13 +220,13 @@ class uvm_reg_indirect_data extends uvm_reg;
                      input  int               lineno = 0);
 
       if (path == UVM_DEFAULT_DOOR) begin
-         uvm_reg_block blk = get_parent();
-         path = blk.get_default_door();
+        uvm_reg_block blk = get_parent();
+        path = blk.get_default_door();
       end
       
       if (path == UVM_BACKDOOR) begin
-         `uvm_warning(get_full_name(), "Cannot backdoor-read an indirect data access register. Switching to frontdoor.")
-         path = UVM_FRONTDOOR;
+        `uvm_warning(get_full_name(), "Cannot backdoor-read an indirect data access register. Switching to frontdoor.")
+        path = UVM_FRONTDOOR;
       end
       
       super.read(status, value, path, map, parent, prior, extension, fname, lineno);
@@ -294,14 +308,20 @@ class uvm_reg_indirect_ftdr_seq extends uvm_reg_frontdoor;
       
       m_addr_reg.do_write(rw);
 
-      if (rw.status == UVM_NOT_OK)
+      if (rw.status == UVM_NOT_OK) begin
+        
         return;
+      end
+
 
       $cast(rw,rw_info.clone());
       rw.element = m_data_reg;
 
-      if (rw_info.get_kind() == UVM_WRITE)
+      if (rw_info.get_kind() == UVM_WRITE) begin
+        
         m_data_reg.do_write(rw);
+      end
+
       else begin
         m_data_reg.do_read(rw);
         rw_info.set_value(rw.get_value(0), 0);

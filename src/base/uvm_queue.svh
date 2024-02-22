@@ -4,7 +4,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2017 Intel Corporation
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2023 NVIDIA Corporation
 // Copyright 2010 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -22,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 `ifndef UVM_QUEUE_SVH
@@ -66,7 +76,10 @@ class uvm_queue #(type T=int) extends uvm_object;
 
   static function this_type get_global_queue ();
     if (m_global_queue==null)
-      m_global_queue = new("global_queue");
+      begin
+        m_global_queue = new("global_queue");
+      end
+
     return m_global_queue;
   endfunction
 
@@ -93,11 +106,12 @@ class uvm_queue #(type T=int) extends uvm_object;
   // @uvm-ieee 1800.2-2020 auto 11.3.2.4
   virtual function T get (int index);
     T default_value;
-    if (index >= size() || index < 0) begin
-      uvm_report_warning("QUEUEGET",
+    if (index >= size() || index < 0) 
+      begin
+        uvm_report_warning("QUEUEGET",
         $sformatf("get: given index out of range for queue of size %0d. Ignoring get request",size()));
-      return default_value;
-    end
+        return default_value;
+      end
     return queue[index];
   endfunction
   
@@ -118,11 +132,12 @@ class uvm_queue #(type T=int) extends uvm_object;
 
   // @uvm-ieee 1800.2-2020 auto 11.3.2.6
   virtual function void insert (int index, T item);
-    if (index >= size() || index < 0) begin
-      uvm_report_warning("QUEUEINS",
+    if (index >= size() || index < 0) 
+      begin
+        uvm_report_warning("QUEUEINS",
         $sformatf("insert: given index out of range for queue of size %0d. Ignoring insert request",size()));
-      return;
-    end
+        return;
+      end
     queue.insert(index,item);
   endfunction
 
@@ -134,15 +149,22 @@ class uvm_queue #(type T=int) extends uvm_object;
 
   // @uvm-ieee 1800.2-2020 auto 11.3.2.7
   virtual function void delete (int index=-1);
-    if (index >= size() || index < -1) begin
-      uvm_report_warning("QUEUEDEL",
+    if (index >= size() || index < -1) 
+      begin
+        uvm_report_warning("QUEUEDEL",
         $sformatf("delete: given index out of range for queue of size %0d. Ignoring delete request",size()));
-      return;
-    end
+        return;
+      end
     if (index == -1)
-      queue.delete();
+      begin
+        queue.delete();
+      end
+
     else
-      queue.delete(index);
+      begin
+        queue.delete(index);
+      end
+
   endfunction
 
 
@@ -200,7 +222,10 @@ class uvm_queue #(type T=int) extends uvm_object;
     this_type p;
     super.do_copy(rhs);
     if (rhs == null || !$cast(p, rhs))
-      return;
+      begin
+        return;
+      end
+
     queue = p.queue;
   endfunction
   

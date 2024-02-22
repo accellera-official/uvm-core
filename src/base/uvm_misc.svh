@@ -6,7 +6,7 @@
 // Copyright 2017 Intel Corporation
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2007-2021 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2014 Synopsys, Inc.
 // Copyright 2013 Verilab
@@ -26,6 +26,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 // File -- NODOCS -- Miscellaneous Structures
 
@@ -105,17 +115,26 @@ function string uvm_instance_scope();
   //first time through the scope is ~null~ and we need to calculate, afterwards it
   //is correctly set.
 
-  if(uvm_instance_scope != "") 
+  if(uvm_instance_scope != "") begin 
+    
     return uvm_instance_scope;
+  end
+
 
   $swrite(uvm_instance_scope, "%m");
   //remove the extraneous .uvm_instance_scope piece or ::uvm_instance_scope
   pos = uvm_instance_scope.len()-1;
   c = uvm_instance_scope[pos];
-  while(pos && (c != ".") && (c != ":")) 
+  while(pos && (c != ".") && (c != ":")) begin 
+    
     c = uvm_instance_scope[--pos];
-  if(pos == 0)
+  end
+
+  if(pos == 0) begin
+    
     uvm_report_error("SCPSTR", $sformatf("Illegal name %s in scope string",uvm_instance_scope));
+  end
+
   uvm_instance_scope = uvm_instance_scope.substr(0,pos);
 endfunction
 
@@ -133,21 +152,27 @@ function int unsigned uvm_oneway_hash ( string string_in, int unsigned seed=0 );
   bit [7:0]    current_byte;
   bit [31:0]   crc1;
       
-  if(!seed) seed = uvm_global_random_seed;
+  if(!seed) begin
+    seed = uvm_global_random_seed;
+  end
+
   uvm_oneway_hash = seed;
 
   crc1 = 32'hffffffff;
   for (int _byte=0; _byte < string_in.len(); _byte++) begin
-     current_byte = string_in[_byte];
-     if (current_byte == 0) break;
-     for (int _bit=0; _bit < 8; _bit++) begin
-        msb = crc1[31];
-        crc1 <<= 1;
-        if (msb ^ current_byte[_bit]) begin
-           crc1 ^=  UVM_STR_CRC_POLYNOMIAL;
-           crc1[0] = 1;
-        end
-     end
+    current_byte = string_in[_byte];
+    if (current_byte == 0) begin
+      break;
+    end
+
+    for (int _bit=0; _bit < 8; _bit++) begin
+      msb = crc1[31];
+      crc1 <<= 1;
+      if (msb ^ current_byte[_bit]) begin
+        crc1 ^=  UVM_STR_CRC_POLYNOMIAL;
+        crc1[0] = 1;
+      end
+    end
   end
   uvm_oneway_hash += ~{crc1[7:0], crc1[15:8], crc1[23:16], crc1[31:24]};
 
@@ -164,11 +189,17 @@ endfunction
 function int unsigned uvm_create_random_seed ( string type_id, string inst_id="" );
   uvm_seed_map seed_map;
 
-  if(inst_id == "")
+  if(inst_id == "") begin
+    
     inst_id = "__global__";
+  end
 
-  if(!uvm_random_seed_table_lookup.exists(inst_id))
+
+  if(!uvm_random_seed_table_lookup.exists(inst_id)) begin
+    
     uvm_random_seed_table_lookup[inst_id] = new;
+  end
+
   seed_map = uvm_random_seed_table_lookup[inst_id];
 
   type_id = {uvm_instance_scope(),type_id};
@@ -194,8 +225,11 @@ endfunction
 //
 //
 function string uvm_object_value_str(uvm_object v);
-  if (v == null)
+  if (v == null) begin
+    
     return "<null>";
+  end
+
   uvm_object_value_str.itoa(v.get_inst_id());
   uvm_object_value_str = {"@",uvm_object_value_str};
 endfunction
@@ -211,26 +245,53 @@ function string uvm_leaf_scope (string full_name, byte scope_separator = ".");
 
   bmatches = 0;
   case(scope_separator)
-    "[": bracket_match = "]";
-    "(": bracket_match = ")";
-    "<": bracket_match = ">";
-    "{": bracket_match = "}";
-    default: bracket_match = "";
+    "[": begin
+      bracket_match = "]";
+    end
+
+    "(": begin
+      bracket_match = ")";
+    end
+
+    "<": begin
+      bracket_match = ">";
+    end
+
+    "{": begin
+      bracket_match = "}";
+    end
+
+    default: begin
+      bracket_match = "";
+    end
+
   endcase
 
   //Only use bracket matching if the input string has the end match
-  if(bracket_match != "" && bracket_match != full_name[full_name.len()-1])
+  if(bracket_match != "" && bracket_match != full_name[full_name.len()-1]) begin
+    
     bracket_match = "";
+  end
+
 
   for(pos=full_name.len()-1; pos>0; --pos) begin
-    if(full_name[pos] == bracket_match) bmatches++;
+    if(full_name[pos] == bracket_match) begin
+      bmatches++;
+    end
+
     else if(full_name[pos] == scope_separator) begin
       bmatches--;
-      if(!bmatches || (bracket_match == "")) break;
+      if(!bmatches || (bracket_match == "")) begin
+        break;
+      end
+
     end
   end
   if(pos) begin
-    if(scope_separator != ".") pos--;
+    if(scope_separator != ".") begin
+      pos--;
+    end
+
     uvm_leaf_scope = full_name.substr(pos+1,full_name.len()-1);
   end
   else begin
@@ -246,28 +307,58 @@ function string uvm_bitstream_to_string (uvm_bitstream_t value, int size,
                                          uvm_radix_enum radix=UVM_NORADIX,
                                          string radix_str="");
   // sign extend & don't show radix for negative values
-  if (radix == UVM_DEC && value[size-1] === 1)
+  if (radix == UVM_DEC && value[size-1] === 1) begin
+    
     return $sformatf("%0d", value);
+  end
+
 
   // TODO $countbits(value,'z) would be even better
   if($isunknown(value)) begin
-	  uvm_bitstream_t _t;
-	  _t=0;
-	  for(int idx=0;idx<size;idx++)
-	    _t[idx]=value[idx];
-	  value=_t;
-  	end
-  else 
-  	value &= (1 << size)-1;
+    uvm_bitstream_t _t;
+    _t=0;
+    for(int idx=0;idx<size;idx++) begin
+        
+      _t[idx]=value[idx];
+    end
+
+    value=_t;
+  end
+  else begin 
+      
+    value &= (1 << size)-1;
+  end
+
 
   case(radix)
-    UVM_BIN:      return $sformatf("%0s%0b", radix_str, value);
-    UVM_OCT:      return $sformatf("%0s%0o", radix_str, value);
-    UVM_UNSIGNED: return $sformatf("%0s%0d", radix_str, value);
-    UVM_STRING:   return $sformatf("%0s%0s", radix_str, value);
-    UVM_TIME:     return $sformatf("%0s%0t", radix_str, value);
-    UVM_DEC:      return $sformatf("%0s%0d", radix_str, value);
-    default:      return $sformatf("%0s%0x", radix_str, value);
+    UVM_BIN:      begin
+      return $sformatf("%0s%0b", radix_str, value);
+    end
+
+    UVM_OCT:      begin
+      return $sformatf("%0s%0o", radix_str, value);
+    end
+
+    UVM_UNSIGNED: begin
+      return $sformatf("%0s%0d", radix_str, value);
+    end
+
+    UVM_STRING:   begin
+      return $sformatf("%0s%0s", radix_str, value);
+    end
+
+    UVM_TIME:     begin
+      return $sformatf("%0s%0t", radix_str, value);
+    end
+
+    UVM_DEC:      begin
+      return $sformatf("%0s%0d", radix_str, value);
+    end
+
+    default:      begin
+      return $sformatf("%0s%0x", radix_str, value);
+    end
+
   endcase
 endfunction
 
@@ -278,28 +369,58 @@ function string uvm_integral_to_string (uvm_integral_t value, int size,
                                          uvm_radix_enum radix=UVM_NORADIX,
                                          string radix_str="");
   // sign extend & don't show radix for negative values
-  if (radix == UVM_DEC && value[size-1] === 1)
+  if (radix == UVM_DEC && value[size-1] === 1) begin
+    
     return $sformatf("%0d", value);
+  end
+
 
   // TODO $countbits(value,'z) would be even better
   if($isunknown(value)) begin
-	  uvm_integral_t _t;
-	  _t=0;
-	  for(int idx=0;idx<size;idx++)
-	  	_t[idx]=value[idx];
-	  value=_t;
-  	end
-  else 
-  	value &= (1 << size)-1;
+    uvm_integral_t _t;
+    _t=0;
+    for(int idx=0;idx<size;idx++) begin
+          
+      _t[idx]=value[idx];
+    end
+
+    value=_t;
+  end
+  else begin 
+      
+    value &= (1 << size)-1;
+  end
+
 
   case(radix)
-    UVM_BIN:      return $sformatf("%0s%0b", radix_str, value);
-    UVM_OCT:      return $sformatf("%0s%0o", radix_str, value);
-    UVM_UNSIGNED: return $sformatf("%0s%0d", radix_str, value);
-    UVM_STRING:   return $sformatf("%0s%0s", radix_str, value);
-    UVM_TIME:     return $sformatf("%0s%0t", radix_str, value);
-    UVM_DEC:      return $sformatf("%0s%0d", radix_str, value);
-    default:      return $sformatf("%0s%0x", radix_str, value);
+    UVM_BIN:      begin
+      return $sformatf("%0s%0b", radix_str, value);
+    end
+
+    UVM_OCT:      begin
+      return $sformatf("%0s%0o", radix_str, value);
+    end
+
+    UVM_UNSIGNED: begin
+      return $sformatf("%0s%0d", radix_str, value);
+    end
+
+    UVM_STRING:   begin
+      return $sformatf("%0s%0s", radix_str, value);
+    end
+
+    UVM_TIME:     begin
+      return $sformatf("%0s%0t", radix_str, value);
+    end
+
+    UVM_DEC:      begin
+      return $sformatf("%0s%0d", radix_str, value);
+    end
+
+    default:      begin
+      return $sformatf("%0s%0x", radix_str, value);
+    end
+
   endcase
 endfunction
    
@@ -315,15 +436,21 @@ function int uvm_get_array_index_int(string arg, output bit is_wildcard);
   uvm_get_array_index_int = 0;
   is_wildcard = 1;
   i = arg.len() - 1;
-  if(arg[i] == "]")
+  if(arg[i] == "]") begin
+    
     while(i > 0 && (arg[i] != "[")) begin
       --i;
-      if((arg[i] == "*") || (arg[i] == "?")) i=0;
+      if((arg[i] == "*") || (arg[i] == "?")) begin
+        i=0;
+      end
+
       else if((arg[i] < "0") || (arg[i] > "9") && (arg[i] != "[")) begin
         uvm_get_array_index_int = -1; //illegal integral index
         i=0;
       end
     end
+  end
+
   else begin
     is_wildcard = 0;
     return 0;
@@ -345,11 +472,17 @@ function string uvm_get_array_index_string(string arg, output bit is_wildcard);
   uvm_get_array_index_string = "";
   is_wildcard = 1;
   i = arg.len() - 1;
-  if(arg[i] == "]")
+  if(arg[i] == "]") begin
+    
     while(i > 0 && (arg[i] != "[")) begin
-      if((arg[i] == "*") || (arg[i] == "?")) i=0;
+      if((arg[i] == "*") || (arg[i] == "?")) begin
+        i=0;
+      end
+
       --i;
     end
+  end
+
   if(i>0) begin
     uvm_get_array_index_string = arg.substr(i+1, arg.len()-2);
     is_wildcard = 0;
@@ -372,13 +505,22 @@ function automatic bit uvm_has_wildcard (string arg);
   uvm_has_wildcard = 0;
 
   //if it is a regex then return true
-  if( (arg.len() > 1) && (arg[0] == "/") && (arg[arg.len()-1] == "/") )
+  if( (arg.len() > 1) && (arg[0] == "/") && (arg[arg.len()-1] == "/") ) begin
+    
     return 1;
+  end
+
 
   //check if it has globs
-  foreach(arg[i])
-    if( (arg[i] == "*") || (arg[i] == "+") || (arg[i] == "?") )
+  foreach(arg[i]) begin
+    
+    if( (arg[i] == "*") || (arg[i] == "+") || (arg[i] == "?") ) begin
+      
       uvm_has_wildcard = 1;
+    end
+
+  end
+
 
 endfunction
 
@@ -413,23 +555,29 @@ class uvm_utils #(type TYPE=int, string FIELD="config");
     top.find_all("*",list,start);
     foreach (list[i]) begin
       TYPE typ;
-      if ($cast(typ,list[i]))
+      if ($cast(typ,list[i])) begin
+        
         types.push_back(typ);
+      end
+
     end
     if (types.size() == 0) begin
       `uvm_warning("find_type-no match",{"Instance of type '",TYPE::type_name,
-         " not found in component hierarchy beginning at ",start.get_full_name()})
+      " not found in component hierarchy beginning at ",start.get_full_name()})
     end
     return types;
   endfunction
 //@uvm-compat
   static function TYPE find(uvm_component start);
     types_t types = find_all(start);
-    if (types.size() == 0)
+    if (types.size() == 0) begin
+      
       return null;
+    end
+
     if (types.size() > 1) begin
       `uvm_warning("find_type-multi match",{"More than one instance of type '",TYPE::type_name,
-         " found in component hierarchy beginning at ",start.get_full_name()})
+      " found in component hierarchy beginning at ",start.get_full_name()})
       return null;
     end
     return types[0];
@@ -442,9 +590,12 @@ class uvm_utils #(type TYPE=int, string FIELD="config");
     uvm_factory factory=cs.get_factory();
   
     obj = factory.create_object_by_name(type_name,contxt,type_name);
-       if (!$cast(typ,obj))
+       if (!$cast(typ,obj)) begin
+         
          uvm_report_error("WRONG_TYPE",{"The type_name given '",type_name,
                 "' with context '",contxt,"' did not produce the expected type."});
+       end
+
     return typ;
   endfunction
 
@@ -461,28 +612,40 @@ class uvm_utils #(type TYPE=int, string FIELD="config");
     TYPE cfg;
 
     if (!m_uvm_config_obj_misc::get(comp,"",FIELD, obj)) begin
-      if (is_fatal)
+      if (is_fatal) begin
+        
         comp.uvm_report_fatal("NO_SET_CFG", {"no set_config to field '", FIELD,
                            "' for component '",comp.get_full_name(),"'"},
                            UVM_MEDIUM, `uvm_file , `uvm_line  );
-      else
+      end
+
+      else begin
+        
         comp.uvm_report_warning("NO_SET_CFG", {"no set_config to field '", FIELD,
                            "' for component '",comp.get_full_name(),"'"},
                            UVM_MEDIUM, `uvm_file , `uvm_line  );
+      end
+
       return null;
     end
 
     if (!$cast(cfg, obj)) begin
-      if (is_fatal)
+      if (is_fatal) begin
+        
         comp.uvm_report_fatal( "GET_CFG_TYPE_FAIL",
                           {"set_config_object with field name ",FIELD,
                           " is not of type '",TYPE::type_name,"'"},
                           UVM_NONE , `uvm_file , `uvm_line );
-      else
+      end
+
+      else begin
+        
         comp.uvm_report_warning( "GET_CFG_TYPE_FAIL",
                           {"set_config_object with field name ",FIELD,
                           " is not of type '",TYPE::type_name,"'"},
                           UVM_NONE , `uvm_file , `uvm_line );
+      end
+
     end
 
     return cfg;
@@ -506,10 +669,10 @@ function automatic string m_uvm_string_queue_join(ref string i[$]);
 `ifndef QUESTA
    m_uvm_string_queue_join = {>>{i}};
 `else
-	foreach(i[idx])
-		m_uvm_string_queue_join = {m_uvm_string_queue_join,i[idx]};
+    foreach(i[idx])
+        m_uvm_string_queue_join = {m_uvm_string_queue_join,i[idx]};
 `endif
 endfunction
 
 
-			
+            

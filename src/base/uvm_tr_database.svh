@@ -5,7 +5,7 @@
 // Copyright 2017 Cisco Systems, Inc.
 // Copyright 2014 Intel Corporation
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -22,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 // File -- NODOCS -- Transaction Recording Databases
@@ -71,8 +81,11 @@ virtual class uvm_tr_database extends uvm_object;
 
    // @uvm-ieee 1800.2-2020 auto 7.1.3.1
    function bit open_db();
-      if (!m_is_opened)
+      if (!m_is_opened) begin
+        
         m_is_opened = do_open_db();
+      end
+
       return m_is_opened;
    endfunction : open_db
 
@@ -80,8 +93,11 @@ virtual class uvm_tr_database extends uvm_object;
    // @uvm-ieee 1800.2-2020 auto 7.1.3.2
    function bit close_db();
       if (m_is_opened) begin
-         if (do_close_db())
-           m_is_opened = 0;
+        if (do_close_db()) begin
+           
+          m_is_opened = 0;
+        end
+
       end
       return (m_is_opened == 0);
    endfunction : close_db
@@ -100,25 +116,31 @@ virtual class uvm_tr_database extends uvm_object;
                                       string scope="",
                                       string type_name="");
       if (!open_db()) begin
-         return null;
+        return null;
       end
       else begin
-         process p = process::self();
-         string s;
+        process p = process::self();
+        string s;
 
-         if (p != null)
-           s = p.get_randstate();
+        if (p != null) begin
+           
+          s = p.get_randstate();
+        end
 
-         open_stream = do_open_stream(name, scope, type_name);
+
+        open_stream = do_open_stream(name, scope, type_name);
 
 
-         if (open_stream != null) begin
-            m_streams[open_stream] = 1;
-            open_stream.m_do_open(this, scope, type_name);
-         end
+        if (open_stream != null) begin
+          m_streams[open_stream] = 1;
+          open_stream.m_do_open(this, scope, type_name);
+        end
          
-         if (p != null)
-           p.set_randstate(s);
+        if (p != null) begin
+           
+          p.set_randstate(s);
+        end
+
 
       end
    endfunction : open_stream
@@ -126,8 +148,11 @@ virtual class uvm_tr_database extends uvm_object;
    // Function- m_free_stream
    // Removes stream from the internal array
    function void m_free_stream(uvm_tr_stream stream);
-      if (m_streams.exists(stream))
+      if (m_streams.exists(stream)) begin
+        
         m_streams.delete(stream);
+      end
+
    endfunction : m_free_stream
    
 
@@ -136,8 +161,11 @@ virtual class uvm_tr_database extends uvm_object;
       // Clear out the queue first...
       q.delete();
       // Then fill in the values
-      foreach (m_streams[idx])
+      foreach (m_streams[idx]) begin
+        
         q.push_back(idx);
+      end
+
       // Finally, return the size of the queue
       return q.size();
    endfunction : get_streams
@@ -154,51 +182,51 @@ virtual class uvm_tr_database extends uvm_object;
       uvm_tr_database db;
 
       if (lhs == null) begin
-         `uvm_warning("UVM/TR_DB/BAD_LINK",
-                      "left hand side '<null>' is not supported in links for 'uvm_tr_database'")
-         return;
+        `uvm_warning("UVM/TR_DB/BAD_LINK",
+        "left hand side '<null>' is not supported in links for 'uvm_tr_database'")
+        return;
       end
       if (rhs == null) begin
-         `uvm_warning("UVM/TR_DB/BAD_LINK",
-                      "right hand side '<null>' is not supported in links for 'uvm_tr_database'")
-         return;
+        `uvm_warning("UVM/TR_DB/BAD_LINK",
+        "right hand side '<null>' is not supported in links for 'uvm_tr_database'")
+        return;
       end
       
       if (!$cast(s_lhs, lhs) && 
           !$cast(r_lhs, lhs)) begin
-         `uvm_warning("UVM/TR_DB/BAD_LINK",
-                      $sformatf("left hand side of type '%s' not supported in links for 'uvm_tr_database'",
-                                lhs.get_type_name()))
-         return;
+        `uvm_warning("UVM/TR_DB/BAD_LINK",
+        $sformatf("left hand side of type '%s' not supported in links for 'uvm_tr_database'",
+        lhs.get_type_name()))
+        return;
       end
       if (!$cast(s_rhs, rhs) && 
           !$cast(r_rhs, rhs)) begin
-         `uvm_warning("UVM/TR_DB/BAD_LINK",
-                      $sformatf("right hand side of type '%s' not supported in links for 'uvm_record_datbasae'",
-                                rhs.get_type_name()))
-         return;
+        `uvm_warning("UVM/TR_DB/BAD_LINK",
+        $sformatf("right hand side of type '%s' not supported in links for 'uvm_record_datbasae'",
+        rhs.get_type_name()))
+        return;
       end
       
       if (r_lhs != null) begin
-         s_lhs = r_lhs.get_stream();
+        s_lhs = r_lhs.get_stream();
       end
       if (r_rhs != null) begin
-         s_rhs = r_rhs.get_stream();
+        s_rhs = r_rhs.get_stream();
       end
 
       if ((s_lhs != null) && (s_lhs.get_db() != this)) begin
-         db = s_lhs.get_db();
-         `uvm_warning("UVM/TR_DB/BAD_LINK",
-                      $sformatf("attempt to link stream from '%s' into '%s'",
-                                db.get_name(), this.get_name()))
-         return;
+        db = s_lhs.get_db();
+        `uvm_warning("UVM/TR_DB/BAD_LINK",
+        $sformatf("attempt to link stream from '%s' into '%s'",
+        db.get_name(), this.get_name()))
+        return;
       end
       if ((s_rhs != null) && (s_rhs.get_db() != this)) begin
-         db = s_rhs.get_db();
-         `uvm_warning("UVM/TR_DB/BAD_LINK",
-                      $sformatf("attempt to link stream from '%s' into '%s'",
-                                db.get_name(), this.get_name()))
-         return;
+        db = s_rhs.get_db();
+        `uvm_warning("UVM/TR_DB/BAD_LINK",
+        $sformatf("attempt to link stream from '%s' into '%s'",
+        db.get_name(), this.get_name()))
+        return;
       end
 
       do_establish_link(link);

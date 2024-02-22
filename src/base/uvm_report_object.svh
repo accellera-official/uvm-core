@@ -5,7 +5,7 @@
 // Copyright 2013 Cisco Systems, Inc.
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2007-2020 Mentor Graphics Corporation
-// Copyright 2013-2021 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2014 Synopsys, Inc.
 // Copyright 2017 Verific
@@ -25,6 +25,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `ifndef UVM_REPORT_CLIENT_SVH
 `define UVM_REPORT_CLIENT_SVH
@@ -92,7 +102,10 @@ class uvm_report_object extends uvm_object;
   local bit m_rh_set;
   local function void m_rh_init();
     if (!m_rh_set)
-      set_report_handler(uvm_report_handler::type_id::create(get_name()));
+      begin
+        set_report_handler(uvm_report_handler::type_id::create(get_name()));
+      end
+
   endfunction : m_rh_init
 
   // Function -- NODOCS -- new
@@ -132,9 +145,12 @@ class uvm_report_object extends uvm_object;
 
   // @uvm-ieee 1800.2-2020 auto 6.3.3.2
   function int uvm_report_enabled(int verbosity, 
-  				  uvm_severity severity = UVM_INFO, string id = "");
+                    uvm_severity severity = UVM_INFO, string id = "");
     if (get_report_verbosity_level(severity, id) < verbosity)
-      return 0;
+      begin
+        return 0;
+      end
+
     return 1;
   endfunction
 
@@ -152,13 +168,17 @@ class uvm_report_object extends uvm_object;
                                     string context_name = "",
                                     bit report_enabled_checked =0);
     uvm_report_message l_report_message;
-    if ((severity == UVM_INFO) && (report_enabled_checked == 0)) begin
-      if (!uvm_report_enabled(verbosity, severity, id))
-        return;
-    end
+    if ((severity == UVM_INFO) && (report_enabled_checked == 0)) 
+      begin
+        if (!uvm_report_enabled(verbosity, severity, id))
+        begin
+          return;
+        end
+
+      end
     l_report_message = uvm_report_message::new_report_message();
     l_report_message.set_report_message(severity, id, message, 
-					verbosity, filename, line, context_name);
+                    verbosity, filename, line, context_name);
     uvm_process_report_message(l_report_message);
   endfunction 
 
@@ -167,12 +187,12 @@ class uvm_report_object extends uvm_object;
 
   // @uvm-ieee 1800.2-2020 auto 6.3.3.3
   virtual function void uvm_report_info( string id,
-					 string message,
-					 int verbosity = UVM_MEDIUM,
-					 string filename = "",
-					 int line = 0,
-    					 string context_name = "",
-					 bit report_enabled_checked = 0);
+                     string message,
+                     int verbosity = UVM_MEDIUM,
+                     string filename = "",
+                     int line = 0,
+                         string context_name = "",
+                     bit report_enabled_checked = 0);
 
     uvm_report (UVM_INFO, id, message, verbosity, 
                 filename, line, context_name, report_enabled_checked);
@@ -182,12 +202,12 @@ class uvm_report_object extends uvm_object;
 
   // @uvm-ieee 1800.2-2020 auto 6.3.3.3
   virtual function void uvm_report_warning( string id,
-					    string message,
+                        string message,
                         int verbosity = UVM_NONE,
-					    string filename = "",
-					    int line = 0,
-    					    string context_name = "",
-					    bit report_enabled_checked = 0);
+                        string filename = "",
+                        int line = 0,
+                            string context_name = "",
+                        bit report_enabled_checked = 0);
 
     uvm_report (UVM_WARNING, id, message, verbosity,
                 filename, line, context_name, report_enabled_checked);
@@ -197,12 +217,12 @@ class uvm_report_object extends uvm_object;
 
   // @uvm-ieee 1800.2-2020 auto 6.3.3.3
   virtual function void uvm_report_error( string id,
-					  string message,
-   					  int verbosity = UVM_NONE,
-					  string filename = "",
-					  int line = 0,
-   					  string context_name = "",
-					  bit report_enabled_checked = 0);
+                      string message,
+                         int verbosity = UVM_NONE,
+                      string filename = "",
+                      int line = 0,
+                         string context_name = "",
+                      bit report_enabled_checked = 0);
 
     uvm_report (UVM_ERROR, id, message, verbosity,
                 filename, line, context_name, report_enabled_checked);
@@ -249,12 +269,12 @@ class uvm_report_object extends uvm_object;
 
   // @uvm-ieee 1800.2-2020 auto 6.3.3.3
   virtual function void uvm_report_fatal( string id,
-					  string message,
-   					  int verbosity = UVM_NONE,
-					  string filename = "",
-					  int line = 0,
-   					  string context_name = "",
-					  bit report_enabled_checked = 0);
+                      string message,
+                         int verbosity = UVM_NONE,
+                      string filename = "",
+                      int line = 0,
+                         string context_name = "",
+                      bit report_enabled_checked = 0);
 
     uvm_report (UVM_FATAL, id, message, verbosity,
                 filename, line, context_name, report_enabled_checked);
@@ -529,7 +549,10 @@ class uvm_report_object extends uvm_object;
     uvm_root top = uvm_root::get();
     // Bail on broken infinite loop
     if (this == top)
-      return;
+      begin
+        return;
+      end
+
     top.report_header(file);
   endfunction : report_header
 
@@ -538,7 +561,10 @@ class uvm_report_object extends uvm_object;
     uvm_root top = uvm_root::get();
     // Bail on broken infinite loop
     if (this == top)
-      return;
+      begin
+        return;
+      end
+
     top.die();
   endfunction : die
 

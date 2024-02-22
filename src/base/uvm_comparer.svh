@@ -4,7 +4,7 @@
 // Copyright 2014-2020 Intel Corporation
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2023 NVIDIA Corporation
 // Copyright 2018 Qualcomm, Inc.
 // Copyright 2013-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -24,6 +24,16 @@
 //   permissions and limitations under the License.
 //-----------------------------------------------------------------------------
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
+
 //------------------------------------------------------------------------------
 //
 // CLASS -- NODOCS -- uvm_comparer
@@ -38,7 +48,7 @@
 
 // @uvm-ieee 1800.2-2020 auto 16.3.1
 class uvm_comparer extends uvm_policy;
-	
+    
    // @uvm-ieee 1800.2-2020 auto 16.3.2.3
    `uvm_object_utils(uvm_comparer)
 
@@ -174,11 +184,11 @@ class uvm_comparer extends uvm_policy;
 
   local int unsigned m_threshold;
 
-	// @uvm-ieee 1800.2-2020 auto 16.3.2.1
-	function new(string name="");
-	   super.new(name);
-	   m_threshold = 1;
-	endfunction
+    // @uvm-ieee 1800.2-2020 auto 16.3.2.1
+    function new(string name="");
+       super.new(name);
+       m_threshold = 1;
+    endfunction
 
 
   // @uvm-ieee 1800.2-2020 auto 16.3.2.4
@@ -219,42 +229,45 @@ class uvm_comparer extends uvm_policy;
     uvm_bitstream_t mask;
     string msg;
   
-    if(size <= 64)
+    if(size <= 64) begin
+      
       return compare_field_int(name, lhs, rhs, size, radix);
+    end
+
   
     mask = -1;
     mask >>= (UVM_STREAMBITS-size);
     if((lhs & mask) !== (rhs & mask)) begin
       case (radix)
         UVM_BIN: begin
-              $swrite(msg, "%s: lhs = 'b%0b : rhs = 'b%0b", 
+          $swrite(msg, "%s: lhs = 'b%0b : rhs = 'b%0b", 
                        name, lhs&mask, rhs&mask);
-             end
+        end
         UVM_OCT: begin
-              $swrite(msg, "%s: lhs = 'o%0o : rhs = 'o%0o", 
+          $swrite(msg, "%s: lhs = 'o%0o : rhs = 'o%0o", 
                        name, lhs&mask, rhs&mask);
-             end
+        end
         UVM_DEC: begin
-              $swrite(msg, "%s: lhs = %0d : rhs = %0d", 
+          $swrite(msg, "%s: lhs = %0d : rhs = %0d", 
                        name, lhs&mask, rhs&mask);
-             end
+        end
         UVM_TIME: begin
-            $swrite(msg, "%s: lhs = %0t : rhs = %0t", 
+          $swrite(msg, "%s: lhs = %0t : rhs = %0t", 
                name, lhs&mask, rhs&mask);
         end
         UVM_STRING: begin
-              $swrite(msg, "%s: lhs = %0s : rhs = %0s", 
+          $swrite(msg, "%s: lhs = %0s : rhs = %0s", 
                        name, lhs&mask, rhs&mask);
-             end
+        end
         UVM_ENUM: begin
-              //Printed as decimal, user should cuse compare string for enum val
-              $swrite(msg, "%s: lhs = %0d : rhs = %0d", 
+          //Printed as decimal, user should cuse compare string for enum val
+          $swrite(msg, "%s: lhs = %0d : rhs = %0d", 
                        name, lhs&mask, rhs&mask);
-              end
+        end
         default: begin
-              $swrite(msg, "%s: lhs = 'h%0x : rhs = 'h%0x", 
+          $swrite(msg, "%s: lhs = 'h%0x : rhs = 'h%0x", 
                        name, lhs&mask, rhs&mask);
-             end
+        end
       endcase
       print_msg(msg);
       return 0;
@@ -279,8 +292,8 @@ class uvm_comparer extends uvm_policy;
     logic [63:0] mask;
     string msg;
     if(size > 64) begin
-        `uvm_error("UVM/COMPARER/INT/BAD_SIZE",$sformatf("compare_field_int cannot be called with operand size of more than 64 bits. Input argument size=%0d",size))
-        return 0;
+      `uvm_error("UVM/COMPARER/INT/BAD_SIZE",$sformatf("compare_field_int cannot be called with operand size of more than 64 bits. Input argument size=%0d",size))
+      return 0;
     end
     
     mask = -1;
@@ -288,34 +301,34 @@ class uvm_comparer extends uvm_policy;
     if((lhs & mask) !== (rhs & mask)) begin
       case (radix)
         UVM_BIN: begin
-              $swrite(msg, "%s: lhs = 'b%0b : rhs = 'b%0b", 
+          $swrite(msg, "%s: lhs = 'b%0b : rhs = 'b%0b", 
                        name, lhs&mask, rhs&mask);
-             end
+        end
         UVM_OCT: begin
-              $swrite(msg, "%s: lhs = 'o%0o : rhs = 'o%0o", 
+          $swrite(msg, "%s: lhs = 'o%0o : rhs = 'o%0o", 
                        name, lhs&mask, rhs&mask);
-             end
+        end
         UVM_DEC: begin
-              $swrite(msg, "%s: lhs = %0d : rhs = %0d", 
+          $swrite(msg, "%s: lhs = %0d : rhs = %0d", 
                        name, lhs&mask, rhs&mask);
-             end
+        end
         UVM_TIME: begin
-            $swrite(msg, "%s: lhs = %0t : rhs = %0t", 
+          $swrite(msg, "%s: lhs = %0t : rhs = %0t", 
                name, lhs&mask, rhs&mask);
         end
         UVM_STRING: begin
-              $swrite(msg, "%s: lhs = %0s : rhs = %0s", 
+          $swrite(msg, "%s: lhs = %0s : rhs = %0s", 
                        name, lhs&mask, rhs&mask);
-             end
+        end
         UVM_ENUM: begin
-              //Printed as decimal, user should cuse compare string for enum val
-              $swrite(msg, "%s: lhs = %0d : rhs = %0d", 
+          //Printed as decimal, user should cuse compare string for enum val
+          $swrite(msg, "%s: lhs = %0d : rhs = %0d", 
                        name, lhs&mask, rhs&mask);
-              end
+        end
         default: begin
-              $swrite(msg, "%s: lhs = 'h%0x : rhs = 'h%0x", 
+          $swrite(msg, "%s: lhs = 'h%0x : rhs = 'h%0x", 
                        name, lhs&mask, rhs&mask);
-             end
+        end
       endcase
       print_msg(msg);
       return 0;
@@ -346,22 +359,40 @@ class uvm_comparer extends uvm_policy;
   // Stores the passed-in names of the objects in the hierarchy
   local string m_object_names[$];
   local function string m_current_context(string name="");
-    if (m_object_names.size()  == 0)
-      return name; //??
-    else if ((m_object_names.size() == 1) && (name==""))
+    if (m_object_names.size()  == 0) begin
+      
+      return name;
+    end
+ //??
+    else if ((m_object_names.size() == 1) && (name=="")) begin
+      
       return m_object_names[0];
+    end
+
     else begin
       string     full_name;
       foreach(m_object_names[i]) begin
-        if (i == m_object_names.size() - 1)
+        if (i == m_object_names.size() - 1) begin
+          
           full_name = {full_name, m_object_names[i]};
-        else
+        end
+
+        else begin
+          
           full_name  = {full_name, m_object_names[i], "."};
+        end
+
       end
-      if (name != "")
+      if (name != "") begin
+        
         return {full_name, ".", name};
-      else
+      end
+
+      else begin
+        
         return full_name;
+      end
+
     end
   endfunction : m_current_context
   
@@ -388,8 +419,11 @@ class uvm_comparer extends uvm_policy;
     bit ret_val = 1;
 
     // Fast Pass
-    if (rhs == lhs)
+    if (rhs == lhs) begin
+      
       return ret_val;
+    end
+
 
     // Push the name on the stack
     m_object_names.push_back(name);
@@ -418,10 +452,11 @@ class uvm_comparer extends uvm_policy;
     if (ret_val) begin
       // Warn on possible infinite loop
       prev_state      = object_compared(lhs,rhs,get_recursion_policy(),ret_val);
-      if (prev_state != uvm_policy::NEVER) // 
+      if (prev_state != uvm_policy::NEVER) begin
+        
         `uvm_warning("UVM/COPIER/LOOP", {"Possible loop when comparing '", 
-                                         lhs.get_full_name(), "' to '", rhs.get_full_name(), "'"})
-    
+        lhs.get_full_name(), "' to '", rhs.get_full_name(), "'"})
+      end    
 
       push_active_object(lhs);
       m_recur_states[lhs][rhs][get_recursion_policy()]  = '{uvm_policy::STARTED,0};
@@ -448,8 +483,11 @@ class uvm_comparer extends uvm_policy;
 
       // If do_compare() returned 1, check for a change
       // in the result count.
-      if (ret_val && (get_result() > old_result))
+      if (ret_val && (get_result() > old_result)) begin
+        
         ret_val = 0;
+      end
+
 
       // Save off the comparison result
       m_recur_states[lhs][rhs][get_recursion_policy()]  = '{uvm_policy::FINISHED,ret_val};
@@ -467,12 +505,18 @@ class uvm_comparer extends uvm_policy;
       // If there are stored results
       if(get_result()) begin
         // If there's a display limit that we've hit
-        if (get_show_max() && (get_show_max() < get_result())) 
+        if (get_show_max() && (get_show_max() < get_result())) begin 
+          
           $swrite(msg, "%0d Miscompare(s) (%0d shown) for object ",
                   result, show_max);
+        end
+
         // Else there's either no limit, or we didn't hit it
-        else
+        else begin
+          
           $swrite(msg, "%0d Miscompare(s) for object ", result);
+        end
+
       end
 
       uvm_pkg::uvm_report(sev, "MISCMP", $sformatf("%s%s@%0d vs. %s@%0d", msg,
@@ -480,7 +524,7 @@ class uvm_comparer extends uvm_policy;
                                                    (lhs == null) ? 0 : lhs.get_inst_id(), 
                                                    (rhs == null) ? "<null>" : rhs.get_name(), 
                                                    (rhs == null) ? 0 : rhs.get_inst_id()),
-			  get_verbosity(), `uvm_file, `uvm_line);
+              get_verbosity(), `uvm_file, `uvm_line);
         
     end // if (!ret_val && (get_active_object_depth() == 1))
     
@@ -528,7 +572,7 @@ class uvm_comparer extends uvm_policy;
     if((get_show_max() == 0) ||
        (get_result() <= get_show_max())) begin
       msg = {"Miscompare for ", tmp};
-       uvm_pkg::uvm_report(sev, "MISCMP", msg, get_verbosity(), `uvm_file, `uvm_line);
+      uvm_pkg::uvm_report(sev, "MISCMP", msg, get_verbosity(), `uvm_file, `uvm_line);
     end
     miscompares = { miscompares, tmp, "\n" };
   endfunction
@@ -543,13 +587,13 @@ class uvm_comparer extends uvm_policy;
   function void print_msg_object(uvm_object lhs, uvm_object rhs);
     string tmp = $sformatf("%s: lhs = @%0d : rhs = @%0d",
                            m_current_context(), 
-                           (lhs != null ? lhs.get_inst_id() : 0), 	
+                           (lhs != null ? lhs.get_inst_id() : 0),     
                            (rhs != null ? rhs.get_inst_id() : 0));
     result++;
     
     if((get_show_max() == 0) ||
        (get_result() <= get_show_max())) begin
-       uvm_pkg::uvm_report(sev, 
+      uvm_pkg::uvm_report(sev, 
                            "MISCMP", 
                            {"Miscompare for ", tmp}, 
                            get_verbosity(), 
@@ -578,13 +622,25 @@ function uvm_policy::recursion_state_e uvm_comparer::object_compared(
   uvm_recursion_policy_enum recursion,
   output bit ret_val
 );
-  if (!m_recur_states.exists(lhs)) return NEVER ;
-  else if (!m_recur_states[lhs].exists(rhs)) return NEVER ;
-  else if (!m_recur_states[lhs][rhs].exists(recursion)) return NEVER ;
+  if (!m_recur_states.exists(lhs)) begin
+    return NEVER ;
+  end
+
+  else if (!m_recur_states[lhs].exists(rhs)) begin
+    return NEVER ;
+  end
+
+  else if (!m_recur_states[lhs][rhs].exists(recursion)) begin
+    return NEVER ;
+  end
+
   else begin
-     if (m_recur_states[lhs][rhs][recursion].state == FINISHED) 
-        ret_val = m_recur_states[lhs][rhs][recursion].ret_val;
-     return m_recur_states[lhs][rhs][recursion].state ;
+    if (m_recur_states[lhs][rhs][recursion].state == FINISHED) begin 
+        
+      ret_val = m_recur_states[lhs][rhs][recursion].ret_val;
+    end
+
+    return m_recur_states[lhs][rhs][recursion].state ;
   end
 endfunction
 
