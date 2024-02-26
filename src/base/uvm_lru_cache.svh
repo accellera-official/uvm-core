@@ -3,7 +3,7 @@
 // Copyright 2022 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2022 Mentor Graphics Corporation
-// Copyright 2021-2023 NVIDIA Corporation
+// Copyright 2021-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the

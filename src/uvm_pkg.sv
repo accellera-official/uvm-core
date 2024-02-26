@@ -3,7 +3,7 @@
 // Copyright 2007-2022 Cadence Design Systems, Inc.
 // Copyright 2023 Intel Corporation
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2013-2023 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2011-2022 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //

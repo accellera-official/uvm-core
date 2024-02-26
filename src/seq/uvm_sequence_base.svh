@@ -6,7 +6,7 @@
 // Copyright 2014-2017 Intel Corporation
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2007-2017 Mentor Graphics Corporation
-// Copyright 2012-2023 NVIDIA Corporation
+// Copyright 2012-2024 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2014 Synopsys, Inc.
 // Copyright 2013 Verilab

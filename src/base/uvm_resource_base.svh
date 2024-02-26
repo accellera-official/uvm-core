@@ -2,7 +2,7 @@
 // Copyright 2018 Cadence Design Systems, Inc.
 // Copyright 2017-2018 Cisco Systems, Inc.
 // Copyright 2021-2023 Marvell International Ltd.
-// Copyright 2018-2023 NVIDIA Corporation
+// Copyright 2018-2024 NVIDIA Corporation
 // Copyright 2017-2018 Verific
 //   All Rights Reserved Worldwide
 //

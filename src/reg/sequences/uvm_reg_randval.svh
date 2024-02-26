@@ -1,6 +1,6 @@
 // 
 //----------------------------------------------------------------------
-// Copyright 2020-2023 NVIDIA Corporation
+// Copyright 2020-2024 NVIDIA Corporation
 // Copyright 2004-2009 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 // 

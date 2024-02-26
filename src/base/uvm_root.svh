@@ -1,13 +1,13 @@
 //
 //------------------------------------------------------------------------------
-// Copyright 2010-2022 AMD
+// Copyright 2010-2024 AMD
 // Copyright 2012 Accellera Systems Initiative
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2012-2018 Cisco Systems, Inc.
 // Copyright 2022 Intel Corporation
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2012-2023 NVIDIA Corporation
+// Copyright 2012-2024 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2018 Synopsys, Inc.
 // Copyright 2017-2021 Verific

@@ -4,7 +4,7 @@
 // Copyright 2010-2023 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2013-2023 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2010-2011 Synopsys, Inc.
 //
 //   All Rights Reserved Worldwide

@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2018-2023 NVIDIA Corporation
+// Copyright 2018-2024 NVIDIA Corporation
 // Copyright 2017 Verific
 //   All Rights Reserved Worldwide
 //

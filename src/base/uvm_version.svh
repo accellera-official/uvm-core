@@ -4,7 +4,7 @@
 // Copyright 2017 Cisco Systems, Inc.
 // Copyright 2011-2012 Cypress Semiconductor Corp.
 // Copyright 2007-2013 Mentor Graphics Corporation
-// Copyright 2013-2023 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2012 Paradigm Works
 // Copyright 2010-2011 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -37,7 +37,7 @@
 `ifndef UVM_VERSION_SVH
 `define UVM_VERSION_SVH
 
-parameter string UVM_VERSION_STRING = "%UVM:vlnv%";
+parameter string UVM_VERSION_STRING = "Accellera:1800.2:UVM:2020.3.0";
 
 function string uvm_revision_string();
   return UVM_VERSION_STRING;

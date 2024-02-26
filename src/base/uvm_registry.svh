@@ -5,7 +5,7 @@
 // Copyright 2018 Cisco Systems, Inc.
 // Copyright 2014 Intel Corporation
 // Copyright 2007-2020 Mentor Graphics Corporation
-// Copyright 2014-2023 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2018 Qualcomm, Inc.
 // Copyright 2011-2014 Synopsys, Inc.
 //   All Rights Reserved Worldwide

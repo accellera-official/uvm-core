@@ -1,6 +1,6 @@
 //-----------------------------------------------------------------------------
 // Copyright 2018 Cadence Design Systems, Inc.
-// Copyright 2018-2023 NVIDIA Corporation
+// Copyright 2018-2024 NVIDIA Corporation
 // Copyright 2018 Qualcomm, Inc.
 // Copyright 2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide

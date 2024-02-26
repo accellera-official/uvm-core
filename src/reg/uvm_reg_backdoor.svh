@@ -3,7 +3,7 @@
 // Copyright 2010 AMD
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2020 Mentor Graphics Corporation
-// Copyright 2015-2023 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 // Copyright 2004-2018 Synopsys, Inc.
 // Copyright 2020 Verific
 //    All Rights Reserved Worldwide

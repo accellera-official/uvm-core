@@ -9,7 +9,7 @@ See details in the Library Release Description below.
 
 # Kit version
 
-%UVM:library% %UVM:version%
+1800.2 2020.3.0
 
 # License
 
@@ -30,7 +30,7 @@ contact the Accellera UVM Working Group (uvm-wg@lists.accellera.org).
 
 # Bug Fixes
 
-The following errata were fixed in %UVM:version%.
+The following errata were fixed in 2020.3.0.
 
 | Mantis Number | Description |
 | ------------- | ----------- |
@@ -235,6 +235,14 @@ begin
   port_comp.get_provided_to(list);
 end
 ```
+### `uvm_packer` stream contents have changed
+
+If data is packed to a stream and then that stream is unpacked, all library versions produce identical unpack output, but the contents of the stream are different between 1800.2 versions and pre-1800.2 versions.  If the exact stream contents must be maintained, then the recommendation is to use the uvm_compat_packer.  Please refer to the compatibility package [README](./compat/README.md) for details.
+
+### `uvm_sequence_base` and `uvm_sequence#()` are now abstract classes
+
+Prior to 1800.2 versions, user code could create an instance of uvm_sequence_base or uvm_sequence#(), but because these are abstract in 1800.2, they may no longer be instanced.  The recommendation is to use the uvm_compat_sequence_proxy_sequence#().  Please refer to the compatibility package [README](./compat/README.md) for details.
+
 ## Polling mechansim.
 The Polling mechanism is a new feature under development. Hence the API may change. It is experimental and feedback is welcome. 
 To use this feature, add the define UVM_ENABLE_EXPERIMENTAL_POLLING_API to include the polling API in your compilation. This is in addition to other defines described below which select options within the polling API.
@@ -434,14 +442,6 @@ This unique_name can actually be the signal name if you wish or any other string
 
 Save and Restore:
 	Special considerations may be required when using the PLI-Based backend with 'Save and Restore' semantics. Please consult your simulation vendor for more information.
-
-### `uvm_packer` stream contents have changed
-
-If data is packed to a stream and then that stream is unpacked, all library versions produce identical unpack output, but the contents of the stream are different between 1800.2 versions and pre-1800.2 versions.  If the exact stream contents must be maintained, then the recommendation is to use the uvm_compat_packer.  Please refer to the compatibility package [README](./compat/README.md) for details.
-
-### `uvm_sequence_base` and `uvm_sequence#()` are now abstract classes
-
-Prior to 1800.2 versions, user code could create an instance of uvm_sequence_base or uvm_sequence#(), but because these are abstract in 1800.2, they may no longer be instanced.  The recommendation is to use the uvm_compat_sequence_proxy_sequence#().  Please refer to the compatibility package [README](./compat/README.md) for details.
 
 # Git details
 

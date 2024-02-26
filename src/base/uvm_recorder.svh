@@ -6,7 +6,7 @@
 // Copyright 2017-2018 Cisco Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2007-2022 Mentor Graphics Corporation
-// Copyright 2013-2023 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2011-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //

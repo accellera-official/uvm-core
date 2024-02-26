@@ -1,7 +1,7 @@
 //
 //------------------------------------------------------------------------------
-// Copyright 2022 Marvell International Ltd.
-// Copyright 2022-2023 NVIDIA Corporation
+// Copyright 2022-2024 Marvell International Ltd.
+// Copyright 2022-2024 NVIDIA Corporation
 //
 //   All Rights Reserved Worldwide
 //
