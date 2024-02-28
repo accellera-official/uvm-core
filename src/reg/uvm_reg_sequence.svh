@@ -36,6 +36,7 @@
 // TITLE -- NODOCS -- Register Sequence Classes
 //------------------------------------------------------------------------------
 
+//------------------------------------------------------------------------------
 //
 // This section defines the base classes used for register stimulus generation.
 //------------------------------------------------------------------------------
@@ -43,8 +44,11 @@
                                                               
 //------------------------------------------------------------------------------
 //
-// CLASS -- NODOCS -- uvm_reg_sequence
+// CLASS: uvm_reg_sequence
 //
+//------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
 // This class provides base functionality for both user-defined RegModel test
 // sequences and "register translation sequences".
 //

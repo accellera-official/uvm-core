@@ -34,6 +34,8 @@
 //----------------------------------------------------------------------
 
 
+// Title: Message Macros
+
 `ifndef UVM_MESSAGE_DEFINES_SVH
 `define UVM_MESSAGE_DEFINES_SVH
 
