@@ -4,7 +4,7 @@
 // Copyright 2014 Cisco Systems, Inc.
 // Copyright 2022-2023 Marvell International Ltd.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2014-2022 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2010-2013 Synopsys, Inc.
 // Copyright 2021 Verific
 //   All Rights Reserved Worldwide
@@ -23,6 +23,18 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
+
+// Title: Message Macros
 
 `ifndef UVM_MESSAGE_DEFINES_SVH
 `define UVM_MESSAGE_DEFINES_SVH
@@ -117,10 +129,10 @@
 // @uvm-contrib For potential contribution to a future 1800.2 standard
 `define uvm_report_begin(SEVERITY, ID, VERBOSITY, RO=uvm_get_report_object()) \
    begin \
-     uvm_report_object _local_report_object_;\
+     uvm_pkg::uvm_report_object _local_report_object_;\
      _local_report_object_ = RO.uvm_get_report_object() ; \
      if ((_local_report_object_.get_report_verbosity_level(SEVERITY, ID) >= VERBOSITY) && \
-         (_local_report_object_.get_report_action(SEVERITY, ID) != UVM_NO_ACTION)) begin
+         (_local_report_object_.get_report_action(SEVERITY, ID) != uvm_pkg::UVM_NO_ACTION)) begin
 
 // MACRO: `uvm_report_end 
 //
@@ -141,7 +153,7 @@
 
 // @uvm-ieee 1800.2-2020 auto B.1.1.1
 `define uvm_info(ID, MSG, VERBOSITY) \
-  `uvm_report_begin(UVM_INFO, ID, VERBOSITY) \
+  `uvm_report_begin(uvm_pkg::UVM_INFO, ID, VERBOSITY) \
   uvm_report_info(ID, MSG, VERBOSITY, `uvm_file, `uvm_line, "", 1); \
   `uvm_report_end
 
@@ -158,8 +170,8 @@
 
 // @uvm-ieee 1800.2-2020 auto B.1.1.2
 `define uvm_warning(ID, MSG) \
-  `uvm_report_begin(UVM_WARNING, ID, UVM_NONE) \
-  uvm_report_warning(ID, MSG, UVM_NONE, `uvm_file, `uvm_line, "", 1); \
+  `uvm_report_begin(uvm_pkg::UVM_WARNING, ID, uvm_pkg::UVM_NONE) \
+  uvm_report_warning(ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, "", 1); \
   `uvm_report_end
 
 // MACRO -- NODOCS -- `uvm_error
@@ -174,8 +186,8 @@
 
 // @uvm-ieee 1800.2-2020 auto B.1.1.3
 `define uvm_error(ID, MSG) \
-  `uvm_report_begin(UVM_ERROR, ID, UVM_NONE) \
-  uvm_report_error(ID, MSG, UVM_NONE, `uvm_file, `uvm_line, "", 1); \
+  `uvm_report_begin(uvm_pkg::UVM_ERROR, ID, uvm_pkg::UVM_NONE) \
+  uvm_report_error(ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, "", 1); \
   `uvm_report_end
 
 // MACRO -- NODOCS -- `uvm_fatal
@@ -190,8 +202,8 @@
 
 // @uvm-ieee 1800.2-2020 auto B.1.1.4
 `define uvm_fatal(ID, MSG) \
-  `uvm_report_begin(UVM_FATAL, ID, UVM_NONE) \
-  uvm_report_fatal(ID, MSG, UVM_NONE, `uvm_file, `uvm_line, "", 1); \
+  `uvm_report_begin(uvm_pkg::UVM_FATAL, ID, uvm_pkg::UVM_NONE) \
+  uvm_report_fatal(ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, "", 1); \
   `uvm_report_end
 
        
@@ -206,7 +218,7 @@
 
 // @uvm-ieee 1800.2-2020 auto B.1.1.5
 `define uvm_info_context(ID, MSG, VERBOSITY, RO) \
-  `uvm_report_begin(UVM_INFO, ID, VERBOSITY, RO) \
+  `uvm_report_begin(uvm_pkg::UVM_INFO, ID, VERBOSITY, RO) \
    _local_report_object_.uvm_report_info(ID, MSG, VERBOSITY, `uvm_file, `uvm_line, "", 1); \
   `uvm_report_end
 
@@ -220,8 +232,8 @@
 
 // @uvm-ieee 1800.2-2020 auto B.1.1.6
 `define uvm_warning_context(ID, MSG, RO) \
-  `uvm_report_begin(UVM_WARNING, ID, UVM_NONE, RO) \
-   _local_report_object_.uvm_report_warning(ID, MSG, UVM_NONE, `uvm_file, `uvm_line, "", 1); \
+  `uvm_report_begin(uvm_pkg::UVM_WARNING, ID, uvm_pkg::UVM_NONE, RO) \
+   _local_report_object_.uvm_report_warning(ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, "", 1); \
   `uvm_report_end
 
 
@@ -235,8 +247,8 @@
 
 // @uvm-ieee 1800.2-2020 auto B.1.1.7
 `define uvm_error_context(ID, MSG, RO) \
-  `uvm_report_begin(UVM_ERROR, ID, UVM_NONE, RO) \
-   _local_report_object_.uvm_report_error(ID, MSG, UVM_NONE, `uvm_file, `uvm_line, "", 1); \
+  `uvm_report_begin(uvm_pkg::UVM_ERROR, ID, uvm_pkg::UVM_NONE, RO) \
+   _local_report_object_.uvm_report_error(ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, "", 1); \
   `uvm_report_end
 
 
@@ -250,8 +262,8 @@
 
 // @uvm-ieee 1800.2-2020 auto B.1.1.8
 `define uvm_fatal_context(ID, MSG, RO) \
-  `uvm_report_begin(UVM_FATAL, ID, UVM_NONE, RO) \
-   _local_report_object_.uvm_report_fatal(ID, MSG, UVM_NONE, `uvm_file, `uvm_line, "", 1); \
+  `uvm_report_begin(uvm_pkg::UVM_FATAL, ID, uvm_pkg::UVM_NONE, RO) \
+   _local_report_object_.uvm_report_fatal(ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, "", 1); \
   `uvm_report_end
 
 
@@ -268,8 +280,8 @@
 
 `define uvm_message_begin(SEVERITY, ID, MSG, VERBOSITY, FILE, LINE, RM) \
    `uvm_report_begin(SEVERITY, ID, VERBOSITY) \
-     uvm_report_message __uvm_msg; \
-     if (RM == null) RM = uvm_report_message::new_report_message(); \
+     uvm_pkg::uvm_report_message __uvm_msg; \
+     if (RM == null) RM = uvm_pkg::uvm_report_message::new_report_message(); \
      __uvm_msg = RM; \
      __uvm_msg.set_report_message(SEVERITY, ID, MSG, VERBOSITY, FILE, LINE, "");
 
@@ -291,10 +303,10 @@
 
 `define uvm_message_context_begin(SEVERITY, ID, MSG, VERBOSITY, FILE, LINE, RO, RM) \
    `uvm_report_begin(SEVERITY, ID, VERBOSITY, RO) \
-     uvm_report_object __report_object; \
-     uvm_report_message __uvm_msg; \
+     uvm_pkg::uvm_report_object __report_object; \
+     uvm_pkg::uvm_report_message __uvm_msg; \
      __report_object = RO; \
-     if (RM == null) RM = uvm_report_message::new_report_message(); \
+     if (RM == null) RM = uvm_pkg::uvm_report_message::new_report_message(); \
        __uvm_msg = RM; \
        __uvm_msg.set_report_message(SEVERITY, ID, MSG, VERBOSITY, FILE, LINE, "");
 
@@ -316,7 +328,7 @@
 //
 
 `define uvm_info_begin(ID, MSG, VERBOSITY, RM = __uvm_msg) \
-   `uvm_message_begin(UVM_INFO, ID, MSG, VERBOSITY, `uvm_file, `uvm_line, RM)
+   `uvm_message_begin(uvm_pkg::UVM_INFO, ID, MSG, VERBOSITY, `uvm_file, `uvm_line, RM)
 
 // MACRO -- NODOCS -- `uvm_info_end
 //
@@ -349,7 +361,7 @@
 //
 
 `define uvm_warning_begin(ID, MSG, RM = __uvm_msg) \
-   `uvm_message_begin(UVM_WARNING, ID, MSG, UVM_NONE, `uvm_file, `uvm_line, RM)
+   `uvm_message_begin(uvm_pkg::UVM_WARNING, ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, RM)
 
 // MACRO -- NODOCS -- `uvm_warning_end
 //
@@ -371,7 +383,7 @@
 //
 
 `define uvm_error_begin(ID, MSG, RM = __uvm_msg) \
-   `uvm_message_begin(UVM_ERROR, ID, MSG, UVM_NONE, `uvm_file, `uvm_line, RM)
+   `uvm_message_begin(uvm_pkg::UVM_ERROR, ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, RM)
 
 
 // MACRO -- NODOCS -- `uvm_error_end
@@ -394,7 +406,7 @@
 //
 
 `define uvm_fatal_begin(ID, MSG, RM = __uvm_msg) \
-   `uvm_message_begin(UVM_FATAL, ID, MSG, UVM_NONE, `uvm_file, `uvm_line, RM)
+   `uvm_message_begin(uvm_pkg::UVM_FATAL, ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, RM)
 
 
 // MACRO -- NODOCS -- `uvm_fatal_end
@@ -417,7 +429,7 @@
 //
 
 `define uvm_info_context_begin(ID, MSG, VERBOSITY, RO, RM = __uvm_msg) \
-   `uvm_message_context_begin(UVM_INFO, ID, MSG, VERBOSITY, `uvm_file, `uvm_line, RO, RM)
+   `uvm_message_context_begin(uvm_pkg::UVM_INFO, ID, MSG, VERBOSITY, `uvm_file, `uvm_line, RO, RM)
 
 
 // MACRO -- NODOCS -- `uvm_info_context_end
@@ -439,7 +451,7 @@
 //
 
 `define uvm_warning_context_begin(ID, MSG, RO, RM = __uvm_msg) \
-   `uvm_message_context_begin(UVM_WARNING, ID, MSG, UVM_NONE, `uvm_file, `uvm_line, RO, RM)
+   `uvm_message_context_begin(uvm_pkg::UVM_WARNING, ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, RO, RM)
 
 // MACRO -- NODOCS -- `uvm_warning_context_end
 //
@@ -460,7 +472,7 @@
 //
 
 `define uvm_error_context_begin(ID, MSG, RO, RM = __uvm_msg) \
-   `uvm_message_context_begin(UVM_ERROR, ID, MSG, UVM_NONE, `uvm_file, `uvm_line, RO, RM)
+   `uvm_message_context_begin(uvm_pkg::UVM_ERROR, ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, RO, RM)
 
 
 // MACRO -- NODOCS -- `uvm_error_context_end
@@ -482,7 +494,7 @@
 //
 
 `define uvm_fatal_context_begin(ID, MSG, RO, RM = __uvm_msg) \
-   `uvm_message_context_begin(UVM_FATAL, ID, MSG, UVM_NONE, `uvm_file, `uvm_line, RO, RM)
+   `uvm_message_context_begin(uvm_pkg::UVM_FATAL, ID, MSG, uvm_pkg::UVM_NONE, `uvm_file, `uvm_line, RO, RM)
 
 
 // MACRO -- NODOCS -- `uvm_fatal_context_end
@@ -508,7 +520,7 @@
 // |`uvm_message_add_tag(NAME, VALUE, ACTION=(UVM_LOG|UVM_RM_RECORD))
 //
 
-`define uvm_message_add_tag(NAME, VALUE, ACTION=(UVM_LOG|UVM_RM_RECORD)) \
+`define uvm_message_add_tag(NAME, VALUE, ACTION=(uvm_pkg::UVM_LOG|uvm_pkg::UVM_RM_RECORD)) \
     __uvm_msg.add_string(NAME, VALUE, ACTION);
 
 
@@ -517,7 +529,7 @@
 // |`uvm_message_add_int(VAR, RADIX, LABEL = "", ACTION=(UVM_LOG|UVM_RM_RECORD))
 //
 
-`define uvm_message_add_int(VAR, RADIX, LABEL="", ACTION=(UVM_LOG|UVM_RM_RECORD)) \
+`define uvm_message_add_int(VAR, RADIX, LABEL="", ACTION=(uvm_pkg::UVM_LOG|uvm_pkg::UVM_RM_RECORD)) \
     if (LABEL == "") \
       __uvm_msg.add_int(`"VAR`", VAR, $bits(VAR), RADIX, ACTION); \
     else \
@@ -529,7 +541,7 @@
 // |`uvm_message_add_string(VAR, LABEL = "", ACTION=(UVM_LOG|UVM_RM_RECORD))
 //
 
-`define uvm_message_add_string(VAR, LABEL="", ACTION=(UVM_LOG|UVM_RM_RECORD)) \
+`define uvm_message_add_string(VAR, LABEL="", ACTION=(uvm_pkg::UVM_LOG|uvm_pkg::UVM_RM_RECORD)) \
     if (LABEL == "") \
       __uvm_msg.add_string(`"VAR`", VAR, ACTION); \
     else \
@@ -550,7 +562,7 @@
 // Example usage is shown in <`uvm_info_end>.
 //
 
-`define uvm_message_add_object(VAR, LABEL="", ACTION=(UVM_LOG|UVM_RM_RECORD)) \
+`define uvm_message_add_object(VAR, LABEL="", ACTION=(uvm_pkg::UVM_LOG|uvm_pkg::UVM_RM_RECORD)) \
     if (LABEL == "") \
       __uvm_msg.add_object(`"VAR`", VAR, ACTION); \
     else \

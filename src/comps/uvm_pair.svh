@@ -2,7 +2,7 @@
 //-----------------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 // Copyright 2011 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //-----------------------------------------------------------------------------
 // Title -- NODOCS -- uvm_pair classes
@@ -63,15 +73,27 @@ class uvm_class_pair #(type T1=int, T2=T1) extends uvm_object;
 
     super.new(name);
 
-    if (f == null)
+    if (f == null) begin
+      
       first = new;
-    else
-      first = f;
+    end
 
-    if (s == null)
+    else begin
+      
+      first = f;
+    end
+
+
+    if (s == null) begin
+      
       second = new;
-    else
+    end
+
+    else begin
+      
       second = s;
+    end
+
 
   endfunction  
   
@@ -93,8 +115,9 @@ class uvm_class_pair #(type T1=int, T2=T1) extends uvm_object;
 
   virtual function void do_copy (uvm_object rhs);
     this_type rhs_;
-    if(!$cast(rhs_,rhs))
+    if(!$cast(rhs_,rhs)) begin
       `uvm_fatal("WRONG_TYPE", {"do_copy: rhs argument is not of type '",get_type_name(),"'"})
+    end
     first.copy(rhs_.first);
     second.copy(rhs_.second);
   endfunction
@@ -151,8 +174,9 @@ class uvm_built_in_pair #(type T1=int, T2=T1) extends uvm_object;
 
   function void do_copy (uvm_object rhs);
     this_type rhs_;
-    if(!$cast(rhs_,rhs))
+    if(!$cast(rhs_,rhs)) begin
       `uvm_fatal("WRONG_TYPE", {"do_copy: rhs argument is not of type '",get_type_name(),"'"})
+    end
     first = rhs_.first;
     second = rhs_.second;
   endfunction

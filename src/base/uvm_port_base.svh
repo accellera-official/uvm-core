@@ -7,7 +7,7 @@
 // Copyright 2014 Intel Corporation
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2007-2021 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2018 Synopsys, Inc.
 // Copyright 2017 Verific
@@ -25,6 +25,16 @@
 //   License for the specific language governing permissions and limitations
 //   under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 const int UVM_UNBOUNDED_CONNECTIONS = -1;
 const string s_connection_error_id = "Connection Error";
@@ -130,13 +140,19 @@ class uvm_port_component #(type PORT=uvm_object) extends uvm_port_component_base
 
   function new (string name, uvm_component parent, PORT port);
     super.new(name,parent);
-    if (port == null)
+    if (port == null) begin
+      
       uvm_report_fatal("Bad usage", "Null handle to port", UVM_NONE);
+    end
+
     m_port = port;
   endfunction
 
   virtual function string get_type_name();
-    if(m_port == null) return "uvm_port_component";
+    if(m_port == null) begin
+      return "uvm_port_component";
+    end
+
     return m_port.get_type_name();
   endfunction
     
@@ -286,8 +302,11 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
     m_max_size  = max_size;
     m_comp = new(name, parent, this);
 
-    if (!uvm_config_int::get(m_comp, "", "check_connection_relationships",tmp))
+    if (!uvm_config_int::get(m_comp, "", "check_connection_relationships",tmp)) begin
+      
       m_comp.set_report_id_action(s_connection_warning_id, UVM_NO_ACTION);
+    end
+
 
   endfunction
 
@@ -346,9 +365,18 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
   // @uvm-ieee 1800.2-2020 auto 5.5.2.5
   virtual function string get_type_name();
     case( m_port_type )
-      UVM_PORT : return "port";
-      UVM_EXPORT : return "export";
-      UVM_IMPLEMENTATION : return "implementation";
+      UVM_PORT : begin
+        return "port";
+      end
+
+      UVM_EXPORT : begin
+        return "export";
+      end
+
+      UVM_IMPLEMENTATION : begin
+        return "implementation";
+      end
+
     endcase
   endfunction
 
@@ -426,8 +454,11 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
 
   function void set_if (int index=0);
     m_if = get_if(index);
-    if (m_if != null)
+    if (m_if != null) begin
+      
       m_def_index = index;
+    end
+
   endfunction
 
   function int m_get_if_mask();
@@ -496,11 +527,11 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
      top = cs.get_root();
     if (end_of_elaboration_ph.get_state() == UVM_PHASE_EXECUTING || // TBD tidy
         end_of_elaboration_ph.get_state() == UVM_PHASE_DONE ) begin
-       m_comp.uvm_report_warning("Late Connection", 
+      m_comp.uvm_report_warning("Late Connection", 
          {"Attempt to connect ",this.get_full_name()," (of type ",this.get_type_name(),
           ") at or after end_of_elaboration phase.  Ignoring."});
-       return;
-     end
+      return;
+    end
 
     if (provider == null) begin
       m_comp.uvm_report_error(s_connection_error_id,
@@ -565,11 +596,17 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
     static string indent, save;
     this_type port;
   
-    if (level <  0) level = 0;
+    if (level <  0) begin
+      level = 0;
+    end
+
     if (level == 0) begin save = ""; indent="  "; end
   
-    if (max_level != -1 && level >= max_level)
+    if (max_level != -1 && level >= max_level) begin
+      
       return;
+    end
+
   
     num = m_provided_by.num();
   
@@ -586,20 +623,29 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
     end
   
     if (level == 0) begin
-      if (save != "")
+      if (save != "") begin
+        
         save = {"This port's fanout network:\n\n  ",
                get_full_name()," (",get_type_name(),")\n",save,"\n"};
+      end
+
       if (m_imp_list.num() == 0) begin
-	 uvm_root top;
-	 uvm_coreservice_t cs;
-	 cs = uvm_coreservice_t::get();
-	 top = cs.get_root();
+        uvm_root top;
+        uvm_coreservice_t cs;
+        cs = uvm_coreservice_t::get();
+        top = cs.get_root();
         if (end_of_elaboration_ph.get_state() == UVM_PHASE_EXECUTING ||
-            end_of_elaboration_ph.get_state() == UVM_PHASE_DONE )  // TBD tidy
-           save = {save,"  Connected implementations: none\n"};
-        else
-           save = {save,
+        end_of_elaboration_ph.get_state() == UVM_PHASE_DONE ) begin  // TBD tidy
+           
+          save = {save,"  Connected implementations: none\n"};
+        end
+
+        else begin
+           
+          save = {save,
                  "  Connected implementations: not resolved until end-of-elab\n"};
+        end
+
       end
       else begin
         save = {save,"  Resolved implementation list:\n"};
@@ -632,11 +678,17 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
     this_type port;
     static string indent, save;
   
-    if (level <  0) level = 0; 
+    if (level <  0) begin
+      level = 0;
+    end
+ 
     if (level == 0) begin save = ""; indent = "  "; end
 
-    if (max_level != -1 && level > max_level)
+    if (max_level != -1 && level > max_level) begin
+      
       return;
+    end
+
   
     num = m_provided_to.num();
   
@@ -653,11 +705,17 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
     end
 
     if (level == 0) begin
-      if (save != "")
+      if (save != "") begin
+        
         save = {"This port's fanin network:\n\n  ",
                get_full_name()," (",get_type_name(),")\n",save,"\n"};
-      if (m_provided_to.num() == 0)
+      end
+
+      if (m_provided_to.num() == 0) begin
+        
         save = {save,indent,"This port has not been bound\n"};
+      end
+
       m_comp.uvm_report_info("debug_provided_to", save);
     end
   
@@ -708,16 +766,22 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
     // and check for legal direction, requirer.connect(provider).
 
     // if we're an analysis port, allow connection to anywhere
-    if (get_type_name() == "uvm_analysis_port")
+    if (get_type_name() == "uvm_analysis_port") begin
+      
       return 1;
+    end
+
     
     from         = this;
     from_parent  = get_parent();
     to_parent    = provider.get_parent();
   
     // skip check if we have a parentless port
-    if (from_parent == null || to_parent == null)
+    if (from_parent == null || to_parent == null) begin
+      
       return 1;
+    end
+
   
     from_gparent = from_parent.get_parent();
     to_gparent   = to_parent.get_parent();
@@ -739,7 +803,7 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
     //
     else if (from.is_port() && (provider.is_export() || provider.is_imp()) &&
              from_gparent != to_gparent) begin
-        s = {provider.get_full_name(),
+      s = {provider.get_full_name(),
            " (of type ",provider.get_type_name(),
            ") is not at the same level of hierarchy as this port. ",
            "A port-to-export connection takes the form ",
@@ -776,8 +840,11 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
 
     for (int i = 0; i < provider.size(); i++) begin
       imp = provider.get_if(i);
-      if (!m_imp_list.exists(imp.get_full_name()))
+      if (!m_imp_list.exists(imp.get_full_name())) begin
+        
         m_imp_list[imp.get_full_name()] = imp;
+      end
+
     end
 
   endfunction
@@ -796,8 +863,11 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
 
   // @uvm-ieee 1800.2-2020 auto 5.5.2.15
   virtual function void resolve_bindings();
-    if (m_resolved) // don't repeat ourselves
-     return;
+    if (m_resolved) begin // don't repeat ourselves
+     
+      return;
+    end
+
 
     if (is_imp()) begin
       m_imp_list[get_full_name()] = this;
@@ -825,8 +895,11 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
         size(), max_size()), UVM_NONE);
     end
 
-    if (size())
+    if (size()) begin
+      
       set_if(0);
+    end
+
   
   endfunction
   
@@ -851,8 +924,11 @@ virtual class uvm_port_base #(type IF=uvm_void) extends IF;
       return null;
     end
     foreach (m_imp_list[nm]) begin
-      if (index == 0)
+      if (index == 0) begin
+        
         return m_imp_list[nm];
+      end
+
       index--;
     end
   endfunction

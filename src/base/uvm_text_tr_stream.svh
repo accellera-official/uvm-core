@@ -3,7 +3,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2017 Cisco Systems, Inc.
 // Copyright 2007-2009 Mentor Graphics Corporation
-// Copyright 2018-2020 NVIDIA Corporation
+// Copyright 2018-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 //------------------------------------------------------------------------------
@@ -61,13 +71,16 @@ class uvm_text_tr_stream extends uvm_tr_stream;
                                            string stream_type_name);
       $cast(m_text_db, db);
       if (m_text_db.open_db())
-        $fdisplay(m_text_db.m_file, 
+        begin
+          $fdisplay(m_text_db.m_file, 
                   "  CREATE_STREAM @%0t {NAME:%s T:%s SCOPE:%s STREAM:%0d}",
                   $time,
                   this.get_name(),
                   stream_type_name,
                   scope,
                   this.get_handle());
+        end
+
    endfunction : do_open
 
    // Function: do_close
@@ -76,13 +89,16 @@ class uvm_text_tr_stream extends uvm_tr_stream;
    // @uvm-accellera The details of this API are specific to the Accellera implementation, and are not being considered for contribution to 1800.2
    protected virtual function void do_close();
       if (m_text_db.open_db())
-        $fdisplay(m_text_db.m_file,
+        begin
+          $fdisplay(m_text_db.m_file,
                   "  CLOSE_STREAM @%0t {NAME:%s T:%s SCOPE:%s STREAM:%0d}",
                   $time,
                   this.get_name(),
                   this.get_stream_type_name(),
                   this.get_scope(),
                   this.get_handle());
+        end
+
    endfunction : do_close
       
    // Function: do_free
@@ -91,13 +107,16 @@ class uvm_text_tr_stream extends uvm_tr_stream;
    // @uvm-accellera The details of this API are specific to the Accellera implementation, and are not being considered for contribution to 1800.2
    protected virtual function void do_free();
       if (m_text_db.open_db())
-        $fdisplay(m_text_db.m_file, 
+        begin
+          $fdisplay(m_text_db.m_file, 
                   "  FREE_STREAM @%0t {NAME:%s T:%s SCOPE:%s STREAM:%0d}",
                   $time,
                   this.get_name(),
                   this.get_stream_type_name(),
                   this.get_scope(),
                   this.get_handle());
+        end
+
       m_text_db = null;
       return;
    endfunction : do_free
@@ -111,9 +130,10 @@ class uvm_text_tr_stream extends uvm_tr_stream;
    protected virtual function uvm_recorder do_open_recorder(string name,
                                                            time   open_time,
                                                            string type_name);
-      if (m_text_db.open_db()) begin
-         return uvm_text_recorder::type_id::create(name);
-      end
+      if (m_text_db.open_db()) 
+        begin
+          return uvm_text_recorder::type_id::create(name);
+        end
 
       return null;
    endfunction : do_open_recorder

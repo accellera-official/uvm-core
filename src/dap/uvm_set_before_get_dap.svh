@@ -3,7 +3,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2014 Intel Corporation
 // Copyright 2007-2009 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 // Class -- NODOCS -- uvm_set_before_get_dap
 // Provides a 'Set Before Get' Data Access Policy.
@@ -112,9 +122,9 @@ class uvm_set_before_get_dap#(type T=int) extends uvm_set_get_dap_base#(T);
    // an error will be reported.
    virtual  function T get();
       if (!m_set) begin
-         `uvm_error("UVM/SET_BEFORE_GET_DAP/NO_SET",
-                    $sformatf("Attempt to get value on '%s', but the data access policy forbits calling 'get' prior to calling 'set' or 'try_set'!",
-                              get_full_name()))
+        `uvm_error("UVM/SET_BEFORE_GET_DAP/NO_SET",
+        $sformatf("Attempt to get value on '%s', but the data access policy forbits calling 'get' prior to calling 'set' or 'try_set'!",
+        get_full_name()))
       end
       return m_value;
    endfunction : get
@@ -130,8 +140,8 @@ class uvm_set_before_get_dap#(type T=int) extends uvm_set_get_dap_base#(T);
         return 0;
       end
       else begin
-         value = m_value;
-         return 1;
+        value = m_value;
+        return 1;
       end
    endfunction : try_get
 
@@ -163,10 +173,16 @@ class uvm_set_before_get_dap#(type T=int) extends uvm_set_get_dap_base#(T);
    
    // Function- convert2string
    virtual function string convert2string();
-      if (m_set)
+      if (m_set) begin
+        
         return $sformatf("(%s) %0p [SET]", `uvm_typename(m_value), m_value);
-      else
+      end
+
+      else begin
+        
         return $sformatf("(%s) %0p [UNSET]", `uvm_typename(m_value), m_value);
+      end
+
    endfunction : convert2string
    
    // Function- do_print

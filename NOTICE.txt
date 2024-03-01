@@ -10,7 +10,7 @@
 Portions of the UVM Reference Library were developed by
 AMD.
 
-Copyright 2010-2022 AMD.
+Copyright 2010-2024 AMD.
 All rights reserved.
 
 =========================================================================
@@ -80,7 +80,7 @@ All rights reserved.
 Portions of the UVM Reference Library were developed by
 Intel Corporation.
 
-Copyright 2014-2022 Intel Corporation.
+Copyright 2014-2024 Intel Corporation.
 All rights reserved.
 
 =========================================================================
@@ -90,7 +90,7 @@ All rights reserved.
 Portions of the UVM Reference Library were developed by
 Marvell International Ltd.
 
-Copyright 2019-2023 Marvell International Ltd.
+Copyright 2019-2024 Marvell International Ltd.
 All rights reserved.
 
 =========================================================================
@@ -100,7 +100,17 @@ All rights reserved.
 Portions of the UVM Reference Library were developed by
 Mentor Graphics Corporation.
 
-Copyright 2007-2023 Mentor Graphics Corporation.
+Copyright 2007-2024 Mentor Graphics Corporation.
+All rights reserved.
+
+=========================================================================
+==  UVM Microsoft Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Microsoft.
+
+Copyright 2024 Microsoft.
 All rights reserved.
 
 =========================================================================
@@ -110,7 +120,7 @@ All rights reserved.
 Portions of the UVM Reference Library were developed by
 NVIDIA Corporation.
 
-Copyright 2012-2022 NVIDIA Corporation.
+Copyright 2012-2024 NVIDIA Corporation.
 All rights reserved.
 
 =========================================================================

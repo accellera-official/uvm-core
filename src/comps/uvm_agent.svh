@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2010-2012 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //
@@ -75,12 +85,12 @@ virtual class uvm_agent extends uvm_component;
      rq = rp.lookup_name(get_full_name(), "is_active", null, 0);
      uvm_resource_pool::sort_by_precedence(rq);
      for (int i = 0; i < rq.size() && !found; i++) begin
-        uvm_resource_base rsrc = rq.get(i);
-	`uvm_resource_enum_read(/* SUCCESS */ found,
-				/* RSRC */    rsrc, 
-				/* TYPE */    uvm_active_passive_enum, 
-				/* VAL */     is_active, 
-				/* OBJ */     this)
+       uvm_resource_base rsrc = rq.get(i);
+       `uvm_resource_enum_read(/* SUCCESS */ found,
+       /* RSRC */    rsrc, 
+       /* TYPE */    uvm_active_passive_enum, 
+       /* VAL */     is_active, 
+       /* OBJ */     this)
      end
      
   endfunction

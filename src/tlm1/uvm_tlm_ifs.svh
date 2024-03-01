@@ -2,7 +2,7 @@
 //-----------------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 // Copyright 2014-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `define UVM_TASK_ERROR "UVM TLM interface task not implemented"
 `define UVM_FUNCTION_ERROR "UVM TLM interface function not implemented"
@@ -47,7 +57,7 @@
 //-----------------------------------------------------------------------------
 
 // @uvm-ieee 1800.2-2020 auto 12.2.4.1
-virtual class uvm_tlm_if_base #(type T1=int, type T2=int);
+virtual class uvm_tlm_if_base #(type T1=int, type T2=int) extends uvm_void;
 
   // Group -- NODOCS -- Blocking put
 

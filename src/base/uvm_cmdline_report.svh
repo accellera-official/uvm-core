@@ -3,7 +3,7 @@
 // Copyright 2022 AMD
 // Copyright 2007-2009 Cadence Design Systems, Inc.
 // Copyright 2007-2009 Mentor Graphics Corporation
-// Copyright 2020 NVIDIA Corporation
+// Copyright 2020-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 // Command line classes
 class uvm_cmdline_setting_base;
@@ -71,10 +81,10 @@ class uvm_cmdline_verbosity extends uvm_cmdline_setting_base;
         code = $sscanf(setting_str[i], "%d", setting.verbosity);
         if (code > 0) begin
           `uvm_info_context("NSTVERB", 
-                            $sformatf("Non-standard verbosity value '%s', converted to '%0d'.",
-                                      setting_str[i], verbosity),
-                            UVM_NONE,
-                            ro)
+          $sformatf("Non-standard verbosity value '%s', converted to '%0d'.",
+          setting_str[i], verbosity),
+          UVM_NONE,
+          ro)
           setting.src = NON_STANDARD;
         end
         else begin
@@ -101,22 +111,25 @@ class uvm_cmdline_verbosity extends uvm_cmdline_setting_base;
     foreach (settings[i]) begin
       if (settings[i].src == ILLEGAL) begin
         `uvm_warning_context("ILLVERB",
-                             $sformatf("Illegal verbosity value '%s', converted to default of UVM_MEDIUM.",
-                                       settings[i].arg),
-                             ro)
+        $sformatf("Illegal verbosity value '%s', converted to default of UVM_MEDIUM.",
+        settings[i].arg),
+        ro)
       end
-      if (i != 0)
+      if (i != 0) begin
+        
         verb_q.push_back(", ");
+      end
+
       verb_q.push_back(settings[i].arg);
     end // foreach (settings[i])
     
     if (settings.size() > 1) begin
       `uvm_warning_context("MULTVERB",
-			   $sformatf("Multiple (%0d) +UVM_VERBOSITY arguments provided on the command line.  '%s' will be used.  Provided list: %s.", 
-                                     settings.size(),
-                                     settings[0].arg, 
-                                     `UVM_STRING_QUEUE_STREAMING_PACK(verb_q)),
-                           ro);
+      $sformatf("Multiple (%0d) +UVM_VERBOSITY arguments provided on the command line.  '%s' will be used.  Provided list: %s.", 
+      settings.size(),
+      settings[0].arg, 
+      `UVM_STRING_QUEUE_STREAMING_PACK(verb_q)),
+      ro);
     end // if (settings.size() > 1)
   endfunction : check
 
@@ -129,14 +142,26 @@ class uvm_cmdline_verbosity extends uvm_cmdline_setting_base;
 
     foreach (settings[i]) begin
       msgs.push_back($sformatf("\n%s%s: ", prefix, settings[i].arg));
-      if (i == 0)
+      if (i == 0) begin
+        
         msgs.push_back("Applied");
-      else
+      end
+
+      else begin
+        
         msgs.push_back("Not applied (not first on command line)");
-      if (settings[i].src == NON_STANDARD)
-        msgs.push_back($sformatf(", converted as non-standard to '%0d'", settings[i].verbosity)); 
-      else if (settings[i].src == ILLEGAL)
+      end
+
+      if (settings[i].src == NON_STANDARD) begin
+        
+        msgs.push_back($sformatf(", converted as non-standard to '%0d'", settings[i].verbosity));
+      end
+ 
+      else if (settings[i].src == ILLEGAL) begin
+        
         msgs.push_back(", converted as ILLEGAL to UVM_MEDIUM");
+      end
+
     end // foreach (settings[i])
 
     return `UVM_STRING_QUEUE_STREAMING_PACK(msgs);
@@ -206,17 +231,20 @@ class uvm_cmdline_set_verbosity extends uvm_cmdline_setting_base;
           if (setting.phase == "time") begin
             rt_val = $sscanf(args[4], "%d", setting.offset);
           end
-          else
+          else begin
+            
             setting.offset = 0;
+          end
+
           settings.push_back(setting);
         end // if (!skip)
         else if (ro != null) begin
           `uvm_warning_context("INVLCMDARGS",
-                               $sformatf("%s, setting '%s%s' will be ignored.",
-                                         message,
-                                         prefix,
-                                         setting_str[i]),
-                               ro)
+          $sformatf("%s, setting '%s%s' will be ignored.",
+          message,
+          prefix,
+          setting_str[i]),
+          ro)
         end          
       end // foreach (setting_string[i])
     end // if (clp.get_arg_values(prefix, setting_string) > 0)
@@ -235,20 +263,20 @@ class uvm_cmdline_set_verbosity extends uvm_cmdline_setting_base;
       if (settings[i].used.size() == 0) begin
         // Warn if we didn't match any components
         `uvm_warning_context("INVLCMDARGS",
-                             $sformatf("\"%s%s\" never took effect due to either a mismatching component pattern.",
-                                       prefix,
-                                       settings[i].arg),
-                             ro)
+        $sformatf("\"%s%s\" never took effect due to either a mismatching component pattern.",
+        prefix,
+        settings[i].arg),
+        ro)
       end
       else begin
         if (settings[i].phase == "time") begin
           if ($time < settings[i].offset) begin
             // Warn if we haven't hit the time yet
             `uvm_warning_context("INVLCMDARGS",
-                                 $sformatf("\"%s%s\" never took effect due to test ending before offset was reached.",
-                                           prefix,
-                                           settings[i].arg),
-                                 ro)
+            $sformatf("\"%s%s\" never took effect due to test ending before offset was reached.",
+            prefix,
+            settings[i].arg),
+            ro)
           end
         end
         else begin
@@ -265,10 +293,10 @@ class uvm_cmdline_set_verbosity extends uvm_cmdline_setting_base;
           if (!hit) begin
             // Warn if all our matching components never saw ~phase~
             `uvm_warning_context("INVLCMDARGS",
-                                 $sformatf("\"%s%s\" never took effect due to phase never occurring for matching component(s).",
-                                           prefix,
-                                           settings[i].arg),
-                                 ro)
+            $sformatf("\"%s%s\" never took effect due to phase never occurring for matching component(s).",
+            prefix,
+            settings[i].arg),
+            ro)
           end
         end // else: !if(settings[i].phase == "time")
       end // else: !if(settings[i].used.size() == 0)
@@ -287,30 +315,48 @@ class uvm_cmdline_set_verbosity extends uvm_cmdline_setting_base;
       setting = settings[i];
       msgs.push_back($sformatf("\n%s%s", prefix, setting.arg));
       msgs.push_back("\n  matching components:");
-      if (setting.used.size() == 0)
+      if (setting.used.size() == 0) begin
+        
         msgs.push_back("\n    <none>");
+      end
+
       else begin
         sorted_list.delete();
-        foreach (setting.used[j])
+        foreach (setting.used[j]) begin
+          
           sorted_list.push_back(j);
+        end
+
         sorted_list.sort() with ( item.get_full_name() );
         foreach (sorted_list[j]) begin
           string full_name;
           full_name = sorted_list[j].get_full_name();
-          if (full_name == "")
+          if (full_name == "") begin
+            
             full_name = "<uvm_root>";
+          end
+
           msgs.push_back("\n    ");
           msgs.push_back(full_name);
           msgs.push_back(": ");
           if ((setting.phase == "time" && setting.used[sorted_list[j]]) ||
-              (setting.phase != "time" && setting.used[sorted_list[j]]))
+          (setting.phase != "time" && setting.used[sorted_list[j]])) begin
+            
             msgs.push_back("Applied");
+          end
+
           else begin
             msgs.push_back("Not applied ");
-            if (setting.phase == "time")
+            if (setting.phase == "time") begin
+              
               msgs.push_back("(component never reached offset)");
-            else
+            end
+
+            else begin
+              
               msgs.push_back("(component never saw phase)");
+            end
+
           end
         end // foreach (setting.used[j])
       end // else: !if(setting.used.size() == 0)
@@ -379,11 +425,11 @@ class uvm_cmdline_set_action extends uvm_cmdline_setting_base;
         end // if (!skip)
         else if (ro != null) begin
           `uvm_warning_context("INVLCMDARGS", 
-                               $sformatf("%s, setting '%s%s' will be ignored.",
-                                         message,
-                                         prefix,
-                                         setting_str[i]),
-                               ro)
+          $sformatf("%s, setting '%s%s' will be ignored.",
+          message,
+          prefix,
+          setting_str[i]),
+          ro)
         end
       end // foreach (setting_str[i])
     end // if (clp.get_arg_values(prefix, setting_str) > 0)
@@ -399,10 +445,10 @@ class uvm_cmdline_set_action extends uvm_cmdline_setting_base;
     foreach(settings[i]) begin
       if (settings[i].used.size() == 0) begin
         `uvm_warning_context("INVLCMDARGS",
-                             $sformatf("\"%s%s\" never took effect due to a mismatching component pattern",
-                                       prefix,
-                                       settings[i].arg),
-                             ro)
+        $sformatf("\"%s%s\" never took effect due to a mismatching component pattern",
+        prefix,
+        settings[i].arg),
+        ro)
       end
     end
   endfunction : check
@@ -418,18 +464,27 @@ class uvm_cmdline_set_action extends uvm_cmdline_setting_base;
       setting = settings[i];
       msgs.push_back($sformatf("\n%s%s", prefix, setting.arg));
       msgs.push_back("\n  matching components:");
-      if (setting.used.size() == 0)
+      if (setting.used.size() == 0) begin
+        
         msgs.push_back("\n    <none>");
+      end
+
       else begin
         sorted_list.delete();
-        foreach (setting.used[j])
+        foreach (setting.used[j]) begin
+          
           sorted_list.push_back(j);
+        end
+
         sorted_list.sort() with ( item.get_full_name() );
         foreach (sorted_list[j]) begin
           string full_name;
           full_name = sorted_list[j].get_full_name();
-          if (full_name == "")
+          if (full_name == "") begin
+            
             full_name = "<uvm_root>";
+          end
+
           msgs.push_back("\n    ");
           msgs.push_back(full_name);
           msgs.push_back(": Applied");
@@ -498,11 +553,11 @@ class uvm_cmdline_set_severity extends uvm_cmdline_setting_base;
         end // if (!skip)
         else if (ro != null) begin
           `uvm_warning_context("INVLCMDARGS", 
-                               $sformatf("%s, setting '%s%s' will be ignored.",
-                                         message, 
-                                         prefix,
-                                         setting_str[i]),
-                               ro)
+          $sformatf("%s, setting '%s%s' will be ignored.",
+          message, 
+          prefix,
+          setting_str[i]),
+          ro)
         end
       end // foreach (setting_str[i])
     end // if (clp.get_arg_values(prefix, setting_str) > 0)
@@ -518,10 +573,10 @@ class uvm_cmdline_set_severity extends uvm_cmdline_setting_base;
     foreach(settings[i]) begin
       if (settings[i].used.size() == 0) begin
         `uvm_warning_context("INVLCMDARGS",
-                             $sformatf("\"%s%s\" never took effect due to a mismatching component pattern",
-                                       prefix,
-                                       settings[i].arg),
-                             ro)
+        $sformatf("\"%s%s\" never took effect due to a mismatching component pattern",
+        prefix,
+        settings[i].arg),
+        ro)
       end
     end
   endfunction : check
@@ -537,18 +592,27 @@ class uvm_cmdline_set_severity extends uvm_cmdline_setting_base;
       setting = settings[i];
       msgs.push_back($sformatf("\n%s%s", prefix, setting.arg));
       msgs.push_back("\n  matching components:");
-      if (setting.used.size() == 0)
+      if (setting.used.size() == 0) begin
+        
         msgs.push_back("\n    <none>");
+      end
+
       else begin
         sorted_list.delete();
-        foreach (setting.used[j])
+        foreach (setting.used[j]) begin
+          
           sorted_list.push_back(j);
+        end
+
         sorted_list.sort() with ( item.get_full_name() );
         foreach (sorted_list[j]) begin
           string full_name;
           full_name = sorted_list[j].get_full_name();
-          if (full_name == "")
+          if (full_name == "") begin
+            
             full_name = "<uvm_root>";
+          end
+
           msgs.push_back("\n    ");
           msgs.push_back(full_name);
           msgs.push_back(": Applied");

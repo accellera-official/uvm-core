@@ -6,7 +6,7 @@
 // Copyright 2014 Intel Corporation
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2013-2022 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2010-2014 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -25,11 +25,21 @@
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
+
 typedef class uvm_root;
 typedef class uvm_report_object;
 typedef class uvm_report_message;
    
-// Title -- NODOCS -- Globals
+// Title: Globals
 
 //------------------------------------------------------------------------------
 //
@@ -125,10 +135,10 @@ endfunction : m__uvm_report_dpi
 
 // @uvm-ieee 1800.2-2020 auto F.3.2.3
 function void uvm_report_info(string id,
-			      string message,
+                  string message,
                               int verbosity = UVM_MEDIUM,
-			      string filename = "",
-			      int line = 0,
+                  string filename = "",
+                  int line = 0,
                               string context_name = "",
                               bit report_enabled_checked = 0);
   uvm_root top;
@@ -146,8 +156,8 @@ endfunction
 function void uvm_report_warning(string id,
                                  string message,
                                  int verbosity = UVM_MEDIUM,
-				 string filename = "",
-				 int line = 0,
+                 string filename = "",
+                 int line = 0,
                                  string context_name = "",
                                  bit report_enabled_checked = 0);
   uvm_root top;
@@ -165,8 +175,8 @@ endfunction
 function void uvm_report_error(string id,
                                string message,
                                int verbosity = UVM_NONE,
-			       string filename = "",
-			       int line = 0,
+                   string filename = "",
+                   int line = 0,
                                string context_name = "",
                                bit report_enabled_checked = 0);
   uvm_root top;
@@ -191,10 +201,10 @@ endfunction
 
 // @uvm-ieee 1800.2-2020 auto F.3.2.3
 function void uvm_report_fatal(string id,
-	                       string message,
+                           string message,
                                int verbosity = UVM_NONE,
-			       string filename = "",
-			       int line = 0,
+                   string filename = "",
+                   int line = 0,
                                string context_name = "",
                                bit report_enabled_checked = 0);
   uvm_root top;
@@ -228,11 +238,26 @@ endfunction
 // TODO merge with uvm_enum_wrapper#(uvm_severity)
 function bit uvm_string_to_severity (string sev_str, output uvm_severity sev);
   case (sev_str)
-    "UVM_INFO": sev = UVM_INFO;
-    "UVM_WARNING": sev = UVM_WARNING;
-    "UVM_ERROR": sev = UVM_ERROR;
-    "UVM_FATAL": sev = UVM_FATAL;
-    default: return 0;
+    "UVM_INFO": begin
+      sev = UVM_INFO;
+    end
+
+    "UVM_WARNING": begin
+      sev = UVM_WARNING;
+    end
+
+    "UVM_ERROR": begin
+      sev = UVM_ERROR;
+    end
+
+    "UVM_FATAL": begin
+      sev = UVM_FATAL;
+    end
+
+    default: begin
+      return 0;
+    end
+
   endcase
   return 1;
 endfunction
@@ -245,15 +270,42 @@ function automatic bit uvm_string_to_action (string action_str, output uvm_actio
   action = 0;
   foreach(actions[i]) begin
     case (actions[i])
-      "UVM_NO_ACTION": action |= UVM_NO_ACTION;
-      "UVM_DISPLAY":   action |= UVM_DISPLAY;
-      "UVM_LOG":       action |= UVM_LOG;
-      "UVM_COUNT":     action |= UVM_COUNT;
-      "UVM_EXIT":      action |= UVM_EXIT;
-      "UVM_CALL_HOOK": action |= UVM_CALL_HOOK;
-      "UVM_STOP":      action |= UVM_STOP;
-      "UVM_RM_RECORD": action |= UVM_RM_RECORD;
-      default: uvm_string_to_action = 0;
+      "UVM_NO_ACTION": begin
+        action |= UVM_NO_ACTION;
+      end
+
+      "UVM_DISPLAY":   begin
+        action |= UVM_DISPLAY;
+      end
+
+      "UVM_LOG":       begin
+        action |= UVM_LOG;
+      end
+
+      "UVM_COUNT":     begin
+        action |= UVM_COUNT;
+      end
+
+      "UVM_EXIT":      begin
+        action |= UVM_EXIT;
+      end
+
+      "UVM_CALL_HOOK": begin
+        action |= UVM_CALL_HOOK;
+      end
+
+      "UVM_STOP":      begin
+        action |= UVM_STOP;
+      end
+
+      "UVM_RM_RECORD": begin
+        action |= UVM_RM_RECORD;
+      end
+
+      default: begin
+        uvm_string_to_action = 0;
+      end
+
     endcase
   end
 endfunction
@@ -311,8 +363,14 @@ endfunction
 
 // @uvm-ieee 1800.2-2020 auto F.3.1.1
 function uvm_core_state get_core_state();
-   if (m_uvm_core_state.size() == 0) return UVM_CORE_UNINITIALIZED;
-   else return m_uvm_core_state[0];
+   if (m_uvm_core_state.size() == 0) begin
+     return UVM_CORE_UNINITIALIZED;
+   end
+
+   else begin
+     return m_uvm_core_state[0];
+   end
+
 endfunction
 
 // Function: uvm_init
@@ -358,8 +416,9 @@ function void uvm_init(uvm_coreservice_t cs=null);
       // the current core service, and ~cs~ is not null.
       uvm_coreservice_t actual;
       actual = uvm_coreservice_t::get();
-      if ((cs != actual) && (cs != null))
+      if ((cs != actual) && (cs != null)) begin
         `uvm_warning("UVM/INIT/MULTI", "uvm_init() called after library has already completed initialization, subsequent calls are ignored!")
+      end
     end
     return;
   end
@@ -481,10 +540,19 @@ function automatic void uvm_split_string (string str, byte sep, ref string value
   int s = 0, e = 0;
   values.delete();
   while(e < str.len()) begin
-    for(s=e; e<str.len(); ++e)
-      if(str[e] == sep) break;
-    if(s != e)
+    for(s=e; e<str.len(); ++e) begin
+      
+      if(str[e] == sep) begin
+        break;
+      end
+
+    end
+
+    if(s != e) begin
+      
       values.push_back(str.substr(s,e-1));
+    end
+
     e++;
   end
 endfunction
@@ -501,13 +569,19 @@ function automatic void uvm_string_split (string str, byte sep, ref string value
   int s = 0, e = 0, limit;
   values.delete();
   limit = str.len() + 1;
-  do 
-    begin
-      for(s=e; e<str.len(); ++e)
-        if(str[e] == sep) break;
-      values.push_back(str.substr(s,e-1));
-      e++;
+  do begin 
+    
+    for(s=e; e<str.len(); ++e) begin
+        
+      if(str[e] == sep) begin
+        break;
+      end
+
     end
+
+    values.push_back(str.substr(s,e-1));
+    e++;
+  end
   while(e < limit);
 endfunction
 
@@ -520,22 +594,25 @@ endfunction
 // method which is built into all enumerations.
 
 // @uvm-ieee 1800.2-2020 auto F.3.4.1
-class uvm_enum_wrapper#(type T=uvm_active_passive_enum);
+class uvm_enum_wrapper#(type T=uvm_active_passive_enum) extends uvm_void;
 
     protected static T map[string];
 
 
     // @uvm-ieee 1800.2-2020 auto F.3.4.2
     static function bit from_name(string name, ref T value);
-        if (map.size() == 0)
+        if (map.size() == 0) begin
+          
           m_init_map();
+        end
+
 
         if (map.exists(name)) begin
-            value = map[name];
-            return 1;
+          value = map[name];
+          return 1;
         end
         else begin
-            return 0;
+          return 0;
         end
     endfunction : from_name
 
@@ -543,11 +620,11 @@ class uvm_enum_wrapper#(type T=uvm_active_passive_enum);
     // Initializes the name map, only needs to be performed once
     protected static function void m_init_map();
         T e = e.first();
-        do 
-          begin
-            map[e.name()] = e;
-            e = e.next();
-          end
+        do begin 
+          
+          map[e.name()] = e;
+          e = e.next();
+        end
         while (e != e.first());
     endfunction : m_init_map
 
@@ -570,7 +647,7 @@ endclass : uvm_enum_wrapper
 // after a function/task scope has been exited.
 //
 // @uvm-contrib - For potential contribution to 1800.2 standard
-class uvm_shared#(type T=int);
+class uvm_shared#(type T=int) extends uvm_void;
   // Variable- value
   // The value contained within the ref.
   T value;

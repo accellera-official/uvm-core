@@ -1,5 +1,6 @@
 //----------------------------------------------------------------------
 // Copyright 2021-2022 Marvell International Ltd.
+// Copyright 2023-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -16,6 +17,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 typedef class uvm_resource_db_options;
@@ -42,14 +53,20 @@ virtual class uvm_resource_db_implementation_t #(type T=uvm_object) extends uvm_
     //   3) a new creation of uvm_resource_db_default_implementation_t#(T)
     // @uvm-contrib
     static function void set_imp(uvm_resource_db_implementation_t #(T) imp = null);
-      if (imp == null) begin
-         uvm_coreservice_t cs = uvm_coreservice_t::get();
-         uvm_factory factory = cs.get_factory();
-         if (factory.find_override_by_type(uvm_resource_db_implementation_t#(T)::get_type(),"") == uvm_resource_db_implementation_t#(T)::get_type()) begin // no override registered
+      if (imp == null) 
+        begin
+          uvm_coreservice_t cs = uvm_coreservice_t::get();
+          uvm_factory factory = cs.get_factory();
+          if (factory.find_override_by_type(uvm_resource_db_implementation_t#(T)::get_type(),"") == uvm_resource_db_implementation_t#(T)::get_type()) 
+          begin // no override registered
             imp = uvm_resource_db_default_implementation_t #(T)::type_id::create();
-         end
-         else imp = uvm_resource_db_implementation_t #(T)::type_id::create();
-      end
+          end
+          else 
+          begin
+            imp = uvm_resource_db_implementation_t #(T)::type_id::create();
+          end
+
+        end
       m_rsrc_db_imp = imp;
     endfunction : set_imp
 
@@ -61,7 +78,10 @@ virtual class uvm_resource_db_implementation_t #(type T=uvm_object) extends uvm_
     // @uvm-contrib
     static function uvm_resource_db_implementation_t #(T) get_imp ();
         if (m_rsrc_db_imp == null)
+          begin
             set_imp();
+          end
+
         return m_rsrc_db_imp;
     endfunction : get_imp
 
@@ -214,14 +234,18 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
       uvm_resource_base type_handle = rsrc_t::get_type();
   
       if(type_handle == null)
-         return null;
+        begin
+          return null;
+        end
+
   
       rsrc_base = rp.get_by_type(scope, type_handle);
-      if(!$cast(rsrc, rsrc_base)) begin
-        $sformat(msg, "Resource with specified type handle in scope %s was not located", scope);
-        `uvm_warning("RSRCNF", msg)
-        return null;
-      end
+      if(!$cast(rsrc, rsrc_base)) 
+        begin
+          $sformat(msg, "Resource with specified type handle in scope %s was not located", scope);
+          `uvm_warning("RSRCNF", msg)
+          return null;
+        end
   
       return rsrc;
     endfunction : get_by_type
@@ -243,15 +267,20 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
   
       rsrc_base = rp.get_by_name(scope, name, rsrc_t::get_type(), rpterr);
       if(rsrc_base == null)
-        return null;
-  
-      if(!$cast(rsrc, rsrc_base)) begin
-        if(rpterr) begin
-          $sformat(msg, "Resource with name %s in scope %s has incorrect type", name, scope);
-          `uvm_warning("RSRCTYPE", msg)
+        begin
+          return null;
         end
-        return null;
-      end
+
+  
+      if(!$cast(rsrc, rsrc_base)) 
+        begin
+          if(rpterr) 
+          begin
+            $sformat(msg, "Resource with name %s in scope %s has incorrect type", name, scope);
+            `uvm_warning("RSRCTYPE", msg)
+          end
+          return null;
+        end
 
       return rsrc;
     endfunction : get_by_name
@@ -310,7 +339,10 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
       rp.set_scope(rsrc, scope);
   
       if(uvm_resource_db_options::is_tracing())
-        show_msg("RSRCDB/SET", "Resource","set", scope, name, accessor, rsrc);
+        begin
+          show_msg("RSRCDB/SET", "Resource","set", scope, name, accessor, rsrc);
+        end
+
     endfunction : set
     
 
@@ -329,7 +361,10 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
       rp.set_scope(rsrc, scope);
   
       if(uvm_resource_db_options::is_tracing())
-        show_msg("RSRCDB/SETANON","Resource", "set", scope, "", accessor, rsrc);
+        begin
+          show_msg("RSRCDB/SETANON","Resource", "set", scope, "", accessor, rsrc);
+        end
+
     endfunction : set_anonymous
 
 
@@ -348,7 +383,10 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
       rp.set_override(rsrc, scope);
   
       if(uvm_resource_db_options::is_tracing())
-        show_msg("RSRCDB/SETOVRD", "Resource","set", scope, name, accessor, rsrc);
+        begin
+          show_msg("RSRCDB/SETOVRD", "Resource","set", scope, name, accessor, rsrc);
+        end
+
     endfunction : set_override
 
 
@@ -367,7 +405,10 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
       rp.set_type_override(rsrc, scope);
   
       if(uvm_resource_db_options::is_tracing())
-        show_msg("RSRCDB/SETOVRDTYP","Resource", "set", scope, name, accessor, rsrc);    endfunction : set_override_type
+        begin
+          show_msg("RSRCDB/SETOVRDTYP","Resource", "set", scope, name, accessor, rsrc);
+        end
+    endfunction : set_override_type
 
 
     // Function: set_override_name
@@ -385,7 +426,10 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
       rp.set_name_override(rsrc, scope);
   
       if(uvm_resource_db_options::is_tracing())
-        show_msg("RSRCDB/SETOVRDNAM","Resource", "set", scope, name, accessor, rsrc);
+        begin
+          show_msg("RSRCDB/SETOVRDNAM","Resource", "set", scope, name, accessor, rsrc);
+        end
+
     endfunction : set_override_name
 
 
@@ -402,10 +446,16 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
         rsrc_t rsrc = get_by_name(scope, name, 1);
 
         if(uvm_resource_db_options::is_tracing())
+          begin
             show_msg("RSRCDB/RDBYNAM","Resource", "read", scope, name, accessor, rsrc);
+          end
+
 
         if(rsrc == null)
+          begin
             return 0;
+          end
+
 
         val = rsrc.read(accessor);
 
@@ -425,10 +475,16 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
         rsrc_t rsrc = get_by_type(scope);
 
         if(uvm_resource_db_options::is_tracing())
-           show_msg("RSRCDB/RDBYTYP", "Resource","read", scope, "", accessor, rsrc);
+          begin
+            show_msg("RSRCDB/RDBYTYP", "Resource","read", scope, "", accessor, rsrc);
+          end
+
 
         if(rsrc == null)
+          begin
             return 0;
+          end
+
 
         val = rsrc.read(accessor);
 
@@ -450,10 +506,16 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
         rsrc_t rsrc = get_by_name(scope, name, 1);
 
         if(uvm_resource_db_options::is_tracing())
+          begin
             show_msg("RSRCDB/WR","Resource", "written", scope, name, accessor, rsrc);
+          end
+
 
         if(rsrc == null)
+          begin
             return 0;
+          end
+
 
         rsrc.write(val, accessor);
 
@@ -473,10 +535,16 @@ class uvm_resource_db_default_implementation_t #(type T=uvm_object) extends uvm_
         rsrc_t rsrc = get_by_type(scope);
 
         if(uvm_resource_db_options::is_tracing())
+          begin
             show_msg("RSRCDB/WRTYP", "Resource","written", scope, "", accessor, rsrc);
+          end
+
 
         if(rsrc == null)
+          begin
             return 0;
+          end
+
 
         rsrc.write(val, accessor);
 

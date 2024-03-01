@@ -3,7 +3,7 @@
 // Copyright 2010 AMD
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2004-2018 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 //
@@ -23,6 +23,14 @@
 // -------------------------------------------------------------
 //
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // Title -- NODOCS -- Virtual Register Field Classes
@@ -35,6 +43,7 @@
 // not any physical structures in the DUT. 
 //
 //------------------------------------------------------------------------------
+
 
 typedef class uvm_vreg_field_cbs;
 
@@ -318,14 +327,14 @@ function void uvm_vreg_field::configure(uvm_vreg  parent,
                                    int unsigned  lsb_pos);
    this.parent = parent;
    if (size == 0) begin
-      `uvm_error("RegModel", $sformatf("Virtual field \"%s\" cannot have 0 bits", this.get_full_name()))
-      size = 1;
+     `uvm_error("RegModel", $sformatf("Virtual field \"%s\" cannot have 0 bits", this.get_full_name()))
+     size = 1;
    end
    if (size > `UVM_REG_DATA_WIDTH) begin
-      `uvm_error("RegModel", $sformatf("Virtual field \"%s\" cannot have more than %0d bits",
-                                     this.get_full_name(),
-                                     `UVM_REG_DATA_WIDTH))
-      size = `UVM_REG_DATA_WIDTH;
+     `uvm_error("RegModel", $sformatf("Virtual field \"%s\" cannot have more than %0d bits",
+     this.get_full_name(),
+     `UVM_REG_DATA_WIDTH))
+     size = `UVM_REG_DATA_WIDTH;
    end
 
    this.size   = size;
@@ -364,9 +373,9 @@ endfunction: get_n_bits
 
 function string uvm_vreg_field::get_access(uvm_reg_map map = null);
    if (this.parent.get_memory() == null) begin
-      `uvm_error("RegModel", $sformatf("Cannot call uvm_vreg_field::get_rights() on unimplemented virtual field \"%s\"",
-                                     this.get_full_name()))
-      return "RW";
+     `uvm_error("RegModel", $sformatf("Cannot call uvm_vreg_field::get_rights() on unimplemented virtual field \"%s\"",
+     this.get_full_name()))
+     return "RW";
    end
 
    return this.parent.get_access(map);
@@ -400,15 +409,15 @@ task uvm_vreg_field::write(input  longint unsigned    idx,
    write_in_progress = 1'b1;
    mem = this.parent.get_memory();
    if (mem == null) begin
-      `uvm_error("RegModel", $sformatf("Cannot call uvm_vreg_field::write() on unimplemented virtual register \"%s\"",
-                                     this.get_full_name()))
-      status = UVM_NOT_OK;
-      return;
+     `uvm_error("RegModel", $sformatf("Cannot call uvm_vreg_field::write() on unimplemented virtual register \"%s\"",
+     this.get_full_name()))
+     status = UVM_NOT_OK;
+     return;
    end
 
    if (path == UVM_DEFAULT_DOOR) begin
-      uvm_reg_block blk = this.parent.get_block();
-      path = blk.get_default_door();
+     uvm_reg_block blk = this.parent.get_block();
+     path = blk.get_default_door();
    end
 
    status = UVM_IS_OK;
@@ -416,17 +425,17 @@ task uvm_vreg_field::write(input  longint unsigned    idx,
    this.parent.XatomicX(1);
 
    if (value >> this.size) begin
-      `uvm_warning("RegModel", $sformatf("Writing value 'h%h that is greater than field \"%s\" size (%0d bits)", value, this.get_full_name(), this.get_n_bits()))
-      value &= value & ((1<<this.size)-1);
+     `uvm_warning("RegModel", $sformatf("Writing value 'h%h that is greater than field \"%s\" size (%0d bits)", value, this.get_full_name(), this.get_n_bits()))
+     value &= value & ((1<<this.size)-1);
    end
    tmp = 0;
 
    this.pre_write(idx, value, path, map);
    for (uvm_vreg_field_cbs cb = cbs.first(); cb != null;
-        cb = cbs.next()) begin
-      cb.fname = this.fname;
-      cb.lineno = this.lineno;
-      cb.pre_write(this, idx, value, path, map);
+     cb = cbs.next()) begin
+     cb.fname = this.fname;
+     cb.lineno = this.lineno;
+     cb.pre_write(this, idx, value, path, map);
    end
 
    segsiz = mem.get_n_bytes() * 8;
@@ -435,7 +444,10 @@ task uvm_vreg_field::write(input  longint unsigned    idx,
 
    // Favor backdoor read to frontdoor read for the RMW operation
    rm_path = UVM_DEFAULT_DOOR;
-   if (mem.get_backdoor() != null) rm_path = UVM_BACKDOOR;
+   if (mem.get_backdoor() != null) begin
+     rm_path = UVM_BACKDOOR;
+   end
+
 
    // Any bits on the LSB side we need to RMW?
    rmwbits = flsb % segsiz;
@@ -444,56 +456,59 @@ task uvm_vreg_field::write(input  longint unsigned    idx,
    segn = (rmwbits + this.get_n_bits() - 1) / segsiz + 1;
 
    if (rmwbits > 0) begin
-      uvm_reg_addr_t  segn;
+     uvm_reg_addr_t  segn;
 
-      mem.read(st, segoff, tmp, rm_path, map, parent, , extension, fname, lineno);
-      if (st != UVM_IS_OK && st != UVM_HAS_X) begin
-         `uvm_error("RegModel",
-                    $sformatf("Unable to read LSB bits in %s[%0d] to for RMW cycle on virtual field %s.",
-                              mem.get_full_name(), segoff, this.get_full_name()))
-         status = UVM_NOT_OK;
-         this.parent.XatomicX(0);
-         return;
-      end
+     mem.read(st, segoff, tmp, rm_path, map, parent, , extension, fname, lineno);
+     if (st != UVM_IS_OK && st != UVM_HAS_X) begin
+       `uvm_error("RegModel",
+       $sformatf("Unable to read LSB bits in %s[%0d] to for RMW cycle on virtual field %s.",
+       mem.get_full_name(), segoff, this.get_full_name()))
+       status = UVM_NOT_OK;
+       this.parent.XatomicX(0);
+       return;
+     end
 
-      value = (value << rmwbits) | (tmp & ((1<<rmwbits)-1));
+     value = (value << rmwbits) | (tmp & ((1<<rmwbits)-1));
    end
 
    // Any bits on the MSB side we need to RMW?
    fmsb = rmwbits + this.get_n_bits() - 1;
    rmwbits = (fmsb+1) % segsiz;
    if (rmwbits > 0) begin
-      if (segn > 0) begin
-         mem.read(st, segoff + segn - 1, tmp, rm_path, map, parent,, extension, fname, lineno);
-         if (st != UVM_IS_OK && st != UVM_HAS_X) begin
-            `uvm_error("RegModel",
-                       $sformatf("Unable to read MSB bits in %s[%0d] to for RMW cycle on virtual field %s.",
-                                 mem.get_full_name(), segoff+segn-1,
-                                 this.get_full_name()))
-            status = UVM_NOT_OK;
-            this.parent.XatomicX(0);
-            return;
-         end
-      end
-      value |= (tmp & ~((1<<rmwbits)-1)) << ((segn-1)*segsiz);
+     if (segn > 0) begin
+       mem.read(st, segoff + segn - 1, tmp, rm_path, map, parent,, extension, fname, lineno);
+       if (st != UVM_IS_OK && st != UVM_HAS_X) begin
+         `uvm_error("RegModel",
+         $sformatf("Unable to read MSB bits in %s[%0d] to for RMW cycle on virtual field %s.",
+         mem.get_full_name(), segoff+segn-1,
+         this.get_full_name()))
+         status = UVM_NOT_OK;
+         this.parent.XatomicX(0);
+         return;
+       end
+     end
+     value |= (tmp & ~((1<<rmwbits)-1)) << ((segn-1)*segsiz);
    end
 
    // Now write each of the segments
    tmp = value;
    repeat (segn) begin
-      mem.write(st, segoff, tmp, path, map, parent,, extension, fname, lineno);
-      if (st != UVM_IS_OK && st != UVM_HAS_X) status = UVM_NOT_OK;
+     mem.write(st, segoff, tmp, path, map, parent,, extension, fname, lineno);
+     if (st != UVM_IS_OK && st != UVM_HAS_X) begin
+       status = UVM_NOT_OK;
+     end
 
-      segoff++;
-      tmp = tmp >> segsiz;
+
+     segoff++;
+     tmp = tmp >> segsiz;
    end
 
    this.post_write(idx, value, path, map, status);
    for (uvm_vreg_field_cbs cb = cbs.first(); cb != null;
-        cb = cbs.next()) begin
-      cb.fname = this.fname;
-      cb.lineno = this.lineno;
-      cb.post_write(this, idx, value, path, map, status);
+     cb = cbs.next()) begin
+     cb.fname = this.fname;
+     cb.lineno = this.lineno;
+     cb.post_write(this, idx, value, path, map, status);
    end
 
    this.parent.XatomicX(0);
@@ -536,15 +551,15 @@ task uvm_vreg_field::read(input longint unsigned     idx,
    read_in_progress = 1'b1;
    mem = this.parent.get_memory();
    if (mem == null) begin
-      `uvm_error("RegModel", $sformatf("Cannot call uvm_vreg_field::read() on unimplemented virtual register \"%s\"",
-                                     this.get_full_name()))
-      status = UVM_NOT_OK;
-      return;
+     `uvm_error("RegModel", $sformatf("Cannot call uvm_vreg_field::read() on unimplemented virtual register \"%s\"",
+     this.get_full_name()))
+     status = UVM_NOT_OK;
+     return;
    end
 
    if (path == UVM_DEFAULT_DOOR) begin
-      uvm_reg_block blk = this.parent.get_block();
-      path = blk.get_default_door();
+     uvm_reg_block blk = this.parent.get_block();
+     path = blk.get_default_door();
    end
 
    status = UVM_IS_OK;
@@ -555,10 +570,10 @@ task uvm_vreg_field::read(input longint unsigned     idx,
 
    this.pre_read(idx, path, map);
    for (uvm_vreg_field_cbs cb = cbs.first(); cb != null;
-        cb = cbs.next()) begin
-      cb.fname = this.fname;
-      cb.lineno = this.lineno;
-      cb.pre_read(this, idx, path, map);
+     cb = cbs.next()) begin
+     cb.fname = this.fname;
+     cb.lineno = this.lineno;
+     cb.pre_read(this, idx, path, map);
    end
 
    segsiz = mem.get_n_bytes() * 8;
@@ -572,13 +587,16 @@ task uvm_vreg_field::read(input longint unsigned     idx,
    // Read each of the segments, MSB first
    segoff += segn - 1;
    repeat (segn) begin
-      value = value << segsiz;
+     value = value << segsiz;
 
-      mem.read(st, segoff, tmp, path, map, parent, , extension, fname, lineno);
-      if (st != UVM_IS_OK && st != UVM_HAS_X) status = UVM_NOT_OK;
+     mem.read(st, segoff, tmp, path, map, parent, , extension, fname, lineno);
+     if (st != UVM_IS_OK && st != UVM_HAS_X) begin
+       status = UVM_NOT_OK;
+     end
 
-      segoff--;
-      value |= tmp;
+
+     segoff--;
+     value |= tmp;
    end
 
    // Any bits on the LSB side we need to get rid of?
@@ -589,10 +607,10 @@ task uvm_vreg_field::read(input longint unsigned     idx,
 
    this.post_read(idx, value, path, map, status);
    for (uvm_vreg_field_cbs cb = cbs.first(); cb != null;
-        cb = cbs.next()) begin
-      cb.fname = this.fname;
-      cb.lineno = this.lineno;
-      cb.post_read(this, idx, value, path, map, status);
+     cb = cbs.next()) begin
+     cb.fname = this.fname;
+     cb.lineno = this.lineno;
+     cb.post_read(this, idx, value, path, map, status);
    end
 
    this.parent.XatomicX(0);
@@ -630,10 +648,10 @@ task uvm_vreg_field::poke(input  longint unsigned  idx,
 
    mem = this.parent.get_memory();
    if (mem == null) begin
-      `uvm_error("RegModel", $sformatf("Cannot call uvm_vreg_field::poke() on unimplemented virtual register \"%s\"",
-                                     this.get_full_name()))
-      status = UVM_NOT_OK;
-      return;
+     `uvm_error("RegModel", $sformatf("Cannot call uvm_vreg_field::poke() on unimplemented virtual register \"%s\"",
+     this.get_full_name()))
+     status = UVM_NOT_OK;
+     return;
    end
 
    status = UVM_IS_OK;
@@ -641,8 +659,8 @@ task uvm_vreg_field::poke(input  longint unsigned  idx,
    this.parent.XatomicX(1);
 
    if (value >> this.size) begin
-      `uvm_warning("RegModel", $sformatf("Writing value 'h%h that is greater than field \"%s\" size (%0d bits)", value, this.get_full_name(), this.get_n_bits()))
-      value &= value & ((1<<this.size)-1);
+     `uvm_warning("RegModel", $sformatf("Writing value 'h%h that is greater than field \"%s\" size (%0d bits)", value, this.get_full_name(), this.get_n_bits()))
+     value &= value & ((1<<this.size)-1);
    end
    tmp = 0;
 
@@ -657,48 +675,51 @@ task uvm_vreg_field::poke(input  longint unsigned  idx,
    segn = (rmwbits + this.get_n_bits() - 1) / segsiz + 1;
 
    if (rmwbits > 0) begin
-      uvm_reg_addr_t  segn;
+     uvm_reg_addr_t  segn;
 
-      mem.peek(st, segoff, tmp, "", parent, extension, fname, lineno);
-      if (st != UVM_IS_OK && st != UVM_HAS_X) begin
-         `uvm_error("RegModel",
-                    $sformatf("Unable to read LSB bits in %s[%0d] to for RMW cycle on virtual field %s.",
-                              mem.get_full_name(), segoff, this.get_full_name()))
-         status = UVM_NOT_OK;
-         this.parent.XatomicX(0);
-         return;
-      end
+     mem.peek(st, segoff, tmp, "", parent, extension, fname, lineno);
+     if (st != UVM_IS_OK && st != UVM_HAS_X) begin
+       `uvm_error("RegModel",
+       $sformatf("Unable to read LSB bits in %s[%0d] to for RMW cycle on virtual field %s.",
+       mem.get_full_name(), segoff, this.get_full_name()))
+       status = UVM_NOT_OK;
+       this.parent.XatomicX(0);
+       return;
+     end
 
-      value = (value << rmwbits) | (tmp & ((1<<rmwbits)-1));
+     value = (value << rmwbits) | (tmp & ((1<<rmwbits)-1));
    end
 
    // Any bits on the MSB side we need to RMW?
    fmsb = rmwbits + this.get_n_bits() - 1;
    rmwbits = (fmsb+1) % segsiz;
    if (rmwbits > 0) begin
-      if (segn > 0) begin
-         mem.peek(st, segoff + segn - 1, tmp, "", parent, extension, fname, lineno);
-         if (st != UVM_IS_OK && st != UVM_HAS_X) begin
-            `uvm_error("RegModel",
-                       $sformatf("Unable to read MSB bits in %s[%0d] to for RMW cycle on virtual field %s.",
-                                 mem.get_full_name(), segoff+segn-1,
-                                 this.get_full_name()))
-            status = UVM_NOT_OK;
-            this.parent.XatomicX(0);
-            return;
-         end
-      end
-      value |= (tmp & ~((1<<rmwbits)-1)) << ((segn-1)*segsiz);
+     if (segn > 0) begin
+       mem.peek(st, segoff + segn - 1, tmp, "", parent, extension, fname, lineno);
+       if (st != UVM_IS_OK && st != UVM_HAS_X) begin
+         `uvm_error("RegModel",
+         $sformatf("Unable to read MSB bits in %s[%0d] to for RMW cycle on virtual field %s.",
+         mem.get_full_name(), segoff+segn-1,
+         this.get_full_name()))
+         status = UVM_NOT_OK;
+         this.parent.XatomicX(0);
+         return;
+       end
+     end
+     value |= (tmp & ~((1<<rmwbits)-1)) << ((segn-1)*segsiz);
    end
 
    // Now write each of the segments
    tmp = value;
    repeat (segn) begin
-      mem.poke(st, segoff, tmp, "", parent, extension, fname, lineno);
-      if (st != UVM_IS_OK && st != UVM_HAS_X) status = UVM_NOT_OK;
+     mem.poke(st, segoff, tmp, "", parent, extension, fname, lineno);
+     if (st != UVM_IS_OK && st != UVM_HAS_X) begin
+       status = UVM_NOT_OK;
+     end
 
-      segoff++;
-      tmp = tmp >> segsiz;
+
+     segoff++;
+     tmp = tmp >> segsiz;
    end
 
    this.parent.XatomicX(0);
@@ -731,10 +752,10 @@ task uvm_vreg_field::peek(input  longint unsigned  idx,
 
    mem = this.parent.get_memory();
    if (mem == null) begin
-      `uvm_error("RegModel", $sformatf("Cannot call uvm_vreg_field::peek() on unimplemented virtual register \"%s\"",
-                                     this.get_full_name()))
-      status = UVM_NOT_OK;
-      return;
+     `uvm_error("RegModel", $sformatf("Cannot call uvm_vreg_field::peek() on unimplemented virtual register \"%s\"",
+     this.get_full_name()))
+     status = UVM_NOT_OK;
+     return;
    end
 
    status = UVM_IS_OK;
@@ -754,14 +775,17 @@ task uvm_vreg_field::peek(input  longint unsigned  idx,
    // Read each of the segments, MSB first
    segoff += segn - 1;
    repeat (segn) begin
-      value = value << segsiz;
+     value = value << segsiz;
 
-      mem.peek(st, segoff, tmp, "", parent, extension, fname, lineno);
+     mem.peek(st, segoff, tmp, "", parent, extension, fname, lineno);
 
-      if (st != UVM_IS_OK && st != UVM_HAS_X) status = UVM_NOT_OK;
+     if (st != UVM_IS_OK && st != UVM_HAS_X) begin
+       status = UVM_NOT_OK;
+     end
 
-      segoff--;
-      value |= tmp;
+
+     segoff--;
+     value |= tmp;
    end
 
    // Any bits on the LSB side we need to get rid of?
@@ -793,14 +817,20 @@ function string uvm_vreg_field::convert2string();
             this.get_lsb_pos_in_register() + this.get_n_bits() - 1,
             this.get_lsb_pos_in_register());
    if (read_in_progress == 1'b1) begin
-      if (fname != "" && lineno != 0)
-         $sformat(res_str, "%s:%0d ",fname, lineno);
-      convert2string = {convert2string, "\n", res_str, "currently executing read method"}; 
+     if (fname != "" && lineno != 0) begin
+         
+       $sformat(res_str, "%s:%0d ",fname, lineno);
+     end
+
+     convert2string = {convert2string, "\n", res_str, "currently executing read method"}; 
    end
    if ( write_in_progress == 1'b1) begin
-      if (fname != "" && lineno != 0)
-         $sformat(res_str, "%s:%0d ",fname, lineno);
-      convert2string = {convert2string, "\n", res_str, "currently executing write method"}; 
+     if (fname != "" && lineno != 0) begin
+         
+       $sformat(res_str, "%s:%0d ",fname, lineno);
+     end
+
+     convert2string = {convert2string, "\n", res_str, "currently executing write method"}; 
    end
 
 endfunction

@@ -1,7 +1,7 @@
 //
 //------------------------------------------------------------------------------
 // Copyright 2022 Marvell International Ltd.
-// Copyright 2022 NVIDIA Corporation
+// Copyright 2022-2024 NVIDIA Corporation
 //
 //   All Rights Reserved Worldwide
 //
@@ -19,6 +19,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 //
 // CLASS: uvm_compat_proxy_sequence
 //

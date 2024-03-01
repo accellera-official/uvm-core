@@ -5,7 +5,7 @@
 // Copyright 2017 Cisco Systems, Inc.
 // Copyright 2014 Intel Corporation
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -22,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 // File -- NODOCS -- Transaction Recording Databases
@@ -94,9 +104,12 @@ class uvm_text_tr_database extends uvm_tr_database;
 
    protected virtual function bit do_open_db();
       if (m_file == 0) begin
-         m_file = $fopen(m_filename_dap.get(), "a+");
-         if (m_file != 0)
-           m_filename_dap.lock();
+        m_file = $fopen(m_filename_dap.get(), "a+");
+        if (m_file != 0) begin
+           
+          m_filename_dap.lock();
+        end
+
       end
       return (m_file != 0);
    endfunction : do_open_db
@@ -114,10 +127,13 @@ class uvm_text_tr_database extends uvm_tr_database;
    // @uvm-accellera The details of this API are specific to the Accellera implementation, and are not being considered for contribution to 1800.2
    protected virtual function bit do_close_db();
       if (m_file != 0) begin
-         fork // Needed because $fclose is a task
+        fork // Needed because $fclose is a task
+          begin
             $fclose(m_file);
-         join_none
-         m_filename_dap.unlock();
+          end
+
+        join_none
+        m_filename_dap.unlock();
       end
       return 1;
    endfunction : do_close_db
@@ -151,27 +167,30 @@ class uvm_text_tr_database extends uvm_tr_database;
       void'($cast(r_rhs, rhs));
       
       if ((r_lhs == null) ||
-          (r_rhs == null))
+          (r_rhs == null)) begin
+        
         return;
+      end
+
       else begin
-         uvm_parent_child_link pc_link;
-         uvm_related_link re_link;
-         if ($cast(pc_link, link)) begin
-            $fdisplay(m_file,"  LINK @%0t {TXH1:%0d TXH2:%0d RELATION=%0s}",
+        uvm_parent_child_link pc_link;
+        uvm_related_link re_link;
+        if ($cast(pc_link, link)) begin
+          $fdisplay(m_file,"  LINK @%0t {TXH1:%0d TXH2:%0d RELATION=%0s}",
                       $time,
                       r_lhs.get_handle(),
                       r_rhs.get_handle(),
                       "child");
             
-         end
-         else if ($cast(re_link, link)) begin
-            $fdisplay(m_file,"  LINK @%0t {TXH1:%0d TXH2:%0d RELATION=%0s}",
+        end
+        else if ($cast(re_link, link)) begin
+          $fdisplay(m_file,"  LINK @%0t {TXH1:%0d TXH2:%0d RELATION=%0s}",
                       $time,
                          r_lhs.get_handle(),
                       r_rhs.get_handle(),
                       "");
             
-         end
+        end
       end
    endfunction : do_establish_link
 
@@ -188,14 +207,14 @@ class uvm_text_tr_database extends uvm_tr_database;
    function void set_file_name(string filename);
       if (filename == "") begin
         `uvm_warning("UVM/TXT_DB/EMPTY_NAME",
-                     "Ignoring attempt to set file name to ''!")
-         return;
+        "Ignoring attempt to set file name to ''!")
+        return;
       end
 
       if (!m_filename_dap.try_set(filename)) begin
-         `uvm_warning("UVM/TXT_DB/SET_AFTER_OPEN",
-                      "Ignoring attempt to change file name after opening the db!")
-         return;
+        `uvm_warning("UVM/TXT_DB/SET_AFTER_OPEN",
+        "Ignoring attempt to change file name after opening the db!")
+        return;
       end
    endfunction : set_file_name
 

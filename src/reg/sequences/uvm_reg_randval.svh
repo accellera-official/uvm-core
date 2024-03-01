@@ -1,6 +1,6 @@
 // 
-// -------------------------------------------------------------
-// Copyright 2020 NVIDIA Corporation
+//----------------------------------------------------------------------
+// Copyright 2020-2024 NVIDIA Corporation
 // Copyright 2004-2009 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 // 
@@ -17,8 +17,16 @@
 //    CONDITIONS OF ANY KIND, either express or implied.  See
 //    the License for the specific language governing
 //    permissions and limitations under the License.
-// -------------------------------------------------------------
-// 
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
 
 //
 // TITLE -- NODOCS -- Register access sequence random value generator

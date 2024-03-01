@@ -1,7 +1,7 @@
 //
 //------------------------------------------------------------------------------
 // Copyright 2022 Marvell International Ltd.
-// Copyright 2021 NVIDIA Corporation
+// Copyright 2021-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -18,6 +18,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `ifndef UVM_REGEX_CACHE_SVH
  `define UVM_REGEX_CACHE_SVH
@@ -42,8 +52,11 @@ class uvm_regex_cache extends uvm_lru_cache#(string, chandle);
   // Singleton accessor
   static function uvm_regex_cache get_inst();
     static uvm_regex_cache m_inst;
-    if (m_inst == null)
+    if (m_inst == null) begin
+      
       m_inst = new("uvm_regex_cache");
+    end
+
     return m_inst;
   endfunction : get_inst
 

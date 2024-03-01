@@ -3,7 +3,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2014 Intel Corporation
 // Copyright 2007-2009 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //-----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 // File -- NODOCS -- UVM Links
 //
@@ -127,12 +137,18 @@ class uvm_parent_child_link extends uvm_link_base;
 
       p_ = process::self();
       if (p_ != null)
-	s_ = p_.get_randstate();
+        begin
+          s_ = p_.get_randstate();
+        end
+
       
       get_link = new(name);
 
       if (p_ != null)
-	p_.set_randstate(s_);
+        begin
+          p_.set_randstate(s_);
+        end
+
       
       get_link.set(lhs, rhs);
    endfunction : get_link
@@ -203,12 +219,18 @@ class uvm_cause_effect_link extends uvm_link_base;
       string s_;
       p_ = process::self();
       if (p_ != null)
-	s_ = p_.get_randstate();
+        begin
+          s_ = p_.get_randstate();
+        end
+
       
       get_link = new(name);
 
       if (p_ != null)
-	p_.set_randstate(s_);
+        begin
+          p_.set_randstate(s_);
+        end
+
       
       get_link.set(lhs, rhs);
    endfunction : get_link
@@ -279,12 +301,18 @@ class uvm_related_link extends uvm_link_base;
       string s_;
       p_ = process::self();
       if (p_ != null)
-	s_ = p_.get_randstate();
+        begin
+          s_ = p_.get_randstate();
+        end
+
       
       get_link = new(name);
 
       if (p_ != null)
-	p_.set_randstate(s_);
+        begin
+          p_.set_randstate(s_);
+        end
+
       
       get_link.set(lhs, rhs);
    endfunction : get_link

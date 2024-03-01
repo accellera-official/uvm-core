@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -18,6 +18,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //
@@ -127,16 +137,25 @@ class uvm_top_down_visitor_adapter#(type STRUCTURE=uvm_component,VISITOR=uvm_vis
     STRUCTURE c[$];
 
     if(invoke_begin_end)
-      v.begin_v();
+      begin
+        v.begin_v();
+      end
+
 
     v.visit(s);
     p.get_immediate_children(s, c);
 
     foreach(c[idx])
-      accept(c[idx],v,p,0);
+      begin
+        accept(c[idx],v,p,0);
+      end
+
 
     if(invoke_begin_end)
-      v.end_v();
+      begin
+        v.end_v();
+      end
+
 
   endfunction
 endclass
@@ -163,16 +182,25 @@ class uvm_bottom_up_visitor_adapter#(type STRUCTURE=uvm_component,VISITOR=uvm_vi
     STRUCTURE c[$];
 
     if(invoke_begin_end)
-      v.begin_v();
+      begin
+        v.begin_v();
+      end
+
 
     p.get_immediate_children(s, c);
     foreach(c[idx])
-      accept(c[idx],v,p,0);
+      begin
+        accept(c[idx],v,p,0);
+      end
+
 
     v.visit(s);
 
     if(invoke_begin_end)
-      v.end_v();
+      begin
+        v.end_v();
+      end
+
 
   endfunction
 endclass
@@ -199,22 +227,30 @@ class uvm_by_level_visitor_adapter#(type STRUCTURE=uvm_component,VISITOR=uvm_vis
     c.push_back(s);
 
     if(invoke_begin_end)
-      v.begin_v();
+      begin
+        v.begin_v();
+      end
 
-    while(c.size() > 0) begin
-      STRUCTURE q[$];
-      foreach(c[idx]) begin
-        STRUCTURE t[$]; 
 
-        v.visit(c[idx]);
-        p.get_immediate_children(c[idx], t);
-        q = {q,t};
+    while(c.size() > 0) 
+      begin
+        STRUCTURE q[$];
+        foreach(c[idx]) 
+        begin
+          STRUCTURE t[$]; 
+
+          v.visit(c[idx]);
+          p.get_immediate_children(c[idx], t);
+          q = {q,t};
+        end 
+        c=q;
       end 
-      c=q;
-    end 
 
     if(invoke_begin_end)
-      v.end_v();
+      begin
+        v.end_v();
+      end
+
   endfunction
 endclass
 
@@ -270,25 +306,30 @@ class uvm_component_name_check_visitor extends uvm_visitor#(uvm_component);
 
   virtual function void visit(NODE node);
     // dont check the root component
-    if(_root != node) begin
+    if(_root != node) 
+      begin
 `ifdef UVM_REGEX_NO_DPI
-      static bit warned ;
-      if (!warned) begin
+        static bit warned ;
+        if (!warned) begin
         `uvm_warning("NO_VISIT_CHECK","Because UVM_REGEX_NO_DPI is defined, no uvm component name constraints will be checked")
         warned = 1;
       end
 `else
-      string regex = get_name_constraint();
-         // if we don't have something surrounded by "/" characters, add them
-      if ((regex.len() <= 2) || 
-          (regex[0] != "/") || 
-          (regex[regex.len()-1] != "/"))
-         regex = {"/",regex,"/"};
-      if ( ! uvm_is_match( regex, node.get_name() ) ) begin
-        `uvm_warning("UVM/COMP/NAME",$sformatf("the name \"%s\" of the component \"%s\" violates the uvm component name constraints",node.get_name(),node.get_full_name()))
-      end
+        string regex = get_name_constraint();
+        // if we don't have something surrounded by "/" characters, add them
+        if ((regex.len() <= 2) || 
+        (regex[0] != "/") || 
+        (regex[regex.len()-1] != "/"))
+        begin
+          regex = {"/",regex,"/"};
+        end
+
+        if ( ! uvm_is_match( regex, node.get_name() ) ) 
+        begin
+          `uvm_warning("UVM/COMP/NAME",$sformatf("the name \"%s\" of the component \"%s\" violates the uvm component name constraints",node.get_name(),node.get_full_name()))
+        end
 `endif
-    end
+      end
   endfunction 
 
   function new (string name = "");

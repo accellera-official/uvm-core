@@ -2,7 +2,7 @@
 //----------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2018-2020 NVIDIA Corporation
+// Copyright 2018-2024 NVIDIA Corporation
 // Copyright 2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `ifndef UVM_TLM_IMPS_SVH
 `define UVM_TLM_IMPS_SVH
@@ -218,8 +228,12 @@
   function new (string name, this_imp_type imp, \
                 this_req_type req_imp = null, this_rsp_type rsp_imp = null); \
     super.new (name, imp, UVM_IMPLEMENTATION, 1, 1); \
-    if(req_imp==null) $cast(req_imp, imp); \
-    if(rsp_imp==null) $cast(rsp_imp, imp); \
+    if(req_imp==null) begin \
+      $cast(req_imp, imp); \
+    end \
+    if(rsp_imp==null) begin \
+      $cast(rsp_imp, imp); \
+    end \
     m_req_imp = req_imp; \
     m_rsp_imp = rsp_imp; \
     m_if_mask = MASK; \

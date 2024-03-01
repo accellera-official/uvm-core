@@ -4,7 +4,7 @@
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2014 Cisco Systems, Inc.
 // Copyright 2010-2020 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2004-2018 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 //
@@ -23,6 +23,16 @@
 //    permissions and limitations under the License.
 // -------------------------------------------------------------
 //
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 typedef class uvm_reg;
 typedef class uvm_mem;
@@ -221,15 +231,18 @@ class uvm_reg_read_only_cbs extends uvm_reg_cbs;
       obj = rw.get_element();
       name = obj.get_full_name();
       
-      if (rw.get_status() != UVM_IS_OK)
-         return;
+      if (rw.get_status() != UVM_IS_OK) begin
+         
+        return;
+      end
+
 
       if (rw.get_element_kind() == UVM_FIELD) begin
-         uvm_reg_field fld;
-         uvm_reg rg;
-         $cast(fld, rw.get_element());
-         rg = fld.get_parent();
-         name = rg.get_full_name();
+        uvm_reg_field fld;
+        uvm_reg rg;
+        $cast(fld, rw.get_element());
+        rg = fld.get_parent();
+        name = rg.get_full_name();
       end
       
       `uvm_error("UVM/REG/READONLY",
@@ -240,7 +253,10 @@ class uvm_reg_read_only_cbs extends uvm_reg_cbs;
 
    local static uvm_reg_read_only_cbs m_me;
    local static function uvm_reg_read_only_cbs get();
-      if (m_me == null) m_me = new;
+      if (m_me == null) begin
+        m_me = new;
+      end
+
       return m_me;
    endfunction
 
@@ -253,7 +269,7 @@ class uvm_reg_read_only_cbs extends uvm_reg_cbs;
       uvm_reg_cb::add(rg, get());
       rg.get_fields(flds);
       foreach (flds[i]) begin
-         uvm_reg_field_cb::add(flds[i], get());
+        uvm_reg_field_cb::add(flds[i], get());
       end
    endfunction
 
@@ -266,14 +282,17 @@ class uvm_reg_read_only_cbs extends uvm_reg_cbs;
 
       void'(cbs.first());
       while (cbs.get_cb() != get()) begin
-         if (cbs.get_cb() == null)
-            return;
-         void'(cbs.next());
+        if (cbs.get_cb() == null) begin
+            
+          return;
+        end
+
+        void'(cbs.next());
       end
       uvm_reg_cb::delete(rg, get());
       rg.get_fields(flds);
       foreach (flds[i]) begin
-         uvm_reg_field_cb::delete(flds[i], get());
+        uvm_reg_field_cb::delete(flds[i], get());
       end
    endfunction
 endclass
@@ -309,15 +328,18 @@ class uvm_reg_write_only_cbs extends uvm_reg_cbs;
       obj = rw.get_element();
       name = obj.get_full_name();
       
-      if (rw.get_status() != UVM_IS_OK)
-         return;
+      if (rw.get_status() != UVM_IS_OK) begin
+         
+        return;
+      end
+
 
       if (rw.get_element_kind() == UVM_FIELD) begin
-         uvm_reg_field fld;
-         uvm_reg rg;
-         $cast(fld, rw.get_element());
-         rg = fld.get_parent();
-         name = rg.get_full_name();
+        uvm_reg_field fld;
+        uvm_reg rg;
+        $cast(fld, rw.get_element());
+        rg = fld.get_parent();
+        name = rg.get_full_name();
       end
       
       `uvm_error("UVM/REG/WRTEONLY",
@@ -328,7 +350,10 @@ class uvm_reg_write_only_cbs extends uvm_reg_cbs;
 
    local static uvm_reg_write_only_cbs m_me;
    local static function uvm_reg_write_only_cbs get();
-      if (m_me == null) m_me = new;
+      if (m_me == null) begin
+        m_me = new;
+      end
+
       return m_me;
    endfunction
 
@@ -341,7 +366,7 @@ class uvm_reg_write_only_cbs extends uvm_reg_cbs;
       uvm_reg_cb::add(rg, get());
       rg.get_fields(flds);
       foreach (flds[i]) begin
-         uvm_reg_field_cb::add(flds[i], get());
+        uvm_reg_field_cb::add(flds[i], get());
       end
    endfunction
 
@@ -354,14 +379,17 @@ class uvm_reg_write_only_cbs extends uvm_reg_cbs;
 
       void'(cbs.first());
       while (cbs.get_cb() != get()) begin
-         if (cbs.get_cb() == null)
-            return;
-         void'(cbs.next());
+        if (cbs.get_cb() == null) begin
+            
+          return;
+        end
+
+        void'(cbs.next());
       end
       uvm_reg_cb::delete(rg, get());
       rg.get_fields(flds);
       foreach (flds[i]) begin
-         uvm_reg_field_cb::delete(flds[i], get());
+        uvm_reg_field_cb::delete(flds[i], get());
       end
    endfunction
 endclass

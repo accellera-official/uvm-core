@@ -4,9 +4,10 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2017 Cisco Systems, Inc.
 // Copyright 2011 Cypress Semiconductor Corp.
+// Copyright 2023 Intel Corporation
 // Copyright 2021 Marvell International Ltd.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2013-2022 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2010-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -24,6 +25,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `ifndef UVM_BASE_SVH
 `define UVM_BASE_SVH
@@ -130,5 +141,9 @@
  `ifndef UVM_REGEX_NO_DPI
   `include "base/uvm_regex_cache.svh"
  `endif
+
+  // Process guards
+ `include "base/uvm_process_guard_base.svh"
+ `include "base/uvm_process_guard.svh"
   
 `endif // UVM_BASE_SVH

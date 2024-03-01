@@ -2,7 +2,8 @@
 //------------------------------------------------------------------------------
 // Copyright 2007-2020 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2024 Microsoft
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -21,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 typedef class uvm_tlm_event;
 
@@ -171,15 +182,24 @@ class uvm_tlm_fifo #(type T=int) extends uvm_tlm_fifo_base #(T);
   `else
     process_container_c zombie_gets[$];
   `endif  
-    foreach (m_pending_blocked_gets[i])
-    `ifndef UVM_USE_PROCESS_CONTAINER
-      if (i.status() == process::KILLED)
-    `else
-      if (i.p.status() == process::KILLED)
-    `endif	      
+    foreach (m_pending_blocked_gets[i]) begin
+      int status;
+  `ifndef UVM_USE_PROCESS_CONTAINER
+      status = i.status();
+  `else
+      status = i.p.status();
+  `endif
+      if (status == process::KILLED) begin
         zombie_gets.push_back(i);
-    foreach (zombie_gets[i])
+      end
+
+    end
+
+    foreach (zombie_gets[i]) begin
+      
       m_pending_blocked_gets.delete(zombie_gets[i]);
+    end
+
   endfunction : m_clear_zombie_gets
   
   virtual function bit can_get();
@@ -205,12 +225,15 @@ class uvm_tlm_fifo #(type T=int) extends uvm_tlm_fifo_base #(T);
     
     if( m.num() > 0 && m_pending_blocked_gets.size() != 0 ) begin
       uvm_report_error("flush failed" ,
-		       "there are blocked gets preventing the flush", UVM_NONE);
+               "there are blocked gets preventing the flush", UVM_NONE);
       return;
     end
 
     r = 1; 
-    while( r ) r = m.try_get( t ) ;
+    while( r ) begin
+      r = (m.try_get(t) != 0);
+    end
+
     
   
   endfunction

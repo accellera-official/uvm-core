@@ -5,7 +5,7 @@
 // Copyright 2018 Cisco Systems, Inc.
 // Copyright 2014 Intel Corporation
 // Copyright 2007-2020 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2018 Qualcomm, Inc.
 // Copyright 2011-2014 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -24,6 +24,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `ifndef UVM_REGISTRY_SVH
 `define UVM_REGISTRY_SVH
@@ -83,8 +93,11 @@ class uvm_component_registry #(type T=uvm_component, string Tname="<unknown>")
   // @uvm-ieee 1800.2-2020 manual 8.2.4.2.3
   static function this_type get();
      static this_type m_inst;
-     if (m_inst == null)
+     if (m_inst == null) begin
+       
        m_inst = new();
+     end
+
     return m_inst;
   endfunction
 
@@ -180,8 +193,14 @@ class uvm_object_registry #(type T=uvm_object, string Tname="<unknown>")
   // @uvm-ieee 1800.2-2020 auto 8.2.4.2.1
   virtual function uvm_object create_object(string name="");
     T obj;
-    if (name=="") obj = new();
-    else obj = new(name);
+    if (name=="") begin
+      obj = new();
+    end
+
+    else begin
+      obj = new(name);
+    end
+
     return obj;
   endfunction
 
@@ -206,8 +225,11 @@ class uvm_object_registry #(type T=uvm_object, string Tname="<unknown>")
 
   static function this_type get();
      static this_type m_inst;
-     if (m_inst == null)
+     if (m_inst == null) begin
+       
        m_inst = new();
+     end
+
     return m_inst;
   endfunction
 
@@ -331,8 +353,11 @@ class uvm_abstract_component_registry #(type T=uvm_component, string Tname="<unk
 
   static function this_type get();
     static this_type m_inst;
-     if (m_inst == null)
+     if (m_inst == null) begin
+       
        m_inst = new();
+     end
+
     return m_inst;
   endfunction
 
@@ -450,8 +475,11 @@ class uvm_abstract_object_registry #(type T=uvm_object, string Tname="<unknown>"
 
   static function this_type get();
     static this_type m_inst;
-     if (m_inst == null)
+     if (m_inst == null) begin
+       
        m_inst = new();
+     end
+
     return m_inst;
   endfunction
 
@@ -539,7 +567,7 @@ class uvm_registry_common #( type Tregistry=int, type Tcreator=int, type Tcreate
 
   static function string type_name();
      if((Tname == "<unknown>") && (m__type_aliases.size() != 0)) begin
-        return m__type_aliases[0];
+       return m__type_aliases[0];
      end
      return Tname;
   endfunction : type_name
@@ -550,15 +578,21 @@ class uvm_registry_common #( type Tregistry=int, type Tcreator=int, type Tcreate
 
   static function this_type get();
      static this_type m_inst;
-     if (m_inst == null)
+     if (m_inst == null) begin
+       
        m_inst = new();
+     end
+
      return m_inst;
   endfunction : get
 
   static function Tcreated create(string name, uvm_component parent, string contxt);
     uvm_object obj;
-    if (contxt == "" && parent != null)
+    if (contxt == "" && parent != null) begin
+      
       contxt = parent.get_full_name();
+    end
+
     obj = Tcreator::create_by_type( Tregistry::get(), contxt, name, parent );
     if (!$cast(create, obj)) begin
       string msg;
@@ -584,10 +618,16 @@ class uvm_registry_common #( type Tregistry=int, type Tcreator=int, type Tcreate
     uvm_factory factory=uvm_factory::get();
 
     if (parent != null) begin
-      if (inst_path == "")
+      if (inst_path == "") begin
+        
         inst_path = parent.get_full_name();
-      else
+      end
+
+      else begin
+        
         inst_path = {parent.get_full_name(),".",inst_path};
+      end
+
     end
     factory.set_inst_override_by_type(Tregistry::get(),override_type,inst_path);
   endfunction
@@ -596,11 +636,11 @@ class uvm_registry_common #( type Tregistry=int, type Tcreator=int, type Tcreate
      m__type_aliases.push_back(alias_name);
      m__type_aliases.sort();
      if (uvm_pkg::get_core_state() != UVM_CORE_UNINITIALIZED) begin
-        uvm_factory factory = uvm_factory::get();
-        Tregistry rgtry = Tregistry::get();
-        if (factory.is_type_registered(rgtry)) begin
-           factory.set_type_alias(alias_name,rgtry);
-        end
+       uvm_factory factory = uvm_factory::get();
+       Tregistry rgtry = Tregistry::get();
+       if (factory.is_type_registered(rgtry)) begin
+         factory.set_type_alias(alias_name,rgtry);
+       end
      end
   endfunction
 
@@ -608,12 +648,12 @@ class uvm_registry_common #( type Tregistry=int, type Tcreator=int, type Tcreate
      Tregistry rgtry = Tregistry::get();
      // If the core is uninitialized, we defer initialization
      if (uvm_pkg::get_core_state() == UVM_CORE_UNINITIALIZED) begin
-	     uvm_pkg::uvm_deferred_init.push_back(rgtry);
+       uvm_pkg::uvm_deferred_init.push_back(rgtry);
      end
      // If the core is initialized, then we're static racing,
      // initialize immediately
      else begin
-	     rgtry.initialize();
+       rgtry.initialize();
      end
      return 1;
   endfunction
@@ -626,7 +666,7 @@ class uvm_registry_common #( type Tregistry=int, type Tcreator=int, type Tcreate
      // add aliases that were set before
      // the wrapper was registered with the factory
      foreach(m__type_aliases[i]) begin
-        factory.set_type_alias(m__type_aliases[i],rgtry);
+       factory.set_type_alias(m__type_aliases[i],rgtry);
      end
   endfunction
 endclass

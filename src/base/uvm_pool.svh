@@ -4,7 +4,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2010-2014 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -22,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 // Title -- NODOCS -- Pool Classes
 // This section defines the <uvm_pool #(KEY, T)> class and derivative.
@@ -65,7 +75,10 @@ class uvm_pool #(type KEY=int, T=uvm_void) extends uvm_object;
 
   static function this_type get_global_pool ();
     if (m_global_pool==null)
-      m_global_pool = new("pool");
+      begin
+        m_global_pool = new("pool");
+      end
+
     return m_global_pool;
   endfunction
 
@@ -91,10 +104,11 @@ class uvm_pool #(type KEY=int, T=uvm_void) extends uvm_object;
 
   // @uvm-ieee 1800.2-2020 auto 11.2.2.4
   virtual function T get (KEY key);
-    if (!pool.exists(key)) begin
-      T default_value;
-      pool[key] = default_value;
-    end
+    if (!pool.exists(key)) 
+      begin
+        T default_value;
+        pool[key] = default_value;
+      end
     return pool[key];
   endfunction
   
@@ -126,11 +140,12 @@ class uvm_pool #(type KEY=int, T=uvm_void) extends uvm_object;
 
   // @uvm-ieee 1800.2-2020 auto 11.2.2.7
   virtual function void delete (KEY key);
-    if (!exists(key)) begin
-      uvm_report_warning("POOLDEL",
+    if (!exists(key)) 
+      begin
+        uvm_report_warning("POOLDEL",
         $sformatf("delete: pool key doesn't exist. Ignoring delete request"));
-      return;
-    end
+        return;
+      end
     pool.delete(key);
   endfunction
 
@@ -212,7 +227,10 @@ class uvm_pool #(type KEY=int, T=uvm_void) extends uvm_object;
     KEY key;
     super.do_copy(rhs);
     if (rhs==null || !$cast(p, rhs))
-      return;
+      begin
+        return;
+      end
+
     pool = p.pool;
   endfunction
 
@@ -223,13 +241,17 @@ class uvm_pool #(type KEY=int, T=uvm_void) extends uvm_object;
     KEY key;
     printer.print_array_header("pool",pool.num(),"aa_object_string");
     if (pool.first(key))
-      do begin
-        item.itoa(cnt);
-        item = {"[-key",item,"--]"};
-        $swrite(v,pool[key]);
-        printer.print_generic(item,"",-1,v,"[");
+      begin
+        do 
+        begin
+          item.itoa(cnt);
+          item = {"[-key",item,"--]"};
+          $swrite(v,pool[key]);
+          printer.print_generic(item,"",-1,v,"[");
+        end
+        while (pool.next(key));
       end
-      while (pool.next(key));
+
     printer.print_array_footer();
   endfunction
 
@@ -277,7 +299,10 @@ class uvm_object_string_pool #(type T=uvm_object) extends uvm_pool #(string,T);
   // @uvm-ieee 1800.2-2020 auto 10.4.2.2.2
   static function this_type get_global_pool ();
     if (m_global_pool==null)
-      m_global_pool = new("global_pool");
+      begin
+        m_global_pool = new("global_pool");
+      end
+
     return m_global_pool;
   endfunction
 
@@ -306,7 +331,10 @@ class uvm_object_string_pool #(type T=uvm_object) extends uvm_pool #(string,T);
   // @uvm-ieee 1800.2-2020 auto 10.4.2.2.4
   virtual function T get (string key);
     if (!pool.exists(key))
-      pool[key] = new (key);
+      begin
+        pool[key] = new (key);
+      end
+
     return pool[key];
   endfunction
   
@@ -316,11 +344,12 @@ class uvm_object_string_pool #(type T=uvm_object) extends uvm_pool #(string,T);
   // Removes the item with the given string ~key~ from the pool.
 
   virtual function void delete (string key);
-    if (!exists(key)) begin
-      uvm_report_warning("POOLDEL",
+    if (!exists(key)) 
+      begin
+        uvm_report_warning("POOLDEL",
         $sformatf("delete: key '%s' doesn't exist", key));
-      return;
-    end
+        return;
+      end
     pool.delete(key);
   endfunction
 
@@ -331,9 +360,15 @@ class uvm_object_string_pool #(type T=uvm_object) extends uvm_pool #(string,T);
     string key;
     printer.print_array_header("pool",pool.num(),"aa_object_string");
     if (pool.first(key))
-      do
-        printer.print_object({"[",key,"]"}, pool[key],"[");
-      while (pool.next(key));
+      begin
+        do
+        begin
+          printer.print_object({"[",key,"]"}, pool[key],"[");
+        end
+
+        while (pool.next(key));
+      end
+
     printer.print_array_footer();
   endfunction
 

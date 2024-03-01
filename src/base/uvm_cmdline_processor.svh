@@ -4,9 +4,9 @@
 // Copyright 2015 Analog Devices, Inc.
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2017 Cisco Systems, Inc.
-// Copyright 2021 Marvell International Ltd.
+// Copyright 2021-2023 Marvell International Ltd.
 // Copyright 2010-2018 Mentor Graphics Corporation
-// Copyright 2013-2022 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2011 Synopsys, Inc.
 // Copyright 2020 Verific
 //   All Rights Reserved Worldwide
@@ -25,6 +25,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 class uvm_cmd_line_verb;
   string comp_path;
@@ -154,9 +164,12 @@ class uvm_cmdline_processor extends uvm_report_object;
 
   // @uvm-ieee 1800.2-2020 auto G.1.2
   static function uvm_cmdline_processor get_inst();
-    if(m_inst == null) 
+    if(m_inst == null) begin
+      
       m_inst = new("uvm_cmdline_proc");
-      uvm_cmdline_proc = m_inst;
+    end
+
+    uvm_cmdline_proc = m_inst;
     return m_inst;
   endfunction
 
@@ -262,8 +275,11 @@ class uvm_cmdline_processor extends uvm_report_object;
       if(m_argv[i].len() >= chars) begin
         if(m_argv[i].substr(0,chars-1) == match) begin
           get_arg_value++;
-          if(get_arg_value == 1)
+          if(get_arg_value == 1) begin
+            
             value = m_argv[i].substr(chars,m_argv[i].len()-1);
+          end
+
         end
       end
     end
@@ -299,8 +315,11 @@ class uvm_cmdline_processor extends uvm_report_object;
     values.delete();
     foreach (m_argv[i]) begin
       if(m_argv[i].len() >= chars) begin
-        if(m_argv[i].substr(0,chars-1) == match)
+        if(m_argv[i].substr(0,chars-1) == match) begin
+          
           values.push_back(m_argv[i].substr(chars,m_argv[i].len()-1));
+        end
+
       end
     end
     return values.size();
@@ -333,22 +352,25 @@ class uvm_cmdline_processor extends uvm_report_object;
     string sub;
     int doInit=1;
     super.new(name);
-    do begin
-      s = uvm_dpi_get_next_arg(doInit);
-      doInit=0;
-      if(s!="") begin
-        m_argv.push_back(s);
-        if(s[0] == "+") begin
-          m_plus_argv.push_back(s);
-        end 
-        if(s.len() >= 4 && (s[0]=="-" || s[0]=="+")) begin
-          sub = s.substr(1,3);
-          sub = sub.toupper();
-          if(sub == "UVM")
-            m_uvm_argv.push_back(s);
-        end 
-      end
-    end while(s!=""); 
+    do 
+      begin
+        s = uvm_dpi_get_next_arg(doInit);
+        doInit=0;
+        if(s!="") begin
+          m_argv.push_back(s);
+          if(s[0] == "+") begin
+            m_plus_argv.push_back(s);
+          end 
+          if(s.len() >= 4 && (s[0]=="-" || s[0]=="+")) begin
+            sub = s.substr(1,3);
+            sub = sub.toupper();
+            if(sub == "UVM") begin
+              m_uvm_argv.push_back(s);
+            end
+          end
+        end
+      end 
+    while(s!=""); 
 
   endfunction
 

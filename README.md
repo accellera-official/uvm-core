@@ -9,9 +9,7 @@ See details in the Library Release Description below.
 
 # Kit version
 
-1800.2-2020 2.0
-
-The tarball for this kit was generated based upon the following git commit state: c3ac75ad e2de8c73.
+1800.2 2020.3.0
 
 # License
 
@@ -32,29 +30,22 @@ contact the Accellera UVM Working Group (uvm-wg@lists.accellera.org).
 
 # Bug Fixes
 
-The following errata were fixed in 2.0.
+The following errata were fixed in 2020.3.0.
 
 | Mantis Number | Description |
 | ------------- | ----------- |
-| [Mantis 4675](https://accellera.mantishub.io/view.php?id=4675) | `uvm_reg_field::is_indv_accessible` looks bogus. | 
-| [Mantis 5449](https://accellera.mantishub.io/view.php?id=5449) | The `uvm_reg_predictor` ignored status of bus_op. |
-| [Mantis 5648](https://accellera.mantishub.io/view.php?id=5648) | `define_domain` always adds `uvm_sched`, even when it shouldn't | 
-| [Mantis 5707](https://accellera.mantishub.io/view.php?id=5707) | `find_override_by_type` causes false errors when called by the user |
-| [Mantis 6273](https://accellera.mantishub.io/view.php?id=6273) | `uvm_reg::mirror` task has not released lock when map is NULL |
-| [Mantis 6556](https://accellera.mantishub.io/view.php?id=6556) | `uvm_config_db::set` ignores regex in `inst_name` when context is supplied |
-| [Mantis 6966](https://accellera.mantishub.io/view.php?id=6966) | Access synchronization issue in `uvm_reg` class | 
-| [Mantis 7011](https://accellera.mantishub.io/view.php?id=7011) | `uvm_*_context` macros can result in method chaining |
-| [Mantis 7212](https://accellera.mantishub.io/view.php?id=7212) | Null Object Access while frontdoor reading/writing fields with no adapter |
-| [Mantis 7240](https://accellera.mantishub.io/view.php?id=7240) | `uvm_reg_field::write()` does not call `set()` method to update the desired value of the field |
-| [Mantis 7276](https://accellera.mantishub.io/view.php?id=7276) | Killing a sequence can cause a hang (`get`/`get_next_item`/`peek`) or `TRY_NEXT_BLOCKED` error (`try_next_item`) |
-| [Mantis 7279](https://accellera.mantishub.io/view.php?id=7279) | `uvm_recorder` loops indefinitely when recorder encounters an object it has already recorded |
-| [Mantis 7280](https://accellera.mantishub.io/view.php?id=7280) | Zero-time race in sequence start status check | 
-| [Mantis 7472](https://accellera.mantishub.io/view.php?id=7472) | lock not released in `uvm_reg_field::do_write()`/`do_read()` if `Xcheck_accessX()` call fails. |
-| [Mantis 7542](https://accellera.mantishub.io/view.php?id=7542) | Improve `uvm_field_op` flag compatiblity solution |
-| [Mantis 7704](https://accellera.mantishub.io/view.php?id=7704) | `uvm_field_object` macro fails when variable name is `state` |
-| [Mantis 7715](https://accellera.mantishub.io/view.php?id=7715) | UVM Report Macros don't check action |
-
-
+| [Mantis_7944](https://accellera.mantishub.io/view.php?id=7944) | `uvm_compat_packer` works wrong for `unpack_object` method |
+| [Mantis_7915](https://accellera.mantishub.io/view.php?id=7915) | Compatibility: `uvm_resource#(T)::get_by_name` and `get_by_type` missing in 2020-2.0 |
+| [Mantis_8224](https://accellera.mantishub.io/view.php?id=8224) | TLM GP Buffer overflow during unpack operation |
+| [Mantis_7879](https://accellera.mantishub.io/view.php?id=7879) | All classes should derive from `uvm_void` |
+| [Mantis_7932](https://accellera.mantishub.io/view.php?id=7932) | `UVM_ENABLE_DEPRECATED` in 1800.2-2020 2.0 library |
+| [Mantis_7916](https://accellera.mantishub.io/view.php?id=7916) | Compat: UVM Messaging macros introduce unnecessary dependency on `uvm_report_object` |
+| [Mantis_7696](https://accellera.mantishub.io/view.php?id=7696) | Poll API using Simulator callback |
+| [Mantis_7933](https://accellera.mantishub.io/view.php?id=7933) | `uvm_tlm_fifo::flush` uses bit instead of int for `mailbox::try_get` return value |
+| [Mantis_7919](https://accellera.mantishub.io/view.php?id=7919) | LINT: one-line if/else statements should use `begin...end` |
+| [Mantis_7935](https://accellera.mantishub.io/view.php?id=7935) | Add a process guard class |
+| [Mantis_6745](https://accellera.mantishub.io/view.php?id=6475) | Jumping to extract phase results in extract executing twice |
+| [Mantis_5315](https://accellera.mantishub.io/view.php?id=5315) | No arbitration to protect the `rw_info` of front door sequence from being accessed by multiple threads simultaneously |
 
 # Installing the kit
 
@@ -244,7 +235,6 @@ begin
   port_comp.get_provided_to(list);
 end
 ```
-
 ### `uvm_packer` stream contents have changed
 
 If data is packed to a stream and then that stream is unpacked, all library versions produce identical unpack output, but the contents of the stream are different between 1800.2 versions and pre-1800.2 versions.  If the exact stream contents must be maintained, then the recommendation is to use the uvm_compat_packer.  Please refer to the compatibility package [README](./compat/README.md) for details.
@@ -252,3 +242,214 @@ If data is packed to a stream and then that stream is unpacked, all library vers
 ### `uvm_sequence_base` and `uvm_sequence#()` are now abstract classes
 
 Prior to 1800.2 versions, user code could create an instance of uvm_sequence_base or uvm_sequence#(), but because these are abstract in 1800.2, they may no longer be instanced.  The recommendation is to use the uvm_compat_sequence_proxy_sequence#().  Please refer to the compatibility package [README](./compat/README.md) for details.
+
+## Polling mechansim.
+The Polling mechanism is a new feature under development. Hence the API may change. It is experimental and feedback is welcome. 
+To use this feature, add the define UVM_ENABLE_EXPERIMENTAL_POLLING_API to include the polling API in your compilation. This is in addition to other defines described below which select options within the polling API.
+
+The  Polling API is a mechansim to observe signal changes in the DUT by using a signal name instead of a cross module reference. 
+The class is used for a number of reasons
+1. Waiting on value change of a register / field 
+2. Polling a signal for a specific value  <
+3. Performing a user-defined action upon each value change of a field in a register 
+4. Monitoring volatile fields (changed by HW) and performing prediction and transaction logging  
+
+Note that this class is implemented with VPI functions in a corresponding .c file which must be enabled via some additional flags. 
+You can avoid using VPI by extending the provided `uvm_polling_backdoor` class and registering it.
+
+
+Signal changes can be observed by one of 2 mechanisms:
+- The `wait_for_change` task blocks until the signal changes.
+- The `uvm_hdl_polling_cbs::do_on_path_change` callback is automatically called on signal changes.
+
+You can either enable a uvm_callback once the signal changes or use the builtin task to wait for a signal change.
+
+Use model:
+To use the polling API, you must first decide if you wish to use the built-in VPI polling mechansim or a backdoor polling mechansim.
+
+The VPI mechanism uses VPI and DPI calls to monitor the signal, and you need to turn on the appropriate 
+switches for your simulator to enable this mechansim.  You will also need to add an additional define to your simulator to use this mode.
+
+Using a backdoor mechanism does not require you to use VPI and you can mix and match both VPI and backdoor mechansims, but be aware that having even a single VPI polling mechansim will require additional
+switches to your simulator.  
+
+The VPI polling mechanism is easier to use but the backdoor mechanism is more performant.  
+
+Steps to use the polling mechansim:
+
+Step 1:
+	Determine if you are going to use the inbuilt VPI polling mechansim or tthe backdoor mechanism.
+	if you choose the VPI mechansim, add the define UVM_POLLING_API_SV to your compler switches.
+
+Step 2:
+	Declare Instances of the `uvm_hdl_polling` class in your class. 
+```
+	uvm_hdl_polling  poll1;
+        uvm_hdl_polling  poll2;
+```
+Step 3:
+	Build these instances in the build_phase:
+```
+	poll1 = uvm_hdl_polling::type_id::create("poll1");
+	poll2 = uvm_hdl_polling::type_id::create("poll2");`
+```
+
+Step 4:
+	Register the signal which you want to monitor.  The arguments to the register_hdl_path method is a string with the fully qualified path to the signal.
+```
+	poll1.register_hdl_path("top.child1.sub1.signal3");
+    	poll2.register_hdl_path("top.child2.sub2.signal3");`
+```
+Step 5:
+	Monitor the signal change using either a task or a callback. 
+	To wait for a signal change within a forked process:
+```
+		uvm_poll_status_e status;
+      		 uvm_poll_data_t val;
+		 ...
+                 poll2.wait_for_change(status,val);`
+```
+
+To use a callback mechanism, extend the callback class and implement your handler there:
+
+```
+	class my_signal_callback extends uvm_hdl_polling_cbs;
+
+	  virtual function void do_on_path_change(string hdl_path, uvm_poll_data_t val, int size); 
+        ...
+	endfunction
+	...
+	// Usual constructor and other macros
+	...
+	endclass`
+```
+The callback registration is as usual:  you can add this to all the signals or a specific instance.
+Example:
+
+```
+	` uvm_callbacks #(uvm_hdl_polling,my_signal_callback)::add(poll1,my_signal_callback_inst1);`
+```
+
+User defined Backdoor mechansim to impove performance.
+
+	The default VPI implementation of the polling API uses 
+	a VPI mechansim to register a value change callback and hence access to the signals in the simulator. It also uses
+	a VPI mechanism to signal a Notifier bit in the uvm_hdl_polling_pkg. 
+	
+	Consequently, you will need to turn on VPI read access to the specific design signals in your design and write access to the bit in the uvm_polling_pkg. 
+	Please consult your simulator vendor documentation for specifics of how to do so.
+
+	if you are sensitive to performance considerations, consider using the backdoor api. While this is more work, you will not suffer a loss of performance.
+
+	Step 1: Create a backdoor class.
+	Example:
+	
+```
+		class signal2_backdoor extends uvm_polling_backdoor;
+		   `uvm_object_utils(signal2_backdoor)
+		   function new(string name="signal2_backdoor"); 
+		      super.new(name);
+		   endfunction 
+		   // actions to be taken when polling bit changes
+		   virtual task poll_bkdr_wait_for_hdl_change(ref uvm_poll_status_e status, ref uvm_poll_data_t val);
+			// This is a task which will return when the signal changes. The mechansim by which it obtains a handle
+			// to the signal is user-defined. 
+			// is up tp
+		   endtask
+		   virtual function hdl_read(ref uvm_poll_status_e status, ref uvm_poll_data_t val);
+			// you must populate the value of the return value with the value read from the signal
+			// if you cannot read the value, you must return UVM_POLL_NOT_OK otherwise, status must be set to UVM_POLL_OK. 
+		   endfunction 
+		   virtual function int get_signal_size();
+			// Return the actual value of the signal as an integer.
+		   endfunction
+		   virtual function bit create_backdoor_probe(int key, string fullname, bit enable = 1);
+			// You must ensure you can access the signal that is dicated by **fullname** in this method to be
+			// sure that you can detect value changes. 
+			// For example:
+			// This may mean that in case you use an interface, you get a virtual interface handle or 
+			// register a simulator specific Cross reference.	
+		      return 1; 
+		   endfunction
+		endclass 
+		
+
+```
+	// Signal2 is similar.		
+		      
+	Step 2: Add backdoor to the test	
+	Example:
+	
+```
+	virtual task main_phase(uvm_phase phase);	
+  	  signal1_backdoor signal1;
+	  signal2_backdoor signal2;
+      
+
+	  signal1 = signal1_backdoor::type_id::create("signal1");
+          signal2 = signal2_backdoor::type_id::create("signal2");
+	use 
+	  poll1.set_backdoor(signal1);
+	  poll2.set_backdoor(signal2);
+	or 
+      	$cast(poll1._bkdr, signal1);
+      	$cast(poll2._bkdr, signal2);
+	
+
+```
+## Simple Polling task interfaces
+You could choose to use the simple Task interface if you are just monitoring a few signals in your testbench.
+The `uvm_get_poll("Pathname")` method can create a poll instance for you. Consult the documentation for the API
+Example:
+
+```
+initial begin
+      uvm_hdl_polling my_poll;
+      my_poll = uvm_get_poll("path to signal"); 
+      begin
+         uvm_poll_status_e status;
+         uvm_poll_data_t val;
+         forever begin
+            my_poll.uvm_wait_for_hdl_change(status,val);
+            `uvm_info(...)
+         end
+
+      end
+   end
+
+```
+
+You may also extend the uvm_hdl_polling class and embed your own handler and use the `uvm_set_poll(instance_name,"unique_name")` method. Consult the documentation for the API.
+This unique_name can actually be the signal name if you wish or any other string. It is used as a key index inside the implementation and allows the mechansim to work.
+
+```
+	class my_signal_watcher extends uvm_hdl_polling;
+	... // implement backdoors or other handlers or attach callbacks if you wish
+	endclass
+
+
+	initial begin
+ 		my_signal_watcher my_sigwa;
+      	my_sigwa = my_signal_watcher::type_id::create("my_sigwa");
+      	...
+      	void'(uvm_set_poll(my_sigwa,"simple_name")); // Not showing how my_sigwa registers what signals it can see etc
+      	...
+      	run_test();
+	end
+
+
+```	
+
+Save and Restore:
+	Special considerations may be required when using the PLI-Based backend with 'Save and Restore' semantics. Please consult your simulation vendor for more information.
+
+# Git details
+
+The following information may be used for tracking the version of this file.  Please see
+[DEVELOPMENT.md](./DEVELOPMENT.md) for more details.
+
+```
+$File$
+$Rev$
+$Hash$
+```

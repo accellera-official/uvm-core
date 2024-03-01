@@ -4,7 +4,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2014 Cisco Systems, Inc.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2013 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -24,6 +24,16 @@
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
+
 
 `define UVM_SEQ_ITEM_TASK_ERROR "Sequencer interface task not implemented"
 `define UVM_SEQ_ITEM_FUNCTION_ERROR "Sequencer interface function not implemented"
@@ -39,7 +49,7 @@
 //------------------------------------------------------------------------------
 
 // @uvm-ieee 1800.2-2020 auto 15.2.1.1
-virtual class uvm_sqr_if_base #(type T1=uvm_object, T2=T1);
+virtual class uvm_sqr_if_base #(type T1=uvm_object, T2=T1) extends uvm_void;
 
   // Task -- NODOCS -- get_next_item
   //

@@ -2,7 +2,7 @@
 // Copyright 2011-2018 Cadence Design Systems, Inc.
 // Copyright 2014 Intel Corporation
 // Copyright 2011-2014 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -22,6 +22,16 @@
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
+
 // CLASS -- NODOCS -- uvm_tlm_time
 // Canonical time type that can be used in different timescales
 //
@@ -34,7 +44,7 @@
 //
 
 // @uvm-ieee 1800.2-2020 auto 5.6.1
-class uvm_time;
+class uvm_time extends uvm_void;
 
    static local real m_resolution = 1.0e-12; // ps by default
    local real m_res;
@@ -131,12 +141,12 @@ class uvm_time;
    // @uvm-ieee 1800.2-2020 auto 5.6.2.6
    function void incr(real t, time scaled, real secs = 1.0e-9);
       if (t < 0.0) begin
-         `uvm_error("UVM/TLM/TIMENEG", {"Cannot increment uvm_tlm_time variable ", m_name, " by a negative value"})
-         return;
+        `uvm_error("UVM/TLM/TIMENEG", {"Cannot increment uvm_tlm_time variable ", m_name, " by a negative value"})
+        return;
       end
       if (scaled == 0) begin
-         `uvm_fatal("UVM/TLM/BADSCALE",
-                    "uvm_tlm_time::incr() called with a scaled time literal that is smaller than the current timescale")
+        `uvm_fatal("UVM/TLM/BADSCALE",
+        "uvm_tlm_time::incr() called with a scaled time literal that is smaller than the current timescale")
       end
 
       m_time += to_m_res(t, scaled, secs);
@@ -158,19 +168,19 @@ class uvm_time;
    // @uvm-ieee 1800.2-2020 auto 5.6.2.7
    function void decr(real t, time scaled, real secs);
       if (t < 0.0) begin
-         `uvm_error("UVM/TLM/TIMENEG", {"Cannot decrement uvm_tlm_time variable ", m_name, " by a negative value"})
-         return;
+        `uvm_error("UVM/TLM/TIMENEG", {"Cannot decrement uvm_tlm_time variable ", m_name, " by a negative value"})
+        return;
       end
       if (scaled == 0) begin
-         `uvm_fatal("UVM/TLM/BADSCALE",
-                    "uvm_tlm_time::decr() called with a scaled time literal that is smaller than the current timescale")
+        `uvm_fatal("UVM/TLM/BADSCALE",
+        "uvm_tlm_time::decr() called with a scaled time literal that is smaller than the current timescale")
       end
       
       m_time -= to_m_res(t, scaled, secs);
 
       if (m_time < 0.0) begin
-         `uvm_error("UVM/TLM/TOODECR", {"Cannot decrement uvm_tlm_time variable ", m_name, " to a negative value"})
-         reset();
+        `uvm_error("UVM/TLM/TOODECR", {"Cannot decrement uvm_tlm_time variable ", m_name, " to a negative value"})
+        reset();
       end
    endfunction
 

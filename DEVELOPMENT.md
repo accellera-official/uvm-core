@@ -35,32 +35,35 @@ Repository Setup
 ---------------------------------------------------------------------
 
 The central source code repository of the Accellera UVM implementation is
-hosted in two [Git][5] repositories at [GitHub][6].  The main
+hosted in two sets of [Git][5] repositories at [GitHub][6].  The main
 repositories are **private** to the [`OSCI-WG` organization][7] and can be
 found at:
 
  * https://github.com/OSCI-WG/uvm-core    (core UVM library)
  * https://github.com/OSCI-WG/uvm-tests   (regression test suite)
 
-A read-only, **public** version of these repositories can be found at
-
- * https://github.com/accellera-official/uvm-core   (core UVM library)
- * https://github.com/accellera-official/uvm-tests  (regression test suite)
-
 Members of the GitHub [`OSCI-WG` organization][7] with the necessary access
-rights can clone the repositories via SSH from the locations
+rights can clone the private repositories via SSH from the locations
 
      git clone -o osci-wg git@github.com:OSCI-WG/uvm-core.git
      git clone -o osci-wg git@github.com:OSCI-WG/uvm-tests.git
 
 respectively.
 
-To obtain access to the repositories you need an account on [GitHub][6].
-The repository is private and for Accellera members only. In order to see the
-repository, you will need to be added to the access list. To gain access, provide
+To obtain access to these repositories you need an account on [GitHub][6].
+The `OSCI-WG` repositories are for Accellera members only. In order to see the private
+repositories, you will need to be added to the access list. To gain access, provide
 the account details to Accellera by sending your github username to
 <mailto:uvm-chair@lists.accellera.org> or <mailto:lynn@accellera.org>
 and your account will be enabled.
+
+A read-only, **public** version of these repositories can be found at
+
+ * https://github.com/accellera-official/uvm-core   (core UVM library)
+ * https://github.com/accellera-official/uvm-tests  (regression test suite)
+
+The public repositories do not require membership in the [`OSCI-WG` organization][7] 
+for access.
 
  [5]: http://git-scm.com "Git version control system"
  [6]: http://github.com
@@ -88,9 +91,11 @@ recommended to create personal (or company-based) [forks][10] of the
 repositories on GitHub and push the proposed changes (bugfixes,
 features, ...) there.
 
-Forks of the private repositories are only accessible to members
-of the [`OSCI-WG` GitHub organization][7].  Details of the intended
-work-flow are described in the next [section](#basic-branch-setup).
+> *Note:*
+> Forks of the private repositories are only accessible to members
+> of the [`OSCI-WG` GitHub organization][7].  Details of the intended
+> work-flow are described in [Basic branch setup](#basic-branch-setup).
+
 It is convenient to add this GitHub fork as a remote to your local
 clone of the repository:
 
@@ -111,14 +116,15 @@ Any changes can then be pushed to GitHub using:
    remote branches to the repository.
 
 It is also good to create a few branches tracking the main `OSCI-WG` 
-branches (The `master` branch has already been created).
+or `accellera-official` branches (The `master` branch has already 
+been created).
 
 	(cd uvm-core && git checkout --track osci-wg/release)
     (cd uvm-core && git checkout --track osci-wg/official)
 
 The branch setup can be validated with the following commands and 
 should indicate that the local master and release branches are tracking 
-the osci-wg remotes.
+the upstream remotes.
 
 ```
 ~/tmp/uvmtest/uvm-core$ git branch -vv
@@ -141,6 +147,29 @@ should have your own repositories as upstream repositories configured.
 > the safe side the branches `official`, `release`, and `master`
 > should never receive local commits and they should never be pushed.
 [10]: https://help.github.com/articles/fork-a-repo
+
+### Git RCS Filters
+
+The UVM distribution includes the RCS keywords, e.g. `$keyword$` in 
+the source files for the keywords `File`, `Rev`, and `Hash`.
+
+Git does nothing with these keywords by default; however, the Git filter
+mechanism can be used to expand these keywords with useful information.
+
+For example:
+```
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+```
+
+The details of how to enable such filters are beyond the scope of this
+document.
 
 ---------------------------------------------------------------------
 Development flow

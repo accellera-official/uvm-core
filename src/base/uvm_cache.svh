@@ -3,7 +3,7 @@
 // Copyright 2022 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2022-2023 Mentor Graphics Corporation
-// Copyright 2021 NVIDIA Corporation
+// Copyright 2021-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `ifndef UVM_CACHE_SVH
  `define UVM_CACHE_SVH
@@ -187,7 +197,10 @@ function void uvm_cache::flush();
   optional_keys m_keys;
   m_keys = keys();
   foreach (m_keys[key])
-    void'(evict(m_keys[key]));
+    begin
+      void'(evict(m_keys[key]));
+    end
+
 endfunction : flush
 
 function void uvm_cache::set_max_size(uvm_cache::size_t max_size=256);

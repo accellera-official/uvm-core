@@ -2,7 +2,7 @@
 //------------------------------------------------------------------------------
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -19,6 +19,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 //-----------------------------------------------------------------------------
@@ -67,16 +77,23 @@ class uvm_barrier extends uvm_object;
   virtual task wait_for();
 
     if (at_threshold)
-      return;
+      begin
+        return;
+      end
+
 
     num_waiters++;
 
-    if (num_waiters >= threshold) begin
-      if (!auto_reset)
-        at_threshold=1;
-      m_trigger();
-      return;
-    end
+    if (num_waiters >= threshold) 
+      begin
+        if (!auto_reset)
+        begin
+          at_threshold=1;
+        end
+
+        m_trigger();
+        return;
+      end
 
     m_event.wait_trigger();
 
@@ -96,12 +113,19 @@ class uvm_barrier extends uvm_object;
   // @uvm-ieee 1800.2-2020 auto 10.3.2.3
   virtual function void reset (bit wakeup=1);
     at_threshold = 0;
-    if (num_waiters) begin
-      if (wakeup)
-        m_event.trigger();
-      else
-        m_event.reset();
-    end
+    if (num_waiters) 
+      begin
+        if (wakeup)
+        begin
+          m_event.trigger();
+        end
+
+        else
+        begin
+          m_event.reset();
+        end
+
+      end
     num_waiters = 0;
   endfunction
 
@@ -141,7 +165,10 @@ class uvm_barrier extends uvm_object;
   virtual function void set_threshold (int threshold);
     this.threshold = threshold;
     if (threshold <= num_waiters)
-      reset(1);
+      begin
+        reset(1);
+      end
+
   endfunction
 
 
@@ -192,7 +219,11 @@ class uvm_barrier extends uvm_object;
   virtual function void do_copy (uvm_object rhs);
     uvm_barrier b;
     super.do_copy(rhs);
-    if(!$cast(b, rhs) || (b==null)) return;
+    if(!$cast(b, rhs) || (b==null)) 
+      begin
+        return;
+      end
+
 
     threshold = b.threshold;
     num_waiters = b.num_waiters;

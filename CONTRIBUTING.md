@@ -5,12 +5,8 @@ How to Contribute
  is maintained by the [Universal Verification Methodology (UVM) Working Group][2] (UVM WG)
  according to the [Accellera Policies and Procedures][3].
 
- Anyone may report an issue and, if desired, provide a patch to resolve the issue; see the 
- Issue Reporting and Patch Submission sections below for details.  Such issues may be taken
- up by Accellera UVM Working Group members and turned into a contribution to the reference
- implementation.
- **Contributions to the reference implementation can be
-   accepted only from Accellera members.**
+ **Contributions to this reference implementation can only be
+   accepted from Accellera members.**
 
 ### Join the Accellera UVM Working Group
 
@@ -21,7 +17,7 @@ How to Contribute
  If your company, organization or university is already an Accellera member,
  you can request to [join the UVM Working Group here][4].
 
-### Join the UVM community forum
+### Join the UVM community
 
  If you are not an Accellera member, please join the **[UVM community
  forum][5]** to provide feedback and join the general
@@ -116,11 +112,11 @@ using your real name (no pseudonyms or anonymous contributions).
 > but recommended.  For **non-Accellera** members, the sign-off is
 > **mandatory** for consideration by the Accellera WGs.
 
-When a pull-request is submitted against the public repository, it
-may be considered by the Accellera UVM WG for inclusion.
+When submitting a pull-request against the public repository, the
+contribution may be considered by the Accellera WGs for inclusion.
 An Accellera member may submit it to the private repository with their
 own `Signed-off-by` line appended.  It stays under the sole governance
-of the UVM WG to decide whether the proposal will be included
+of the corresponding WGs to decide whether the proposal will be included
 in the reference implementation (or future Accellera standards).
 
 ---------------------------------------------------------------------
@@ -135,15 +131,25 @@ can be found at:
  * https://github.com/OSCI-WG/uvm-core  (core UVM library)
  * https://github.com/OSCI-WG/uvm-tests (regression test suite)
 
-To obtain access to these repositories and the GitHub organization in general,
-UVM members can contact the UVM chairs at <mailto:uvm-chair@lists.accellera.org>
-including their GitHub account name.
-
 A read-only, **public** version of these repositories can be found at
 
  * https://github.com/accellera-official/uvm-core  (core UVM library)
  * https://github.com/accellera-official/uvm-tests (regression test suite)
 
+To obtain access to the repositories and the GitHub organization in general,
+UVM members can contact the UVM chairs at <mailto:uvm-chair@lists.accellera.org>
+including their GitHub account name.
+
+# Git details
+
+The following information may be used for tracking the version of this file.  Please see
+[DEVELOPMENT.md](./DEVELOPMENT.md) for more details.
+
+```
+$File$
+$Rev$
+$Hash$
+```
 
 [1]: https://www.accellera.org
 [2]: https://accellera.org/activities/working-groups/uvm

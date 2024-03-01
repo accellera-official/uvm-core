@@ -2,7 +2,7 @@
 // Copyright 2018 Cadence Design Systems, Inc.
 // Copyright 2017-2018 Cisco Systems, Inc.
 // Copyright 2021-2023 Marvell International Ltd.
-// Copyright 2018-2022 NVIDIA Corporation
+// Copyright 2018-2024 NVIDIA Corporation
 // Copyright 2017-2018 Verific
 //   All Rights Reserved Worldwide
 //
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //----------------------------------------------------------------------
 // Title -- NODOCS -- Resources
@@ -220,18 +230,30 @@ class uvm_resource_debug extends uvm_object ;
     uvm_resource_types::access_t access_record;
 
     // If an accessor is supplied, then use its name
-	// as the database entry for the accessor record.
-	// Otherwise, use "<empty>" as the database entry.
-    if(accessor != null)
+    // as the database entry for the accessor record.
+    // Otherwise, use "<empty>" as the database entry.
+    if(accessor != null) begin
+      
       str = accessor.get_full_name();
-    else
+    end
+
+    else begin
+      
       str = "<empty>";
+    end
+
 
     // Create a new accessor record if one does not exist
-    if(access.exists(str))
+    if(access.exists(str)) begin
+      
       access_record = access[str];
-    else
+    end
+
+    else begin
+      
       init_access_record(access_record);
+    end
+
 
     // Update the accessor record
     access_record.read_count++;
@@ -259,10 +281,16 @@ class uvm_resource_debug extends uvm_object ;
         uvm_resource_types::access_t access_record;
         string str;
         str = accessor.get_full_name();
-        if(access.exists(str))
+        if(access.exists(str)) begin
+          
           access_record = access[str];
-        else
+        end
+
+        else begin
+          
           init_access_record(access_record);
+        end
+
         access_record.write_count++;
         access_record.write_time = $realtime;
         access[str] = access_record;
@@ -284,8 +312,11 @@ class uvm_resource_debug extends uvm_object ;
     uvm_resource_types::access_t access_record;
     string qs[$];
     
-    if(access.num() == 0)
+    if(access.num() == 0) begin
+      
       return;
+    end
+
 
     foreach (access[i]) begin
       str = i;
@@ -350,8 +381,14 @@ virtual class uvm_resource_base extends uvm_object;
     modified = 0;
     read_only = 0;
     // begin lines provided for compatibility with 1.2
-    if (s == "<not provided>") scope = s; //don't call glob_to_re unless legacy usage
-    else scope = uvm_glob_to_re(s) ; 
+    if (s == "<not provided>") begin
+      scope = s;
+    end
+ //don't call glob_to_re unless legacy usage
+    else begin
+      scope = uvm_glob_to_re(s) ;
+    end
+ 
     precedence = default_precedence ;
     // end lines provided for compatibility with 1.2
   endfunction
@@ -481,7 +518,10 @@ virtual class uvm_resource_base extends uvm_object;
   // @uvm-accellera The details of this API are specific to the Accellera implementation, and are not being considered for contribution to 1800.2
 
   function void record_read_access(uvm_object accessor = null);
-     if (dbg==null) dbg = uvm_resource_debug::type_id::create("dbg") ; 
+     if (dbg==null) begin
+       dbg = uvm_resource_debug::type_id::create("dbg") ;
+     end
+ 
      dbg.record_read_access(accessor);
   endfunction
 
@@ -494,7 +534,10 @@ virtual class uvm_resource_base extends uvm_object;
   // @uvm-accellera The details of this API are specific to the Accellera implementation, and are not being considered for contribution to 1800.2
 
   function void record_write_access(uvm_object accessor = null);
-     if (dbg==null) dbg = uvm_resource_debug::type_id::create("dbg") ; 
+     if (dbg==null) begin
+       dbg = uvm_resource_debug::type_id::create("dbg") ;
+     end
+ 
      dbg.record_write_access(accessor);
   endfunction
 
@@ -509,11 +552,17 @@ virtual class uvm_resource_base extends uvm_object;
 
   virtual function void print_accessors();
      // if dbg is null, we never called record_xxx_access and so there is nothing to print
-     if (dbg != null) dbg.print_accessors();
+     if (dbg != null) begin
+       dbg.print_accessors();
+     end
+
   endfunction
 
   function void init_access_record (inout uvm_resource_types::access_t access_record);
-     if (dbg==null) dbg = uvm_resource_debug::type_id::create("dbg") ; 
+     if (dbg==null) begin
+       dbg = uvm_resource_debug::type_id::create("dbg") ;
+     end
+ 
      dbg.init_access_record(access_record);
   endfunction
 

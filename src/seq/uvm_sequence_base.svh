@@ -6,7 +6,7 @@
 // Copyright 2014-2017 Intel Corporation
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2007-2017 Mentor Graphics Corporation
-// Copyright 2012-2022 NVIDIA Corporation
+// Copyright 2012-2024 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2014 Synopsys, Inc.
 // Copyright 2013 Verilab
@@ -26,6 +26,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 //------------------------------------------------------------------------------
@@ -172,7 +182,10 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
   // @uvm-compat , provided for compatibility with 1.2
   bit do_not_randomize;
 
+  typedef uvm_process_guard#(uvm_sequence_base) m_guard_t;
+  protected m_guard_t m_parent_process_guard;
   protected process  m_sequence_process;
+  protected process  m_killing_process;
   local bit m_use_response_handler;
 
   // bits to detect if is_relevant()/wait_for_relevant() are implemented
@@ -244,10 +257,16 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
   // child transactions when calling <uvm_component::begin_child_tr>.
 
   function int get_tr_handle();
-     if (m_tr_recorder != null)
+     if (m_tr_recorder != null) begin
+       
        return m_tr_recorder.get_handle();
-     else
+     end
+
+     else begin
+       
        return 0;
+     end
+
   endfunction
 
 
@@ -292,8 +311,10 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
          {"Sequence ", get_full_name(), " already started"},UVM_NONE);
     end
 
+    m_parent_process_guard = new("uvm_sequence_base::start_guard", this);
+    
     if (m_parent_sequence != null) begin
-       m_parent_sequence.children_array[this] = 1;
+      m_parent_sequence.children_array[this] = 1;
     end
 
     if (this_priority < -1) begin
@@ -302,8 +323,14 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
                                            this_priority), UVM_NONE);
     end
     if (this_priority < 0) begin
-       if (parent_sequence == null) this_priority = 100;
-       else this_priority = parent_sequence.get_priority();
+      if (parent_sequence == null) begin
+        this_priority = 100;
+      end
+
+      else begin
+        this_priority = parent_sequence.get_priority();
+      end
+
     end
 
     // Check that the response queue is empty from earlier runs
@@ -312,15 +339,15 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
     m_priority           = this_priority;
 
     if (m_sequencer != null) begin
-       int handle;
-       if (m_parent_sequence == null) begin
-          handle = m_sequencer.begin_tr(this, get_name());
-          m_tr_recorder = uvm_recorder::get_recorder_from_handle(handle);
-       end else begin
-          handle = m_sequencer.begin_tr(.tr(this), .stream_name(get_root_sequence_name()),
+      int handle;
+      if (m_parent_sequence == null) begin
+        handle = m_sequencer.begin_tr(this, get_name());
+        m_tr_recorder = uvm_recorder::get_recorder_from_handle(handle);
+      end else begin
+        handle = m_sequencer.begin_tr(.tr(this), .stream_name(get_root_sequence_name()),
                                         .parent_handle((m_parent_sequence.m_tr_recorder == null) ? 0 : m_parent_sequence.m_tr_recorder.get_handle()));                                          
-          m_tr_recorder = uvm_recorder::get_recorder_from_handle(handle);
-       end
+        m_tr_recorder = uvm_recorder::get_recorder_from_handle(handle);
+      end
     end
 
      // Ensure that the sequence_id is intialized in case this sequence has been stopped previously
@@ -344,7 +371,7 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
         // Raise the objection if enabled
         // (This will lock the uvm_get_to_lock_dap)
         if (get_automatic_phase_objection()) begin
-           m_safe_raise_starting_phase("automatic phase objection");
+          m_safe_raise_starting_phase("automatic phase objection");
         end
 
         pre_start();
@@ -383,7 +410,7 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
 
         // Drop the objection if enabled
         if (get_automatic_phase_objection()) begin
-           m_safe_drop_starting_phase("automatic phase objection");
+          m_safe_drop_starting_phase("automatic phase objection");
         end
 
         m_sequence_state = UVM_FINISHED;
@@ -392,6 +419,34 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
       end
     join
 
+    m_sequence_process = null;
+
+    // If we're being killed, wait for that to complete
+    if (m_killing_process != null) begin
+      fork : kill_guard
+        begin
+          fork
+            begin
+              wait (m_killing_process == null); // Kill proceeded without issue
+            end
+            begin
+              m_killing_process.await(); // Killing process was killed (likely a "this.kill()")
+              m_killed(); // We have to finish the kill() in this case
+            end
+          join_any
+          disable fork;
+        end
+      join : kill_guard
+    end
+
+
+    if ((m_sequence_state != UVM_FINISHED) &&
+        (m_sequence_state != UVM_STOPPED)) begin
+      `uvm_warning("SEQBDYZMB",
+                   $sformatf("The child process forked by start() on sequence '%s' was terminated without killing the sequence, perhaps by an errant \"disable fork.\"  The kill() method is being automatically triggered.", get_full_name()))
+      this.kill();
+    end
+
     if (m_sequencer != null) begin
       m_sequencer.end_tr(this);
     end
@@ -399,13 +454,13 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
     // Clean up any sequencer queues after exiting; if we
     // were forcibly stopped, this step has already taken place
     if (m_sequence_state != UVM_STOPPED) begin
-       clean_exit_sequence();
+      clean_exit_sequence();
     end
 
     #0; // allow stopped and finish waiters to resume
 
     if ((m_parent_sequence != null) && (m_parent_sequence.children_array.exists(this))) begin
-       m_parent_sequence.children_array.delete(this);
+      m_parent_sequence.children_array.delete(this);
     end
 
     old_automatic_phase_objection = get_automatic_phase_objection();
@@ -419,17 +474,22 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
 
    function void clean_exit_sequence();
      if (m_sequencer != null) begin
-       m_sequencer.m_sequence_exiting(this);	 
+       m_sequencer.m_sequence_exiting(this);     
      end
      // remove any routing for this sequence even when virtual sequencers (or a null sequencer is involved)
      // once we pass this point nothing can be routed to this sequence(id)
      foreach(m_sqr_seq_ids[seqrID]) begin
        uvm_sequencer_base s = uvm_sequencer_base::all_sequencer_insts[seqrID];
        s.m_sequence_exiting(this);
-     end	
+     end    
      m_sqr_seq_ids.delete();
     // Release the state mutex to allow for re-use (not recommended)
     m_sequence_state_mutex.put(1);
+    // This can be null if start_item/finish_item is called manually without
+    // causing the sequence to be removed from the sequencer (e.g. RAL)
+    if (m_parent_process_guard != null) begin
+      void'(m_parent_process_guard.clear());
+    end
  endfunction
  
 
@@ -560,12 +620,12 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
      string sp_name = $sformatf("%s.starting_phase", get_full_name());
 
      if (create) begin
-        m_automatic_phase_objection_dap = uvm_get_to_lock_dap#(bit)::type_id::create(apo_name, get_sequencer());
-        m_starting_phase_dap = uvm_get_to_lock_dap#(uvm_phase)::type_id::create(sp_name, get_sequencer());
+       m_automatic_phase_objection_dap = uvm_get_to_lock_dap#(bit)::type_id::create(apo_name, get_sequencer());
+       m_starting_phase_dap = uvm_get_to_lock_dap#(uvm_phase)::type_id::create(sp_name, get_sequencer());
      end
      else begin
-        m_automatic_phase_objection_dap.set_name(apo_name);
-        m_starting_phase_dap.set_name(sp_name);
+       m_automatic_phase_objection_dap.set_name(apo_name);
+       m_starting_phase_dap.set_name(sp_name);
      end
   endfunction : m_init_phase_daps
 
@@ -588,8 +648,11 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
     uvm_phase sp;
     
     // If we're not locked, use the starting_phase variable
-    if (!m_starting_phase_dap.is_locked() && starting_phase != null)
+    if (!m_starting_phase_dap.is_locked() && starting_phase != null) begin
+      
       m_starting_phase_dap.set(starting_phase);
+    end
+
 
     // Get the DAP value (and lock it)
     sp = m_starting_phase_dap.get();
@@ -597,9 +660,9 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
     // Throw an error if starting_phase != dap.get()
     if (sp!=starting_phase) begin
       `uvm_error("UVM/SEQ/SP/GET",
-                 $sformatf("The starting_phase variable was set to '%s' after a call to get_starting_phase locked the value '%s'.  The new value is ignored.",
-                           (starting_phase == null) ? "<null>" : starting_phase.get_name(),
-                           (sp == null) ? "<null>" : sp.get_name()))
+      $sformatf("The starting_phase variable was set to '%s' after a call to get_starting_phase locked the value '%s'.  The new value is ignored.",
+      (starting_phase == null) ? "<null>" : starting_phase.get_name(),
+      (sp == null) ? "<null>" : sp.get_name()))
     end
     return sp;
   endfunction : get_starting_phase
@@ -612,9 +675,9 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
       uvm_phase sp;
       sp = m_starting_phase_dap.get();
       `uvm_error("UVM/SEQ/SP/SET",
-                 $sformatf("The starting_phase variable was set to '%s' after a call to get_starting_phase locked the value at '%s'.  The new value is ignored.",
-                           (phase == null) ? "<null>" : phase.get_name(),
-                           (sp == null) ? "<null>" : sp.get_name()))
+      $sformatf("The starting_phase variable was set to '%s' after a call to get_starting_phase locked the value at '%s'.  The new value is ignored.",
+      (phase == null) ? "<null>" : phase.get_name(),
+      (sp == null) ? "<null>" : sp.get_name()))
     end
     else begin
       // Update the starting_phase variable
@@ -638,16 +701,22 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
   function void m_safe_raise_starting_phase(string description = "",
                                             int count = 1);
      uvm_phase starting_phase = get_starting_phase();
-     if (starting_phase != null)
+     if (starting_phase != null) begin
+       
        starting_phase.raise_objection(this, description, count);
+     end
+
   endfunction : m_safe_raise_starting_phase
 
   // m_safe_drop_starting_phase
   function void m_safe_drop_starting_phase(string description = "",
                                            int count = 1);
      uvm_phase starting_phase = get_starting_phase();
-     if (starting_phase != null)
+     if (starting_phase != null) begin
+       
        starting_phase.drop_objection(this, description, count);
+     end
+
   endfunction : m_safe_drop_starting_phase
 
   //------------------------
@@ -724,9 +793,12 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
   virtual task wait_for_relevant();
     event e;
     wait_rel_default = 1;
-    if (is_rel_default != wait_rel_default)
+    if (is_rel_default != wait_rel_default) begin
+      
       uvm_report_fatal("RELMSM",
         "is_relevant() was implemented without defining wait_for_relevant()", UVM_NONE);
+    end
+
     @e;  // this is intended to never return
   endtask
 
@@ -744,11 +816,17 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
 
   // @uvm-ieee 1800.2-2020 auto 14.2.5.5
   task lock(uvm_sequencer_base sequencer = null);
-    if (sequencer == null)
+    if (sequencer == null) begin
+      
       sequencer = m_sequencer;
+    end
 
-    if (sequencer == null)
+
+    if (sequencer == null) begin
+      
       uvm_report_fatal("LOCKSEQR", "Null m_sequencer reference", UVM_NONE);
+    end
+
 
     sequencer.lock(this);
   endtask
@@ -853,6 +931,7 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
 
   // @uvm-ieee 1800.2-2020 auto 14.2.5.11
   function void kill();
+    // If there's no child process, then the sequence isn't running
     if (m_sequence_process != null) begin
       // If we are not connected to a sequencer, then issue
       // kill locally.
@@ -860,7 +939,7 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
         m_kill();
         // We need to drop the objection if we raised it...
         if (get_automatic_phase_objection()) begin
-           m_safe_drop_starting_phase("automatic phase objection");
+          m_safe_drop_starting_phase("automatic phase objection");
         end
         return;
       end
@@ -869,7 +948,7 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
       m_sequencer.kill_sequence(this);
       // We need to drop the objection if we raised it...
       if (get_automatic_phase_objection()) begin
-         m_safe_drop_starting_phase("automatic phase objection");
+        m_safe_drop_starting_phase("automatic phase objection");
       end
       return;
     end
@@ -881,21 +960,41 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
     return;
   endfunction
 
-  function void m_kill();
-    do_kill();
-    foreach(children_array[i]) begin
-       i.kill();
-    end
-    if (m_sequence_process != null) begin
-      m_sequence_process.kill;
-      m_sequence_process = null;
-    end
+  // Clears the sequence state after a kill() operation.  Either
+  // called by m_kill(), or start().
+  function void m_killed();
     m_sequence_state = UVM_STOPPED;
-    if ((m_parent_sequence != null) && (m_parent_sequence.children_array.exists(this)))
+    if ((m_parent_sequence != null) && (m_parent_sequence.children_array.exists(this))) begin
       m_parent_sequence.children_array.delete(this);
+    end
+
     clean_exit_sequence();
+    m_killing_process = null;
   endfunction
 
+  function void m_kill();
+    m_killing_process = process::self();
+    do_kill();
+    foreach(children_array[i]) begin
+      i.kill();
+    end
+    // Kill the child process if it exists, this may
+    // kill our process, at which point the start() method
+    // will finish the kill.
+    if (m_sequence_process != null) begin
+      m_sequence_process.kill();
+      m_sequence_process = null;
+    end
+    m_killed();
+  endfunction : m_kill
+
+  function void process_guard_triggered(m_guard_t guard);
+    if (guard == m_parent_process_guard) begin
+      `uvm_warning("SEQPRTZMB",
+                   $sformatf("The parent process that called start() on sequence '%s' was terminated without killing the sequence.  The kill() method is being automatically triggered.", get_full_name()))
+      this.kill();
+    end
+  endfunction : process_guard_triggered
 
   //-------------------------------
   // Group -- NODOCS -- Sequence Item Execution
@@ -947,21 +1046,30 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
       return;
     end
 
-    if (sequencer == null)
-        sequencer = item.get_sequencer();
+    if (sequencer == null) begin
+        
+      sequencer = item.get_sequencer();
+    end
 
-    if(sequencer == null)
-        sequencer = get_sequencer();
 
     if(sequencer == null) begin
-        uvm_report_fatal("SEQ",{"neither the item's sequencer nor dedicated sequencer has been supplied to start item in ",get_full_name()},UVM_NONE);
-       return;
+        
+      sequencer = get_sequencer();
+    end
+
+
+    if(sequencer == null) begin
+      uvm_report_fatal("SEQ",{"neither the item's sequencer nor dedicated sequencer has been supplied to start item in ",get_full_name()},UVM_NONE);
+      return;
     end
 
     item.set_item_context(this, sequencer);
 
-    if (set_priority < 0)
+    if (set_priority < 0) begin
+      
       set_priority = get_priority();
+    end
+
 
     sequencer.wait_for_grant(this, set_priority);
 
@@ -992,7 +1100,7 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
     sequencer = item.get_sequencer();
 
     if (sequencer == null) begin
-        uvm_report_fatal("STRITM", "sequence_item has null sequencer", UVM_NONE);
+      uvm_report_fatal("STRITM", "sequence_item has null sequencer", UVM_NONE);
     end
 
     mid_do(item);
@@ -1040,8 +1148,8 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
   // @uvm-ieee 1800.2-2020 auto 14.2.6.5
   virtual function void send_request(uvm_sequence_item request, bit rerandomize = 0);
     if (m_sequencer == null) begin
-        uvm_report_fatal("SENDREQ", "Null m_sequencer reference", UVM_NONE);
-      end
+      uvm_report_fatal("SENDREQ", "Null m_sequencer reference", UVM_NONE);
+    end
     m_sequencer.send_request(this, request, rerandomize);
   endfunction
 
@@ -1062,8 +1170,8 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
   // @uvm-ieee 1800.2-2020 auto 14.2.6.6
   virtual task wait_for_item_done(int transaction_id = -1);
     if (m_sequencer == null) begin
-        uvm_report_fatal("WAITITEMDONE", "Null m_sequencer reference", UVM_NONE);
-      end
+      uvm_report_fatal("WAITITEMDONE", "Null m_sequencer reference", UVM_NONE);
+    end
     m_sequencer.wait_for_item_done(this, transaction_id);
   endtask
 
@@ -1205,8 +1313,11 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
 
     int queue_size, i;
 
-    if (response_queue.size() == 0)
+    if (response_queue.size() == 0) begin
+      
       wait (response_queue.size() != 0);
+    end
+
 
     if (transaction_id == -1) begin
       response = response_queue.pop_front();
@@ -1216,12 +1327,12 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
     forever begin
       queue_size = response_queue.size();
       for (i = 0; i < queue_size; i++) begin
-        if (response_queue[i].get_transaction_id() == transaction_id)
-          begin
-            $cast(response,response_queue[i]);
-            response_queue.delete(i);
-            return;
-          end
+        if (response_queue[i].get_transaction_id() == transaction_id) begin
+          
+          $cast(response,response_queue[i]);
+          response_queue.delete(i);
+          return;
+        end
       end
       wait (response_queue.size() != queue_size);
     end
@@ -1243,8 +1354,11 @@ virtual class uvm_sequence_base extends uvm_sequence_item;
       return m_sqr_seq_ids[sequencer_id];
     end
 
-    if (update_sequence_id == 1)
+    if (update_sequence_id == 1) begin
+      
       set_sequence_id(-1);
+    end
+
 
     return -1;
   endfunction

@@ -1,8 +1,8 @@
 // 
-// -------------------------------------------------------------
+//----------------------------------------------------------------------
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 // Copyright 2010 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 // 
@@ -19,8 +19,16 @@
 //    CONDITIONS OF ANY KIND, either express or implied.  See
 //    the License for the specific language governing
 //    permissions and limitations under the License.
-// -------------------------------------------------------------
+//----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
 //
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
 
 //
 // TITLE -- NODOCS -- HDL Paths Checking Test Sequence
@@ -67,19 +75,25 @@ class uvm_reg_mem_hdl_paths_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_re
     virtual task body();
 
         if (model == null) begin
-            uvm_report_error("uvm_reg_mem_hdl_paths_seq", "Register model handle is null");
-            return;
+          uvm_report_error("uvm_reg_mem_hdl_paths_seq", "Register model handle is null");
+          return;
         end
 
        `uvm_info("uvm_reg_mem_hdl_paths_seq",
                  {"checking HDL paths for all registers/memories in ",
                   model.get_full_name()}, UVM_LOW)
 
-       if (abstractions.size() == 0)
-          do_block(model, "");
+       if (abstractions.size() == 0) begin
+          
+         do_block(model, "");
+       end
+
        else begin
-          foreach (abstractions[i])
-             do_block(model, abstractions[i]);
+         foreach (abstractions[i]) begin
+             
+           do_block(model, abstractions[i]);
+         end
+
        end
 
         `uvm_info("uvm_reg_mem_hdl_paths_seq", "HDL path validation completed ",UVM_LOW)
@@ -105,20 +119,26 @@ class uvm_reg_mem_hdl_paths_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_re
 
        // Iterate over all registers, checking accesses
        blk.get_registers(regs, UVM_NO_HIER);
-       foreach (regs[i]) 
-          check_reg(regs[i], kind);
+       foreach (regs[i]) begin 
+          
+         check_reg(regs[i], kind);
+       end
+
        
        blk.get_memories(mems, UVM_NO_HIER);
-       foreach (mems[i]) 
-          check_mem(mems[i], kind);
+       foreach (mems[i]) begin 
+          
+         check_mem(mems[i], kind);
+       end
+
     
        begin
-          uvm_reg_block blks[$];
+         uvm_reg_block blks[$];
           
-          blk.get_blocks(blks);
-          foreach (blks[i]) begin
-             do_block(blks[i], kind);
-          end
+         blk.get_blocks(blks);
+         foreach (blks[i]) begin
+           do_block(blks[i], kind);
+         end
        end
     endfunction: do_block
     
@@ -127,27 +147,35 @@ class uvm_reg_mem_hdl_paths_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_re
                                               string kind);
         uvm_hdl_path_concat paths[$];
 
-	// avoid calling get_full_hdl_path when the register has not path for this abstraction kind
-	if(!r.has_hdl_path(kind))
-		return;
+    // avoid calling get_full_hdl_path when the register has not path for this abstraction kind
+    if(!r.has_hdl_path(kind)) begin
+        
+      return;
+    end
+
 
         r.get_full_hdl_path(paths, kind);
-        if (paths.size() == 0) return;
+        if (paths.size() == 0) begin
+          return;
+        end
+
 
         foreach(paths[p]) begin
-            uvm_hdl_path_concat path=paths[p];
-            foreach (path.slices[j]) begin
-                string p_ = path.slices[j].path;
-                uvm_reg_data_t d;
-                if (!uvm_hdl_read(p_,d))
-                    `uvm_error("uvm_reg_mem_hdl_paths_seq",
-                               $sformatf("HDL path \"%s\" for register \"%s\" is not readable",
-                                         p_, r.get_full_name()))
-                if (!uvm_hdl_check_path(p_))
-                    `uvm_error("uvm_reg_mem_hdl_paths_seq",
-                               $sformatf("HDL path \"%s\" for register \"%s\" is not accessible",
-                                         p_, r.get_full_name()))
+          uvm_hdl_path_concat path=paths[p];
+          foreach (path.slices[j]) begin
+            string p_ = path.slices[j].path;
+            uvm_reg_data_t d;
+            if (!uvm_hdl_read(p_,d)) begin
+              `uvm_error("uvm_reg_mem_hdl_paths_seq",
+              $sformatf("HDL path \"%s\" for register \"%s\" is not readable",
+              p_, r.get_full_name()))
             end
+            if (!uvm_hdl_check_path(p_)) begin
+              `uvm_error("uvm_reg_mem_hdl_paths_seq",
+              $sformatf("HDL path \"%s\" for register \"%s\" is not accessible",
+              p_, r.get_full_name()))
+            end
+          end
         end
     endfunction
  
@@ -156,23 +184,30 @@ class uvm_reg_mem_hdl_paths_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_re
                                               string kind);
         uvm_hdl_path_concat paths[$];
 
-	// avoid calling get_full_hdl_path when the register has not path for this abstraction kind
-	if(!m.has_hdl_path(kind))
-		return;
+    // avoid calling get_full_hdl_path when the register has not path for this abstraction kind
+    if(!m.has_hdl_path(kind)) begin
+        
+      return;
+    end
+
 
         m.get_full_hdl_path(paths, kind);
-        if (paths.size() == 0) return;
+        if (paths.size() == 0) begin
+          return;
+        end
+
 
         foreach(paths[p]) begin
-            uvm_hdl_path_concat path=paths[p];
-            foreach (path.slices[j]) 
-            begin
-                string p_ = path.slices[j].path;
-                if(!uvm_hdl_check_path(p_))
-                    `uvm_error("uvm_reg_mem_hdl_paths_seq",
-                               $sformatf("HDL path \"%s\" for memory \"%s\" is not accessible",
-                                         p_, m.get_full_name()))
+          uvm_hdl_path_concat path=paths[p];
+          foreach (path.slices[j]) begin 
+            
+            string p_ = path.slices[j].path;
+            if(!uvm_hdl_check_path(p_)) begin
+              `uvm_error("uvm_reg_mem_hdl_paths_seq",
+              $sformatf("HDL path \"%s\" for memory \"%s\" is not accessible",
+              p_, m.get_full_name()))
             end
+          end
         end
     endfunction 
 endclass: uvm_reg_mem_hdl_paths_seq

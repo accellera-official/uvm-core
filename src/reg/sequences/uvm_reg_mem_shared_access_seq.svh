@@ -3,7 +3,7 @@
 // Copyright 2010 AMD
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2020 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 // Copyright 2004-2010 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 // 
@@ -23,9 +23,19 @@
 // -------------------------------------------------------------
 // 
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 // Title -- NODOCS -- Shared Register and Memory Access Test Sequences
 //------------------------------------------------------------------------------
+
 // This section defines sequences for testing registers and memories that are
 // shared between two or more physical interfaces, i.e. are associated with
 // more than one <uvm_reg_map> instance.
@@ -81,19 +91,25 @@ class uvm_reg_shared_access_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_re
       uvm_reg_map maps[$];
 
       if (rg == null) begin
-         `uvm_error("uvm_reg_shared_access_seq", "No register specified to run sequence on")
-         return;
+        `uvm_error("uvm_reg_shared_access_seq", "No register specified to run sequence on")
+        return;
       end
 
       // Registers with some attributes are not to be tested
       if (uvm_resource_db#(bit)::get_by_name({"REG::",rg.get_full_name()},
                                              "NO_REG_TESTS", 0) != null ||
           uvm_resource_db#(bit)::get_by_name({"REG::",rg.get_full_name()},
-                                             "NO_REG_SHARED_ACCESS_TEST", 0) != null )
+                                             "NO_REG_SHARED_ACCESS_TEST", 0) != null ) begin
+        
         return;
+      end
+
 
       // Only look at shared registers
-      if (rg.get_n_maps() < 2) return;
+      if (rg.get_n_maps() < 2) begin
+        return;
+      end
+
       rg.get_maps(maps);
 
       // Let's see what kind of bits we have...
@@ -102,86 +118,86 @@ class uvm_reg_shared_access_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_re
       // Identify unpredictable bits and the ones we shouldn't change
       other_mask = 0;
       foreach (fields[k]) begin
-         int lsb, w;
+        int lsb, w;
          
-         lsb = fields[k].get_lsb_pos();
-         w   = fields[k].get_n_bits();
+        lsb = fields[k].get_lsb_pos();
+        w   = fields[k].get_n_bits();
          
-         if (!fields[k].is_known_access(maps[0])) begin
-            repeat (w) begin
-               other_mask[lsb++] = 1'b1;
-            end
-         end
+        if (!fields[k].is_known_access(maps[0])) begin
+          repeat (w) begin
+            other_mask[lsb++] = 1'b1;
+          end
+        end
       end
       
       // WO bits will always readback as 0's but the mirror
       // with return what is supposed to have been written
       // so we cannot use the mirror-check function
       foreach (maps[j]) begin
-         uvm_reg_data_t  wo;
-         wo = 0;
-         foreach (fields[k]) begin
-            int lsb, w;
+        uvm_reg_data_t  wo;
+        wo = 0;
+        foreach (fields[k]) begin
+          int lsb, w;
             
-            lsb = fields[k].get_lsb_pos();
-            w   = fields[k].get_n_bits();
+          lsb = fields[k].get_lsb_pos();
+          w   = fields[k].get_n_bits();
             
-            if (fields[k].get_access(maps[j]) == "WO") begin
-               repeat (w) begin
-                  wo[lsb++] = 1'b1;
-               end
+          if (fields[k].get_access(maps[j]) == "WO") begin
+            repeat (w) begin
+              wo[lsb++] = 1'b1;
             end
-         end
-         wo_mask[j] = wo;
+          end
+        end
+        wo_mask[j] = wo;
       end
       
       // Try to write through each map
       foreach (maps[j]) begin
-         uvm_status_e status;
-         uvm_reg_data_t  prev, v;
+        uvm_status_e status;
+        uvm_reg_data_t  prev, v;
          
-         // The mirror should contain the initial value
-         prev = rg.get();
+        // The mirror should contain the initial value
+        prev = rg.get();
          
-         // Write a random value, except in those "don't touch" fields
-         void'(rand_reg_val.randomize());
-         v = (rand_reg_val.randval & ~other_mask) | (prev & other_mask);
+        // Write a random value, except in those "don't touch" fields
+        void'(rand_reg_val.randomize());
+        v = (rand_reg_val.randval & ~other_mask) | (prev & other_mask);
          
-         `uvm_info("uvm_reg_shared_access_seq", $sformatf("Writing register %s via map \"%s\"...",
-                                    rg.get_full_name(), maps[j].get_full_name), UVM_LOW)
+        `uvm_info("uvm_reg_shared_access_seq", $sformatf("Writing register %s via map \"%s\"...",
+        rg.get_full_name(), maps[j].get_full_name), UVM_LOW)
          
-         `uvm_info("uvm_reg_shared_access_seq", $sformatf("Writing 'h%h over 'h%h", v, prev),UVM_DEBUG)
+        `uvm_info("uvm_reg_shared_access_seq", $sformatf("Writing 'h%h over 'h%h", v, prev),UVM_DEBUG)
          
-         rg.write(status, v, UVM_FRONTDOOR, maps[j], this);
-         if (status != UVM_IS_OK) begin
-            `uvm_error("uvm_reg_shared_access_seq", $sformatf("Status was %s when writing register \"%s\" through map \"%s\".",
-                                        status.name(), rg.get_full_name(), maps[j].get_full_name()))
-         end
+        rg.write(status, v, UVM_FRONTDOOR, maps[j], this);
+        if (status != UVM_IS_OK) begin
+          `uvm_error("uvm_reg_shared_access_seq", $sformatf("Status was %s when writing register \"%s\" through map \"%s\".",
+          status.name(), rg.get_full_name(), maps[j].get_full_name()))
+        end
          
-         foreach (maps[k]) begin
-            uvm_reg_data_t  actual, exp;
+        foreach (maps[k]) begin
+          uvm_reg_data_t  actual, exp;
             
-            `uvm_info("uvm_reg_shared_access_seq", $sformatf("Reading register %s via map \"%s\"...",
-                                       rg.get_full_name(), maps[k].get_full_name()), UVM_LOW)
+          `uvm_info("uvm_reg_shared_access_seq", $sformatf("Reading register %s via map \"%s\"...",
+          rg.get_full_name(), maps[k].get_full_name()), UVM_LOW)
             
-            // Was it what we expected?
-            exp = rg.get() & ~wo_mask[k];
+          // Was it what we expected?
+          exp = rg.get() & ~wo_mask[k];
             
-            rg.read(status, actual, UVM_FRONTDOOR, maps[k], this);
-            if (status != UVM_IS_OK) begin
-               `uvm_error("uvm_reg_shared_access_seq", $sformatf("Status was %s when reading register \"%s\" through map \"%s\".",
-                                           status.name(), rg.get_full_name(), maps[k].get_full_name()))
-            end
+          rg.read(status, actual, UVM_FRONTDOOR, maps[k], this);
+          if (status != UVM_IS_OK) begin
+            `uvm_error("uvm_reg_shared_access_seq", $sformatf("Status was %s when reading register \"%s\" through map \"%s\".",
+            status.name(), rg.get_full_name(), maps[k].get_full_name()))
+          end
             
-            `uvm_info("uvm_reg_shared_access_seq", $sformatf("Read 'h%h, expecting 'h%h",
-                                        actual, exp),UVM_DEBUG)
+          `uvm_info("uvm_reg_shared_access_seq", $sformatf("Read 'h%h, expecting 'h%h",
+          actual, exp),UVM_DEBUG)
             
-            if (actual !== exp) begin
-               `uvm_error("uvm_reg_shared_access_seq", $sformatf("Register \"%s\" through map \"%s\" is 'h%h instead of 'h%h after writing 'h%h via map \"%s\" over 'h%h.",
-                                           rg.get_full_name(), maps[k].get_full_name(),
-                                           actual, exp, v, maps[j].get_full_name(), prev))
-            end
-         end
+          if (actual !== exp) begin
+            `uvm_error("uvm_reg_shared_access_seq", $sformatf("Register \"%s\" through map \"%s\" is 'h%h instead of 'h%h after writing 'h%h via map \"%s\" over 'h%h.",
+            rg.get_full_name(), maps[k].get_full_name(),
+            actual, exp, v, maps[j].get_full_name(), prev))
+          end
+        end
       end
    endtask: body
 endclass: uvm_reg_shared_access_seq
@@ -232,8 +248,8 @@ class uvm_mem_shared_access_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_re
       uvm_reg_map maps[$];
 
       if (mem == null) begin
-         `uvm_error("uvm_mem_shared_access_seq", "No memory specified to run sequence on")
-         return;
+        `uvm_error("uvm_mem_shared_access_seq", "No memory specified to run sequence on")
+        return;
       end
 
       // Memories with some attributes are not to be tested
@@ -244,98 +260,104 @@ class uvm_mem_shared_access_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_re
           uvm_resource_db#(bit)::get_by_name({"REG::",mem.get_full_name()},
                                              "NO_REG_SHARED_ACCESS_TEST", 0) != null ||
           uvm_resource_db#(bit)::get_by_name({"REG::",mem.get_full_name()},
-                                             "NO_MEM_SHARED_ACCESS_TEST", 0) != null )
-            return;
+                                             "NO_MEM_SHARED_ACCESS_TEST", 0) != null ) begin
+            
+        return;
+      end
+
 
       // Only look at shared memories
-      if (mem.get_n_maps() < 2) return;
+      if (mem.get_n_maps() < 2) begin
+        return;
+      end
+
       mem.get_maps(maps);
 
       // We need at least a backdoor or a map that can read
       // the shared memory
       read_from = -1;
       if (mem.get_backdoor() == null) begin
-         foreach (maps[j]) begin
-            string right;
-            right = mem.get_access(maps[j]);
-            if (right == "RW" ||
-                right == "RO") begin
-               read_from = j;
-               break;
-            end
-         end
-         if (read_from < 0) begin
-            `uvm_warning("uvm_mem_shared_access_seq", $sformatf("Memory \"%s\" cannot be read from any maps or backdoor. Shared access not verified.", mem.get_full_name()))
-            return;
-         end
+        foreach (maps[j]) begin
+          string right;
+          right = mem.get_access(maps[j]);
+          if (right == "RW" ||
+          right == "RO") begin
+            read_from = j;
+            break;
+          end
+        end
+        if (read_from < 0) begin
+          `uvm_warning("uvm_mem_shared_access_seq", $sformatf("Memory \"%s\" cannot be read from any maps or backdoor. Shared access not verified.", mem.get_full_name()))
+          return;
+        end
       end
       
       // Try to write through each map
       foreach (maps[j]) begin
          
-         `uvm_info("uvm_mem_shared_access_seq", $sformatf("Writing shared memory \"%s\" via map \"%s\".",
-                                    mem.get_full_name(), maps[j].get_full_name()), UVM_LOW)
+        `uvm_info("uvm_mem_shared_access_seq", $sformatf("Writing shared memory \"%s\" via map \"%s\".",
+        mem.get_full_name(), maps[j].get_full_name()), UVM_LOW)
          
-         // All addresses
-         for (int offset = 0; offset < mem.get_size(); offset++) begin
-            uvm_status_e status;
-            uvm_reg_data_t  prev, v;
+        // All addresses
+        for (int offset = 0; offset < mem.get_size(); offset++) begin
+          uvm_status_e status;
+          uvm_reg_data_t  prev, v;
             
-            // Read the initial value
-            if (mem.get_backdoor() != null) begin
-               mem.peek(status, offset, prev);
-               if (status != UVM_IS_OK) begin
-                  `uvm_error("uvm_mem_shared_access_seq", $sformatf("Status was %s when reading initial value of \"%s\"[%0d] through backdoor.",
-                                              status.name(), mem.get_full_name(), offset))
-               end
-            end
-            else begin
-               mem.read(status, offset, prev, UVM_FRONTDOOR, maps[read_from], this);
-               if (status != UVM_IS_OK) begin
-                  `uvm_error("uvm_mem_shared_access_seq", $sformatf("Status was %s when reading initial value of \"%s\"[%0d] through map \"%s\".",
-                                              status.name(), mem.get_full_name(),
-                                              offset, maps[read_from].get_full_name()))
-               end
-            end
-            
-            
-            // Write a random value,
-            void'(rand_reg_val.randomize());
-            v = rand_reg_val.randval;
-            
-            mem.write(status, offset, v, UVM_FRONTDOOR, maps[j], this);
+          // Read the initial value
+          if (mem.get_backdoor() != null) begin
+            mem.peek(status, offset, prev);
             if (status != UVM_IS_OK) begin
-               `uvm_error("uvm_mem_shared_access_seq", $sformatf("Status was %s when writing \"%s\"[%0d] through map \"%s\".",
-                                           status.name(), mem.get_full_name(), offset, maps[j].get_full_name()))
+              `uvm_error("uvm_mem_shared_access_seq", $sformatf("Status was %s when reading initial value of \"%s\"[%0d] through backdoor.",
+              status.name(), mem.get_full_name(), offset))
             end
+          end
+          else begin
+            mem.read(status, offset, prev, UVM_FRONTDOOR, maps[read_from], this);
+            if (status != UVM_IS_OK) begin
+              `uvm_error("uvm_mem_shared_access_seq", $sformatf("Status was %s when reading initial value of \"%s\"[%0d] through map \"%s\".",
+              status.name(), mem.get_full_name(),
+              offset, maps[read_from].get_full_name()))
+            end
+          end
             
-            // Read back from all other maps
-            foreach (maps[k]) begin
-               uvm_reg_data_t  actual, exp;
+            
+          // Write a random value,
+          void'(rand_reg_val.randomize());
+          v = rand_reg_val.randval;
+            
+          mem.write(status, offset, v, UVM_FRONTDOOR, maps[j], this);
+          if (status != UVM_IS_OK) begin
+            `uvm_error("uvm_mem_shared_access_seq", $sformatf("Status was %s when writing \"%s\"[%0d] through map \"%s\".",
+            status.name(), mem.get_full_name(), offset, maps[j].get_full_name()))
+          end
+            
+          // Read back from all other maps
+          foreach (maps[k]) begin
+            uvm_reg_data_t  actual, exp;
                
-               mem.read(status, offset, actual, UVM_FRONTDOOR, maps[k], this);
-               if (status != UVM_IS_OK) begin
-                  `uvm_error("uvm_mem_shared_access_seq", $sformatf("Status was %s when reading %s[%0d] through map \"%s\".",
-                                              status.name(), mem.get_full_name(), offset, maps[k].get_full_name()))
-               end
-               
-               // Was it what we expected?
-               exp = v;
-               if (mem.get_access(maps[j]) == "RO") begin
-                  exp = prev;
-               end
-               if (mem.get_access(maps[k]) == "WO") begin
-                  exp = 0;
-               end
-               // Trim to number of bits
-               exp &= (1 << mem.get_n_bits()) - 1;
-               if (actual !== exp) begin
-                  `uvm_error("uvm_mem_shared_access_seq", $sformatf("%s[%0d] through map \"%s\" is 'h%h instead of 'h%h after writing 'h%h via map \"%s\" over 'h%h.",
-                                              mem.get_full_name(), offset, maps[k].get_full_name(),
-                                              actual, exp, v, maps[j].get_full_name(), prev))
-               end
+            mem.read(status, offset, actual, UVM_FRONTDOOR, maps[k], this);
+            if (status != UVM_IS_OK) begin
+              `uvm_error("uvm_mem_shared_access_seq", $sformatf("Status was %s when reading %s[%0d] through map \"%s\".",
+              status.name(), mem.get_full_name(), offset, maps[k].get_full_name()))
             end
-         end
+               
+            // Was it what we expected?
+            exp = v;
+            if (mem.get_access(maps[j]) == "RO") begin
+              exp = prev;
+            end
+            if (mem.get_access(maps[k]) == "WO") begin
+              exp = 0;
+            end
+            // Trim to number of bits
+            exp &= (1 << mem.get_n_bits()) - 1;
+            if (actual !== exp) begin
+              `uvm_error("uvm_mem_shared_access_seq", $sformatf("%s[%0d] through map \"%s\" is 'h%h instead of 'h%h after writing 'h%h via map \"%s\" over 'h%h.",
+              mem.get_full_name(), offset, maps[k].get_full_name(),
+              actual, exp, v, maps[j].get_full_name(), prev))
+            end
+          end
+        end
       end
    endtask: body
 endclass: uvm_mem_shared_access_seq
@@ -400,8 +422,8 @@ class uvm_reg_mem_shared_access_seq extends uvm_reg_sequence #(uvm_sequence #(uv
    virtual task body();
 
       if (model == null) begin
-         `uvm_error("uvm_reg_mem_shared_access_seq", "No register model specified to run sequence on")
-         return;
+        `uvm_error("uvm_reg_mem_shared_access_seq", "No register model specified to run sequence on")
+        return;
       end
       
       uvm_report_info("STARTING_SEQ",{"\n\nStarting ",get_name()," sequence...\n"},UVM_LOW);
@@ -431,8 +453,11 @@ class uvm_reg_mem_shared_access_seq extends uvm_reg_sequence #(uvm_sequence #(uv
           uvm_resource_db#(bit)::get_by_name({"REG::",blk.get_full_name()},
                                              "NO_REG_SHARED_ACCESS_TEST", 0) != null ||
           uvm_resource_db#(bit)::get_by_name({"REG::",blk.get_full_name()},
-                                             "NO_MEM_SHARED_ACCESS_TEST", 0) != null )
+                                             "NO_MEM_SHARED_ACCESS_TEST", 0) != null ) begin
+        
         return;
+      end
+
 
       this.reset_blk(model);
       model.reset();
@@ -440,40 +465,46 @@ class uvm_reg_mem_shared_access_seq extends uvm_reg_sequence #(uvm_sequence #(uv
       // Iterate over all registers, checking accesses
       blk.get_registers(regs, UVM_NO_HIER);
       foreach (regs[i]) begin
-         // Registers with some attributes are not to be tested
-         if (uvm_resource_db#(bit)::get_by_name({"REG::",regs[i].get_full_name()},
-                                                "NO_REG_TESTS", 0) != null ||
-             uvm_resource_db#(bit)::get_by_name({"REG::",regs[i].get_full_name()},
-                                                "NO_REG_SHARED_ACCESS_TEST", 0) != null )
-           continue;
-         reg_seq.rg = regs[i];
-         reg_seq.start(this.get_sequencer(), this);
+        // Registers with some attributes are not to be tested
+        if (uvm_resource_db#(bit)::get_by_name({"REG::",regs[i].get_full_name()},
+        "NO_REG_TESTS", 0) != null ||
+        uvm_resource_db#(bit)::get_by_name({"REG::",regs[i].get_full_name()},
+        "NO_REG_SHARED_ACCESS_TEST", 0) != null ) begin
+           
+          continue;
+        end
+
+        reg_seq.rg = regs[i];
+        reg_seq.start(this.get_sequencer(), this);
       end
 
       // Iterate over all memories, checking accesses
       blk.get_memories(mems, UVM_NO_HIER);
       foreach (mems[i]) begin
-         // Registers with some attributes are not to be tested
-         if (uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
-                                                "NO_REG_TESTS", 0) != null ||
-             uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
-                                                "NO_MEM_TESTS", 0) != null ||
-             uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
-                                                "NO_REG_SHARED_ACCESS_TEST", 0) != null ||
-             uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
-                                                "NO_MEM_SHARED_ACCESS_TEST", 0) != null )
-            continue;
-         mem_seq.mem = mems[i];
-         mem_seq.start(this.get_sequencer(), this);
+        // Registers with some attributes are not to be tested
+        if (uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
+        "NO_REG_TESTS", 0) != null ||
+        uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
+        "NO_MEM_TESTS", 0) != null ||
+        uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
+        "NO_REG_SHARED_ACCESS_TEST", 0) != null ||
+        uvm_resource_db#(bit)::get_by_name({"REG::",mems[i].get_full_name()},
+        "NO_MEM_SHARED_ACCESS_TEST", 0) != null ) begin
+            
+          continue;
+        end
+
+        mem_seq.mem = mems[i];
+        mem_seq.start(this.get_sequencer(), this);
       end
 
       begin
-         uvm_reg_block blks[$];
+        uvm_reg_block blks[$];
          
-         blk.get_blocks(blks);
-         foreach (blks[i]) begin
-            do_block(blks[i]);
-         end
+        blk.get_blocks(blks);
+        foreach (blks[i]) begin
+          do_block(blks[i]);
+        end
       end
    endtask: do_block
 

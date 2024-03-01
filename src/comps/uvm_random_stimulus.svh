@@ -4,7 +4,7 @@
 // Copyright 2017 Cisco Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2007-2021 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -21,6 +21,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 // CLASS  -- NODOCS -- uvm_random_stimulus #(T)
@@ -100,17 +110,25 @@ class uvm_random_stimulus #(type T=uvm_transaction) extends uvm_component;
     T temp;
     
     if (t == null)
-      t = new;
-    
-    for (int i=0; (max_count == 0 || i < max_count) && !m_stop; i++) begin
+      begin
+        t = new;
+      end
 
-       if (! t.randomize() )
+    
+    for (int i=0; (max_count == 0 || i < max_count) && !m_stop; i++) 
+
+      begin
+
+        if (! t.randomize() )
+        begin
           uvm_report_warning ("RANDFL", "Randomization failed in generate_stimulus");
+        end
+
       
-       $cast(temp, t.clone());
-       uvm_report_info("stimulus generation", temp.convert2string()); 
-       blocking_put_port.put(temp);
-    end
+        $cast(temp, t.clone());
+        uvm_report_info("stimulus generation", temp.convert2string()); 
+        blocking_put_port.put(temp);
+      end
   endtask
   
 

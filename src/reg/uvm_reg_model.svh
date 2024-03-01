@@ -5,7 +5,7 @@
 // Copyright 2014 Intel Corporation
 // Copyright 2021 Marvell International Ltd.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2004-2010 Synopsys, Inc.
 //    All Rights Reserved Worldwide
@@ -26,9 +26,19 @@
 // -------------------------------------------------------------
 //
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
 // TITLE -- NODOCS -- Global Declarations for the Register Layer
 //------------------------------------------------------------------------------
+
 //
 // This section defines globally available types, enums, and utility classes.
 //
@@ -355,7 +365,7 @@ typedef enum bit [63:0] {
 //------------------------------------------------------------------------------
 
 // @uvm-ieee 1800.2-2020 auto 17.2.3.2
-class uvm_hdl_path_concat;
+class uvm_hdl_path_concat extends uvm_void;
 
    // Variable -- NODOCS -- slices
    // Array of individual slices,
@@ -403,15 +413,22 @@ function automatic string uvm_hdl_concat2string(uvm_hdl_path_concat concat);
    if (concat.slices.size() == 1 &&
        concat.slices[0].offset == -1 &&
        concat.slices[0].size == -1)
-      return concat.slices[0].path;
+     begin
+       return concat.slices[0].path;
+     end
 
-   foreach (concat.slices[i]) begin
-      uvm_hdl_path_slice slice=concat.slices[i];
 
-      image = { image, (i == 0) ? "" : ", ", slice.path };
-      if (slice.offset >= 0)
+   foreach (concat.slices[i]) 
+     begin
+       uvm_hdl_path_slice slice=concat.slices[i];
+
+       image = { image, (i == 0) ? "" : ", ", slice.path };
+       if (slice.offset >= 0)
+       begin
          image = { image, "@", $sformatf("[%0d +: %0d]", slice.offset, slice.size) };
-   end
+       end
+
+     end
 
    image = { image, "}" };
 

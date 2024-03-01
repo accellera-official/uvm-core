@@ -4,7 +4,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 // Copyright 2013 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -22,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 typedef class uvm_sequence_item;
 
@@ -87,7 +97,8 @@ class uvm_driver #(type REQ=uvm_sequence_item,
   endfunction // new
 
   virtual function void end_of_elaboration_phase(uvm_phase phase);
-	  if(seq_item_port.size<1)
-		  `uvm_warning("DRVCONNECT","seq_item_port (a uvm_seq_item_pull_port in uvm_driver) has not been connected to a sequencer")
+    if(seq_item_port.size<1) begin
+      `uvm_warning("DRVCONNECT","seq_item_port (a uvm_seq_item_pull_port in uvm_driver) has not been connected to a sequencer")
+    end
   endfunction
 endclass

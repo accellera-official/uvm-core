@@ -7,7 +7,7 @@
 // Copyright 2017 Intel Corporation
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2010-2018 Mentor Graphics Corporation
-// Copyright 2013-2022 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2010-2011 Paradigm Works
 // Copyright 2014 Semifore
 // Copyright 2010-2014 Synopsys, Inc.
@@ -28,6 +28,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 
 
@@ -119,7 +129,7 @@ typedef class uvm_tree_printer ;
 //----------------------------------------------------------------------
 
 // @uvm-ieee 1800.2-2020 auto C.2.4.1
-class uvm_resource_pool;
+class uvm_resource_pool extends uvm_void;
 
 `ifndef UVM_DISABLE_RESOURCE_POOL_SHARED_QUEUE
   typedef uvm_resource_types::rsrc_shared_q_t table_q_t;
@@ -196,11 +206,20 @@ class uvm_resource_pool;
                      uvm_resource_types::override_t override = 0);
 
     // If resource handle is ~null~ then there is nothing to do.
-    if (rsrc == null) return ;
-    if (override) 
-        set_override(rsrc, rsrc.get_scope()) ;
-    else
-        set_scope(rsrc, rsrc.get_scope()) ; 
+    if (rsrc == null) begin
+      return ;
+    end
+
+    if (override) begin 
+        
+      set_override(rsrc, rsrc.get_scope()) ;
+    end
+
+    else begin
+        
+      set_scope(rsrc, rsrc.get_scope()) ;
+    end
+ 
 
   endfunction
 
@@ -277,11 +296,17 @@ class uvm_resource_pool;
   function void set_override(uvm_resource_base rsrc, string scope="<not provided>");
      string s ;
      if (rsrc == null) begin
-        uvm_report_warning("NULLRASRC", "attempting to change the search priority of a null resource");
-        return;
+       uvm_report_warning("NULLRASRC", "attempting to change the search priority of a null resource");
+       return;
      end
-     if (scope == "<not provided>") s = rsrc.get_scope();
-     else s = scope ;
+     if (scope == "<not provided>") begin
+       s = rsrc.get_scope();
+     end
+
+     else begin
+       s = scope ;
+     end
+
      set_scope(rsrc, s);
      set_priority(rsrc, uvm_resource_types::PRI_HIGH);
   endfunction
@@ -298,11 +323,17 @@ class uvm_resource_pool;
   function void set_name_override(uvm_resource_base rsrc, string scope="<not provided>");
     string s ;
     if (rsrc == null) begin
-        uvm_report_warning("NULLRASRC", "attempting to change the search priority of a null resource");
-        return;
+      uvm_report_warning("NULLRASRC", "attempting to change the search priority of a null resource");
+      return;
     end
-    if (scope == "<not provided>") s = rsrc.get_scope();
-    else s = scope ;
+    if (scope == "<not provided>") begin
+      s = rsrc.get_scope();
+    end
+
+    else begin
+      s = scope ;
+    end
+
     set_scope(rsrc, s);
     set_priority_name(rsrc, uvm_resource_types::PRI_HIGH);
   endfunction
@@ -319,11 +350,17 @@ class uvm_resource_pool;
   function void set_type_override(uvm_resource_base rsrc, string scope="<not provided>");
     string s ;
     if (rsrc == null) begin
-        uvm_report_warning("NULLRASRC", "attempting to change the search priority of a null resource");
-        return;
+      uvm_report_warning("NULLRASRC", "attempting to change the search priority of a null resource");
+      return;
     end
-    if (scope == "<not provided>") s = rsrc.get_scope();
-    else s = scope ;
+    if (scope == "<not provided>") begin
+      s = rsrc.get_scope();
+    end
+
+    else begin
+      s = scope ;
+    end
+
     set_scope(rsrc, s);
     set_priority_type(rsrc, uvm_resource_types::PRI_HIGH);
   endfunction
@@ -339,8 +376,11 @@ class uvm_resource_pool;
     int unsigned i;
 
     // If resource handle is ~null~ then there is nothing to do.
-    if(rsrc == null) 
+    if(rsrc == null) begin 
+      
       return 0;
+    end
+
 
     // Search the resouce in the name map.  Resources with empty names are
     // anonymous resources and are not entered into the name map
@@ -437,8 +477,11 @@ class uvm_resource_pool;
 
     // if auditing is turned off then there is no reason
     // to save a get record
-    if(!uvm_resource_options::is_auditing())
+    if(!uvm_resource_options::is_auditing()) begin
+      
       return;
+    end
+
 
     impt = new();
 
@@ -514,24 +557,36 @@ class uvm_resource_pool;
 
      // ensure rand stability during lookup
      begin
-	process p = process::self();
-	string s;
-	if(p!=null) s=p.get_randstate();
-	q=new();
-	if(p!=null) p.set_randstate(s);
+       process p = process::self();
+       string s;
+       if(p!=null) begin
+         s=p.get_randstate();
+       end
+
+       q=new();
+       if(p!=null) begin
+         p.set_randstate(s);
+       end
+
      end
 
      
     // resources with empty names are anonymous and do not exist in the name map
-    if(name == "")
+    if(name == "") begin
+      
       return q;
+    end
+
 
     // Does an entry in the name map exist with the specified name?
     // If not, then we're done
     if(!rtab.exists(name)) begin
-      if(rpterr) void'(spell_check(name));	
+      if(rpterr) begin
+        void'(spell_check(name));
+      end
+    
       return q;
-    end	
+    end    
 
     rsrc = null;
     rq = rtab[name];
@@ -541,8 +596,11 @@ class uvm_resource_pool;
       rsrcs = rsrc_iter != null ? rsrc_iter.get_scope(): "";
       // does the type and scope match?
       if(((type_handle == null) || (rsrc_iter.get_type_handle() == type_handle)) 
-         && uvm_is_match(rsrcs, scope))
+      && uvm_is_match(rsrcs, scope)) begin
+        
         q.push_back(rsrc_iter);
+      end
+
     end
 
     return q;
@@ -564,8 +622,11 @@ class uvm_resource_pool;
     int unsigned prec;
     int unsigned c_prec;
 
-    if(q.size() == 0)
+    if(q.size() == 0) begin
+      
       return null;
+    end
+
 
     // get the first resources in the queue
     rsrc = q.get(0);
@@ -662,10 +723,13 @@ class uvm_resource_pool;
     // Does an entry in the name map exist with the specified name?
     // If not, then we're done
     if(!rtab.exists(name)) begin
-      if(rpterr) void'(spell_check(name));	
+      if(rpterr) begin
+        void'(spell_check(name));
+      end
+    
       push_get_record(name, scope, null);
       return null;
-    end	
+    end    
 
     // Find all resource for name, optionally filtering by type
     rq = rtab[name];
@@ -684,10 +748,16 @@ class uvm_resource_pool;
     foreach (svq[iter]) begin
       rsrc = svq[iter];
       rsrcs = (rsrc != null) ? rsrc.get_scope(): "";
-      if (uvm_is_match(rsrcs, scope))
+      if (uvm_is_match(rsrcs, scope)) begin
+        
         break;
-      else
+      end
+
+      else begin
+        
         rsrc = null;
+      end
+
     end
  
     push_get_record(name, scope, rsrc);
@@ -719,8 +789,11 @@ class uvm_resource_pool;
     for (int iter=0; iter < `M__TABLE_Q(rq).size(); iter++) begin
       uvm_resource_base rsrc_iter;
       rsrc_iter = `M__TABLE_GET(rq, iter);
-      if(rsrc_iter != null && uvm_is_match(rsrc_iter.get_scope(), scope))
+      if(rsrc_iter != null && uvm_is_match(rsrc_iter.get_scope(), scope)) begin
+        
         q.push_back(rsrc_iter);
+      end
+
     end
 
     return q;
@@ -801,8 +874,11 @@ class uvm_resource_pool;
       for (int iter=0; iter < `M__TABLE_Q(rq).size(); iter++) begin
         uvm_resource_base rsrc_iter;
         rsrc_iter = `M__TABLE_GET(rq, iter);
-        if(rsrc_iter != null && uvm_is_match(rsrc_iter.get_scope(), scope))
+        if(rsrc_iter != null && uvm_is_match(rsrc_iter.get_scope(), scope)) begin
+          
           result_q.push_back(rsrc_iter);
+        end
+
       end
     end
 
@@ -896,8 +972,12 @@ class uvm_resource_pool;
     `M__TABLE_Q(rq).delete(i);
 
     case(pri)
-      uvm_resource_types::PRI_HIGH: `M__TABLE_Q(rq).push_front(rsrc);
-      uvm_resource_types::PRI_LOW:  `M__TABLE_Q(rq).push_back(rsrc);
+      uvm_resource_types::PRI_HIGH: begin
+        `M__TABLE_Q(rq).push_front(rsrc);
+      end
+      uvm_resource_types::PRI_LOW: begin
+        `M__TABLE_Q(rq).push_back(rsrc);
+      end
     endcase
 
  endfunction
@@ -1010,7 +1090,10 @@ class uvm_resource_pool;
       rq = rtab[name];
       for (int iter=0; iter < `M__TABLE_Q(rq).size(); iter++) begin
         rsrc = `M__TABLE_GET(rq, iter); // Save for use later
-        if (rsrc == r) break;
+        if (rsrc == r) begin
+          break;
+        end
+
       end
     end 
   
@@ -1042,7 +1125,10 @@ class uvm_resource_pool;
 
       for (int iter=0; iter < `M__TABLE_Q(rq).size(); iter++) begin
         rsrc = `M__TABLE_GET(rq, iter); // Save for use later
-        if(rsrc == r) break;
+        if(rsrc == r) begin
+          break;
+        end
+
       end
     end 
   
@@ -1088,8 +1174,11 @@ class uvm_resource_pool;
           reads += a.read_count;
           writes += a.write_count;
         end
-        if(writes > 0 && reads == 0)
+        if(writes > 0 && reads == 0) begin
+          
           q.push_back(rsrc_iter);
+        end
+
       end
     end
 
@@ -1222,8 +1311,11 @@ class uvm_resource_pool;
     end
       
 
-    if (printer == null)
+    if (printer == null) begin
+      
       printer = m_printer;
+    end
+
     
     printer.flush();
     printer.push_element("uvm_resource_pool",

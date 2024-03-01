@@ -4,7 +4,7 @@
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
 // Copyright 2020 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2014-2022 Semifore
 // Copyright 2004-2011 Synopsys, Inc.
 //    All Rights Reserved Worldwide
@@ -25,10 +25,19 @@
 // -------------------------------------------------------------
 //
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
 // TITLE -- NODOCS -- Explicit Register Predictor
 //------------------------------------------------------------------------------
+
 //
 // The <uvm_reg_predictor> class defines a predictor component,
 // which is used to update the register model's mirror values
@@ -153,8 +162,9 @@ class uvm_reg_predictor #(type BUSTYPE=int) extends uvm_component;
   virtual function void write(BUSTYPE tr);
      uvm_reg rg;
      uvm_reg_bus_op rw;
-    if (adapter == null)
-     `uvm_fatal("REG/WRITE/NULL","write: adapter handle is null") 
+    if (adapter == null) begin
+      `uvm_fatal("REG/WRITE/NULL","write: adapter handle is null")
+    end
 
      // In case they forget to set byte_en
      rw.byte_en = -1;
@@ -188,10 +198,10 @@ class uvm_reg_predictor #(type BUSTYPE=int) extends uvm_component;
        reg_item = predict_info.reg_item;
 
        if (predict_info.addr.exists(rw.addr)) begin
-          `uvm_error("REG_PREDICT_COLLISION",{"Collision detected for register '",
-                     rg.get_full_name(),"'"})
-          // TODO: what to do with subsequent collisions?
-          m_pending.delete(rg);
+         `uvm_error("REG_PREDICT_COLLISION",{"Collision detected for register '",
+         rg.get_full_name(),"'"})
+         // TODO: what to do with subsequent collisions?
+         m_pending.delete(rg);
        end
 
        local_map = rg.get_local_map(map);
@@ -201,57 +211,60 @@ class uvm_reg_predictor #(type BUSTYPE=int) extends uvm_component;
        foreach (map_info.addr[i]) begin
          uvm_reg_data_t reg_item_value;
          if (rw.addr == map_info.addr[i]) begin
-            found = 1;
+           found = 1;
            reg_item_value = reg_item.get_value(0);
            reg_item_value |= rw.data << (i * map.get_n_bytes()*8);
            reg_item.set_value(reg_item_value, 0);
            predict_info.addr[rw.addr] = 1;
            if (predict_info.addr.num() == map_info.addr.size()) begin
-              // We've captured the entire abstract register transaction.
-              uvm_predict_e predict_kind = 
+             // We've captured the entire abstract register transaction.
+             uvm_predict_e predict_kind = 
                   (reg_item.get_kind() == UVM_WRITE) ? UVM_PREDICT_WRITE : UVM_PREDICT_READ;
 
-              if (reg_item.get_kind() == UVM_READ &&
-                  local_map.get_check_on_read() &&
-                  reg_item.get_status() != UVM_NOT_OK) begin
-                 void'(rg.do_check(ir.get_mirrored_value(), reg_item.get_value(0), local_map));
-              end
+             if (reg_item.get_kind() == UVM_READ &&
+             local_map.get_check_on_read() &&
+             reg_item.get_status() != UVM_NOT_OK) begin
+               void'(rg.do_check(ir.get_mirrored_value(), reg_item.get_value(0), local_map));
+             end
               
-              pre_predict(reg_item);
+             pre_predict(reg_item);
 
-              ir.XsampleX(reg_item.get_value(0), rw.byte_en,
+             ir.XsampleX(reg_item.get_value(0), rw.byte_en,
                           (reg_item.get_kind() == UVM_READ), local_map);
-              begin
-                 uvm_reg_block blk = rg.get_parent();
-                 blk.XsampleX(map_info.offset,
+             begin
+               uvm_reg_block blk = rg.get_parent();
+               blk.XsampleX(map_info.offset,
                               (reg_item.get_kind() == UVM_READ),
                               local_map);
-              end
+             end
 
-              rg.do_predict(reg_item, predict_kind, rw.byte_en);
-              if(reg_item.get_kind() == UVM_WRITE)
-                `uvm_info("REG_PREDICT", {"Observed WRITE transaction to register ",
-                         ir.get_full_name(), ": value='h",
-                         $sformatf("%0h",reg_item.get_value(0)), " : updated value = 'h", 
-                         $sformatf("%0h",ir.get())},UVM_HIGH)
-              else
-                `uvm_info("REG_PREDICT", {"Observed READ transaction to register ",
-                         ir.get_full_name(), ": value='h",
-                         $sformatf("%0h",reg_item.get_value(0))},UVM_HIGH)
-              reg_ap.write(reg_item);
-              m_pending.delete(rg);
+             rg.do_predict(reg_item, predict_kind, rw.byte_en);
+             if(reg_item.get_kind() == UVM_WRITE) begin
+               `uvm_info("REG_PREDICT", {"Observed WRITE transaction to register ",
+               ir.get_full_name(), ": value='h",
+               $sformatf("%0h",reg_item.get_value(0)), " : updated value = 'h", 
+               $sformatf("%0h",ir.get())},UVM_HIGH)
+             end
+             else begin
+               `uvm_info("REG_PREDICT", {"Observed READ transaction to register ",
+               ir.get_full_name(), ": value='h",
+               $sformatf("%0h",reg_item.get_value(0))},UVM_HIGH)
+             end
+             reg_ap.write(reg_item);
+             m_pending.delete(rg);
            end
            break;
          end
        end
-       if (!found)
+       if (!found) begin
          `uvm_error("REG_PREDICT_INTERNAL",{"Unexpected failed address lookup for register '",
-                  rg.get_full_name(),"'"})
+         rg.get_full_name(),"'"})
+       end
      end
      else begin
        `uvm_info("REG_PREDICT_NOT_FOR_ME",
-          {"Observed transaction does not target a register: ",
-            $sformatf("%p",tr)},UVM_FULL)
+       {"Observed transaction does not target a register: ",
+       $sformatf("%p",tr)},UVM_FULL)
      end
   endfunction
 
@@ -262,17 +275,17 @@ class uvm_reg_predictor #(type BUSTYPE=int) extends uvm_component;
 
   // @uvm-ieee 1800.2-2020 auto 19.3.3.3
   virtual function void check_phase(uvm_phase phase);
-	 string q[$];
+     string q[$];
      super.check_phase(phase);
             
      foreach (m_pending[l]) begin
-	     uvm_reg rg=l;
-         q.push_back($sformatf("\n%s",rg.get_full_name()));
+       uvm_reg rg=l;
+       q.push_back($sformatf("\n%s",rg.get_full_name()));
      end
             
     if (m_pending.num() > 0) begin
       `uvm_error("PENDING REG ITEMS",
-      	$sformatf("There are %0d incomplete register transactions still pending completion:%s",m_pending.num(),`UVM_STRING_QUEUE_STREAMING_PACK(q)))
+      $sformatf("There are %0d incomplete register transactions still pending completion:%s",m_pending.num(),`UVM_STRING_QUEUE_STREAMING_PACK(q)))
 
     end
   endfunction

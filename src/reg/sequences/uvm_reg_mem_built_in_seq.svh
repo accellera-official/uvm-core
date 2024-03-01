@@ -3,7 +3,7 @@
 // Copyright 2010 AMD
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 // Copyright 2010 Synopsys, Inc.
 //    All Rights Reserved Worldwide
 // 
@@ -23,13 +23,24 @@
 // -------------------------------------------------------------
 // 
 
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 //------------------------------------------------------------------------------
+
 // Class -- NODOCS -- uvm_reg_mem_built_in_seq
 //
 // Sequence that executes a user-defined selection
 // of pre-defined register and memory test sequences.
 //
 //------------------------------------------------------------------------------
+
 
 // @uvm-ieee 1800.2-2020 auto E.8.1
 class uvm_reg_mem_built_in_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_reg_item));
@@ -64,8 +75,8 @@ class uvm_reg_mem_built_in_seq extends uvm_reg_sequence #(uvm_sequence #(uvm_reg
    virtual task body();
 
       if (model == null) begin
-         `uvm_error("uvm_reg_mem_built_in_seq", "Not block or system specified to run sequence on")
-         return;
+        `uvm_error("uvm_reg_mem_built_in_seq", "Not block or system specified to run sequence on")
+        return;
       end
 
       uvm_report_info("START_SEQ",{"\n\nStarting ",get_name()," sequence...\n"},UVM_LOW);

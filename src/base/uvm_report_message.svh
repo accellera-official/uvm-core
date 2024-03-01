@@ -4,7 +4,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2014-2018 Cisco Systems, Inc.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2013 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -22,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 `ifndef UVM_REPORT_MESSAGE_SVH
 `define UVM_REPORT_MESSAGE_SVH
@@ -81,11 +91,17 @@ virtual class uvm_report_message_element_base;
      
    function void print(uvm_printer printer);
       if (_action & (UVM_LOG | UVM_DISPLAY))
-        do_print(printer);
+        begin
+          do_print(printer);
+        end
+
    endfunction : print
    function void record(uvm_recorder recorder);
       if (_action & UVM_RM_RECORD)
-        do_record(recorder);
+        begin
+          do_record(recorder);
+        end
+
    endfunction : record
    function void copy(uvm_report_message_element_base rhs);
       do_copy(rhs);
@@ -354,17 +370,23 @@ class uvm_report_message_element_container extends uvm_object;
 
   virtual function void add_int(string name, uvm_bitstream_t value, 
                                 int size, uvm_radix_enum radix,
-			        uvm_action action = (UVM_LOG|UVM_RM_RECORD));
+                    uvm_action action = (UVM_LOG|UVM_RM_RECORD));
      process p;
      string rand_state;
      uvm_report_message_int_element urme;
 
      p = process::self();
      if (p != null)
-       rand_state = p.get_randstate();
+       begin
+         rand_state = p.get_randstate();
+       end
+
      urme = new();
      if (p != null)
-       p.set_randstate(rand_state);
+       begin
+         p.set_randstate(rand_state);
+       end
+
 
      urme.set_name(name);
      urme.set_value(value, size, radix);
@@ -388,10 +410,16 @@ class uvm_report_message_element_container extends uvm_object;
 
      p = process::self();
      if (p != null)
-       rand_state = p.get_randstate();
+       begin
+         rand_state = p.get_randstate();
+       end
+
      urme = new();
      if (p != null)
-       p.set_randstate(rand_state);
+       begin
+         p.set_randstate(rand_state);
+       end
+
 
      urme.set_name(name);
      urme.set_value(value);
@@ -415,10 +443,16 @@ class uvm_report_message_element_container extends uvm_object;
 
      p = process::self();
      if (p != null)
-       rand_state = p.get_randstate();
+       begin
+         rand_state = p.get_randstate();
+       end
+
      urme = new();
      if (p != null)
-       p.set_randstate(rand_state);
+       begin
+         p.set_randstate(rand_state);
+       end
+
 
      urme.set_name(name);
      urme.set_value(obj);
@@ -428,16 +462,18 @@ class uvm_report_message_element_container extends uvm_object;
 
   virtual function void do_print(uvm_printer printer);
     super.do_print(printer);
-    for(int i = 0; i < elements.size(); i++) begin
-       elements[i].print(printer);
-    end 
+    for(int i = 0; i < elements.size(); i++) 
+      begin
+        elements[i].print(printer);
+      end 
   endfunction
 
   virtual function void do_record(uvm_recorder recorder);
     super.do_record(recorder);
-    for(int i = 0; i < elements.size(); i++) begin
-       elements[i].record(recorder);
-    end
+    for(int i = 0; i < elements.size(); i++) 
+      begin
+        elements[i].record(recorder);
+      end
   endfunction
 
   virtual function void do_copy(uvm_object rhs);
@@ -446,11 +482,17 @@ class uvm_report_message_element_container extends uvm_object;
     super.do_copy(rhs);
 
     if(!$cast(urme_container, rhs) || (rhs==null))
-      return;
+      begin
+        return;
+      end
+
 
     delete_elements();
     foreach (urme_container.elements[i])
-      elements.push_back(urme_container.elements[i].clone());
+      begin
+        elements.push_back(urme_container.elements[i].clone());
+      end
+
 
   endfunction
 
@@ -521,10 +563,16 @@ class uvm_report_message extends uvm_object;
     p = process::self();
 
     if (p != null)
-      rand_state = p.get_randstate();
+      begin
+        rand_state = p.get_randstate();
+      end
+
     new_report_message = new(name);
     if (p != null)
-      p.set_randstate(rand_state);
+      begin
+        p.set_randstate(rand_state);
+      end
+
 
   endfunction
 
@@ -565,20 +613,30 @@ class uvm_report_message extends uvm_object;
     printer.print_string("id", _id);
     printer.print_string("message",_message);
     if ($cast(l_verbosity, _verbosity))
-      printer.print_generic("verbosity", "uvm_verbosity", 
+      begin
+        printer.print_generic("verbosity", "uvm_verbosity", 
                             $bits(l_verbosity), l_verbosity.name());
+      end
+
     else
-      printer.print_field("verbosity", _verbosity, $bits(_verbosity), UVM_HEX);
+      begin
+        printer.print_field("verbosity", _verbosity, $bits(_verbosity), UVM_HEX);
+      end
+
     printer.print_string("filename", _filename);
     printer.print_field("line", _line, $bits(_line), UVM_UNSIGNED);
     printer.print_string("context_name", _context_name);
 
-    if (_report_message_element_container.size() != 0) begin
-      uvm_report_message_element_base elements[$];
-      elements  = _report_message_element_container.get_elements();
-      foreach (elements[i])
-        elements[i].print(printer);
-    end
+    if (_report_message_element_container.size() != 0) 
+      begin
+        uvm_report_message_element_base elements[$];
+        elements  = _report_message_element_container.get_elements();
+        foreach (elements[i])
+        begin
+          elements[i].print(printer);
+        end
+
+      end
   endfunction
 
 
@@ -598,7 +656,10 @@ class uvm_report_message extends uvm_object;
     super.do_copy(rhs);
 
     if(!$cast(report_message, rhs) || (rhs==null))
-      return;
+      begin
+        return;
+      end
+
 
     _report_object = report_message.get_report_object();
     _report_handler = report_message.get_report_handler();
@@ -864,12 +925,12 @@ class uvm_report_message extends uvm_object;
 
   // @uvm-ieee 1800.2-2020 auto 6.2.4.10
   virtual function void set_report_message(uvm_severity severity, 
-    					   string id,
-					   string message,
-					   int verbosity, 
-    					   string filename,
-					   int line,
-					   string context_name);
+                           string id,
+                       string message,
+                       int verbosity, 
+                           string filename,
+                       int line,
+                       string context_name);
     this._context_name = context_name;
     this._filename = filename;
     this._line = line;
@@ -897,16 +958,23 @@ class uvm_report_message extends uvm_object;
     uvm_verbosity l_verbosity;
 
     if (_context_name != "")
-      recorder.record_string("context_name", _context_name);
+      begin
+        recorder.record_string("context_name", _context_name);
+      end
+
     recorder.record_string("filename", _filename);
     recorder.record_field("line", _line, $bits(_line), UVM_UNSIGNED);
     recorder.record_string("severity", _severity.name());
     if ($cast(l_verbosity, _verbosity))
-      recorder.record_string("verbosity", l_verbosity.name());
-    else begin
-      l_string.itoa(_verbosity);
-      recorder.record_string("verbosity", l_string);
-    end
+      begin
+        recorder.record_string("verbosity", l_verbosity.name());
+      end
+
+    else 
+      begin
+        l_string.itoa(_verbosity);
+        recorder.record_string("verbosity", l_string);
+      end
 
     recorder.record_string("id", _id);
     m_record_message(recorder);

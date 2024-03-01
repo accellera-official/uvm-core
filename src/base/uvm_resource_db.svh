@@ -7,7 +7,7 @@
 // Copyright 2017 Intel Corporation
 // Copyright 2021-2022 Marvell International Ltd.
 // Copyright 2010-2011 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2010-2011 Paradigm Works
 // Copyright 2010-2014 Synopsys, Inc.
 // Copyright 2017 Verific
@@ -27,6 +27,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //----------------------------------------------------------------------
 // Title -- NODOCS -- UVM Resource Database
@@ -53,7 +63,7 @@
 //| class uvm_resource_db#(type T=uvm_object)
   
 // @uvm-ieee 1800.2-2020 auto C.3.2.1
-class uvm_resource_db #(type T=uvm_object);
+class uvm_resource_db #(type T=uvm_object) extends uvm_void;
 
   typedef uvm_resource #(T) rsrc_t;
 

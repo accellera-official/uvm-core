@@ -4,7 +4,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2013 Cisco Systems, Inc.
 // Copyright 2007-2014 Mentor Graphics Corporation
-// Copyright 2014-2020 NVIDIA Corporation
+// Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2018 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -22,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 // Title -- NODOCS -- UVM Common Phases
 // 
@@ -77,7 +87,10 @@ class uvm_build_phase extends uvm_topdown_phase;
    //
    static function uvm_build_phase get();
       if(m_inst == null)
-         m_inst = new();
+        begin
+          m_inst = new();
+        end
+
       return m_inst; 
    endfunction
    protected function new(string name="build");
@@ -120,7 +133,10 @@ class uvm_connect_phase extends uvm_bottomup_phase;
    // Returns the singleton phase handle 
    static function uvm_connect_phase get();
       if(m_inst == null)
-         m_inst = new();
+        begin
+          m_inst = new();
+        end
+
       return m_inst; 
    endfunction
    protected function new(string name="connect");
@@ -159,9 +175,10 @@ class uvm_end_of_elaboration_phase extends uvm_bottomup_phase;
    // Function -- NODOCS -- get
    // Returns the singleton phase handle 
    static function uvm_end_of_elaboration_phase get();
-      if(m_inst == null) begin 
-         m_inst = new();
-      end
+      if(m_inst == null) 
+        begin 
+          m_inst = new();
+        end
       return m_inst; 
    endfunction
    protected function new(string name="end_of_elaboration");
@@ -205,7 +222,10 @@ class uvm_start_of_simulation_phase extends uvm_bottomup_phase;
    // Returns the singleton phase handle 
    static function uvm_start_of_simulation_phase get();
       if(m_inst == null)
-         m_inst = new();
+        begin
+          m_inst = new();
+        end
+
       return m_inst; 
    endfunction
    protected function new(string name="start_of_simulation");
@@ -226,7 +246,10 @@ class uvm_run_phase extends uvm_task_phase;
    // Returns the singleton phase handle 
    static function uvm_run_phase get(); 
       if(m_inst == null)
-         m_inst = new; 
+        begin
+          m_inst = new;
+        end
+ 
       return m_inst; 
    endfunction
    protected function new(string name="run"); 
@@ -248,7 +271,10 @@ class uvm_extract_phase extends uvm_bottomup_phase;
    // Returns the singleton phase handle 
    static function uvm_extract_phase get();
       if(m_inst == null)
-         m_inst = new();
+        begin
+          m_inst = new();
+        end
+
       return m_inst; 
    endfunction
    protected function new(string name="extract");
@@ -269,7 +295,10 @@ class uvm_check_phase extends uvm_bottomup_phase;
    // Returns the singleton phase handle 
    static function uvm_check_phase get();
       if(m_inst == null)
-         m_inst = new();
+        begin
+          m_inst = new();
+        end
+
       return m_inst; 
    endfunction
    protected function new(string name="check");
@@ -290,7 +319,10 @@ class uvm_report_phase extends uvm_bottomup_phase;
    // Returns the singleton phase handle 
    static function uvm_report_phase get();
       if(m_inst == null)
-         m_inst = new();
+        begin
+          m_inst = new();
+        end
+
       return m_inst; 
    endfunction
    protected function new(string name="report");
@@ -329,7 +361,10 @@ class uvm_final_phase extends uvm_topdown_phase;
    // Returns the singleton phase handle 
    static function uvm_final_phase get();
       if(m_inst == null)
-         m_inst = new();
+        begin
+          m_inst = new();
+        end
+
       return m_inst; 
    endfunction
    protected function new(string name="final");

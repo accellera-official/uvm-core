@@ -3,7 +3,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2014 Cisco Systems, Inc.
 // Copyright 2007-2020 Mentor Graphics Corporation
-// Copyright 2013-2020 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2014 Semifore
 // Copyright 2010-2013 Synopsys, Inc.
 //   All Rights Reserved Worldwide
@@ -22,6 +22,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 typedef class uvm_sequence_base;
 typedef class uvm_sequencer_base;
@@ -117,10 +127,19 @@ class uvm_sequence_item extends uvm_transaction;
   function void set_item_context(uvm_sequence_base  parent_seq,
                                  uvm_sequencer_base sequencer = null);
      set_use_sequence_info(1);
-     if (parent_seq != null) set_parent_sequence(parent_seq);
-     if (sequencer == null && m_parent_sequence != null) sequencer = m_parent_sequence.get_sequencer();
+     if (parent_seq != null) begin
+       set_parent_sequence(parent_seq);
+     end
+
+     if (sequencer == null && m_parent_sequence != null) begin
+       sequencer = m_parent_sequence.get_sequencer();
+     end
+
      set_sequencer(sequencer); 
-     if (m_parent_sequence != null) set_depth(m_parent_sequence.get_depth() + 1); 
+     if (m_parent_sequence != null) begin
+       set_depth(m_parent_sequence.get_depth() + 1);
+     end
+ 
      reseed();      
   endfunction
 
@@ -264,12 +283,21 @@ class uvm_sequence_item extends uvm_transaction;
   // Internal method; overrides must follow same naming convention
 
   function string get_full_name();
-    if(m_parent_sequence != null) 
+    if(m_parent_sequence != null) begin 
+      
       get_full_name = {m_parent_sequence.get_full_name(), "."};
-    else if(m_sequencer!=null)
+    end
+
+    else if(m_sequencer!=null) begin
+      
       get_full_name = {m_sequencer.get_full_name(), "."};
-    if(get_name() != "") 
+    end
+
+    if(get_name() != "") begin 
+      
       get_full_name = {get_full_name, get_name()};
+    end
+
     else begin
       get_full_name = {get_full_name, "_item"};
     end
@@ -284,10 +312,16 @@ class uvm_sequence_item extends uvm_transaction;
   function string get_root_sequence_name();
     uvm_sequence_base root_seq;
     root_seq = get_root_sequence();
-    if (root_seq == null)
+    if (root_seq == null) begin
+      
       return "";
-    else
+    end
+
+    else begin
+      
       return root_seq.get_name();
+    end
+
   endfunction
 
 
@@ -306,17 +340,15 @@ class uvm_sequence_item extends uvm_transaction;
 
   // @uvm-ieee 1800.2-2020 auto 14.1.2.13
   function uvm_sequence_base get_root_sequence();
-    uvm_sequence_item root_seq_base;
-    uvm_sequence_base root_seq;
-    root_seq_base = this;
-    while(1) begin
-      if(root_seq_base.get_parent_sequence()!=null) begin
-        root_seq_base = root_seq_base.get_parent_sequence();
-        $cast(root_seq, root_seq_base);
-      end
-      else
-        return root_seq;
-    end
+	uvm_sequence_base curr_seq, next_seq;
+	// Note that curr_seq defaults to null
+	next_seq = this.get_parent_sequence();
+	while (next_seq != null) begin
+      curr_seq = next_seq;
+      next_seq = curr_seq.get_parent_sequence();
+	end
+	return curr_seq;
+
   endfunction
 
 
@@ -331,14 +363,12 @@ class uvm_sequence_item extends uvm_transaction;
     string seq_path;
     this_item = this;
     seq_path = this.get_name();
-    while(1) begin
-      if(this_item.get_parent_sequence()!=null) begin
+    while (this_item.get_parent_sequence()!=null) begin
         this_item = this_item.get_parent_sequence();
         seq_path = {this_item.get_name(), ".", seq_path};
-      end
-      else
-        return seq_path;
     end
+        
+    return seq_path;
   endfunction
 
 
@@ -356,17 +386,23 @@ class uvm_sequence_item extends uvm_transaction;
   virtual function uvm_report_object uvm_get_report_object();
     if(m_sequencer == null) begin
       uvm_coreservice_t cs = uvm_coreservice_t::get();
-       return cs.get_root();
-    end else 
+      return cs.get_root();
+    end else begin 
+      
       return m_sequencer;
+    end
+
   endfunction
 
   // @uvm-ieee 1800.2-2020 auto 14.1.3.2
   function int uvm_report_enabled(int verbosity, 
-    				  uvm_severity severity=UVM_INFO, string id="");
+                      uvm_severity severity=UVM_INFO, string id="");
     uvm_report_object l_report_object = uvm_get_report_object();
-    if (l_report_object.get_report_verbosity_level(severity, id) < verbosity)
+    if (l_report_object.get_report_verbosity_level(severity, id) < verbosity) begin
+      
       return 0;
+    end
+
     return 1;
   endfunction
 
@@ -384,12 +420,15 @@ class uvm_sequence_item extends uvm_transaction;
                                     bit report_enabled_checked = 0);
     uvm_report_message l_report_message;
     if ((severity == UVM_INFO) && (report_enabled_checked == 0)) begin
-      if (!uvm_report_enabled(verbosity, severity, id))
+      if (!uvm_report_enabled(verbosity, severity, id)) begin
+        
         return;
+      end
+
     end
     l_report_message = uvm_report_message::new_report_message();
     l_report_message.set_report_message(severity, id, message, 
-					verbosity, filename, line, context_name);
+                    verbosity, filename, line, context_name);
     uvm_process_report_message(l_report_message);
 
   endfunction
@@ -398,12 +437,12 @@ class uvm_sequence_item extends uvm_transaction;
 
   // @uvm-ieee 1800.2-2020 auto 14.1.3.3
   virtual function void uvm_report_info( string id,
-					 string message,
-   					 int verbosity = UVM_MEDIUM,
-					 string filename = "",
-					 int line = 0,
-   					 string context_name = "",
-					 bit report_enabled_checked = 0);
+                     string message,
+                        int verbosity = UVM_MEDIUM,
+                     string filename = "",
+                     int line = 0,
+                        string context_name = "",
+                     bit report_enabled_checked = 0);
 
     this.uvm_report(UVM_INFO, id, message, verbosity, filename, line,
                     context_name, report_enabled_checked);
@@ -413,12 +452,12 @@ class uvm_sequence_item extends uvm_transaction;
 
   // @uvm-ieee 1800.2-2020 auto 14.1.3.3
   virtual function void uvm_report_warning( string id,
-					    string message,
-   					    int verbosity = UVM_NONE,                        
-					    string filename = "",
-					    int line = 0,
-   					    string context_name = "",
-					    bit report_enabled_checked = 0);
+                        string message,
+                           int verbosity = UVM_NONE,                        
+                        string filename = "",
+                        int line = 0,
+                           string context_name = "",
+                        bit report_enabled_checked = 0);
 
     this.uvm_report(UVM_WARNING, id, message, verbosity, filename, line,
                     context_name, report_enabled_checked);
@@ -428,12 +467,12 @@ class uvm_sequence_item extends uvm_transaction;
 
   // @uvm-ieee 1800.2-2020 auto 14.1.3.3
   virtual function void uvm_report_error( string id,
-					  string message,
-   					  int verbosity = UVM_NONE,
-					  string filename = "",
-					  int line = 0,
-   					  string context_name = "",
-					  bit report_enabled_checked = 0);
+                      string message,
+                         int verbosity = UVM_NONE,
+                      string filename = "",
+                      int line = 0,
+                         string context_name = "",
+                      bit report_enabled_checked = 0);
 
     this.uvm_report(UVM_ERROR, id, message, verbosity, filename, line,
                     context_name, report_enabled_checked);
@@ -448,12 +487,12 @@ class uvm_sequence_item extends uvm_transaction;
 
   // @uvm-ieee 1800.2-2020 auto 14.1.3.3
   virtual function void uvm_report_fatal( string id,
-					  string message,
-   					  int verbosity = UVM_NONE,
-					  string filename = "",
-					  int line = 0,
-   					  string context_name = "",
-					  bit report_enabled_checked = 0);
+                      string message,
+                         int verbosity = UVM_NONE,
+                      string filename = "",
+                      int line = 0,
+                         string context_name = "",
+                      bit report_enabled_checked = 0);
 
     this.uvm_report(UVM_FATAL, id, message, verbosity, filename, line,
                     context_name, report_enabled_checked);
@@ -463,8 +502,11 @@ class uvm_sequence_item extends uvm_transaction;
   virtual function void uvm_process_report_message (uvm_report_message report_message);
     uvm_report_object l_report_object = uvm_get_report_object();
     report_message.set_report_object(l_report_object);
-    if (report_message.get_context() == "")
+    if (report_message.get_context() == "") begin
+      
       report_message.set_context(get_sequence_path());
+    end
+
     l_report_object.m_rh.process_report_message(report_message);
   endfunction
 

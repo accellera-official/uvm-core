@@ -3,7 +3,7 @@
 // Copyright 2011 AMD
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2011 Mentor Graphics Corporation
-// Copyright 2013-2022 NVIDIA Corporation
+// Copyright 2013-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -20,6 +20,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 //------------------------------------------------------------------------------
 //
@@ -85,17 +95,21 @@ virtual class uvm_task_phase extends uvm_phase;
     uvm_phase_hopper hopper;
     hopper = uvm_phase_hopper::get_global_hopper();
     
-    if (comp.get_first_child(name))
-      do
-        begin
-          hopper.traverse_on(this, comp.get_child(name), phase, state);
-        end
+    if (comp.get_first_child(name)) begin
+      
+      do begin
+        
+        hopper.traverse_on(this, comp.get_child(name), phase, state);
+      end
       while(comp.get_next_child(name));
+    end
 
-    if (m_phase_trace)
-    `uvm_info("PH_TRACE",$sformatf("topdown-phase phase=%s state=%s comp=%s comp.domain=%s phase.domain=%s",
-          phase.get_name(), state.name(), comp.get_full_name(),comp_domain.get_name(),phase_domain.get_name()),
-          UVM_DEBUG)
+
+    if (m_phase_trace) begin
+      `uvm_info("PH_TRACE",$sformatf("topdown-phase phase=%s state=%s comp=%s comp.domain=%s phase.domain=%s",
+      phase.get_name(), state.name(), comp.get_full_name(),comp_domain.get_name(),phase_domain.get_name()),
+      UVM_DEBUG)
+    end
 
     if (phase_domain == uvm_domain::get_common_domain() ||
         phase_domain == comp_domain) begin
@@ -104,26 +118,36 @@ virtual class uvm_task_phase extends uvm_phase;
           comp.m_current_phase = phase;
           comp.m_apply_verbosity_settings(phase);
           comp.phase_started(phase);
-          if ($cast(seqr, comp))
+          if ($cast(seqr, comp)) begin
+            
             seqr.start_phase_sequence(phase);
           end
+
+        end
         UVM_PHASE_EXECUTING: begin
           uvm_phase ph = this; 
-          if (comp.m_phase_imps.exists(this))
+          if (comp.m_phase_imps.exists(this)) begin
+            
             ph = comp.m_phase_imps[this];
-          hopper.execute_on(ph, comp, phase);
           end
+
+          hopper.execute_on(ph, comp, phase);
+        end
         UVM_PHASE_READY_TO_END: begin
           comp.phase_ready_to_end(phase);
-          end
+        end
         UVM_PHASE_ENDED: begin
-          if ($cast(seqr, comp))
+          if ($cast(seqr, comp)) begin
+            
             seqr.stop_phase_sequence(phase);
+          end
+
           comp.phase_ended(phase);
           comp.m_current_phase = null;
-          end
-        default:
+        end
+        default: begin
           `uvm_fatal("PH_BADEXEC","task phase traverse internal error")
+        end
       endcase
     end
 

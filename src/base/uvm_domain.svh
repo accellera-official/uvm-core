@@ -4,7 +4,7 @@
 // Copyright 2012 Accellera Systems Initiative
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2007-2018 Mentor Graphics Corporation
-// Copyright 2015-2020 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide
 //
 //   Licensed under the Apache License, Version 2.0 (the
@@ -21,6 +21,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //----------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 
 typedef class uvm_build_phase;
 typedef class uvm_connect_phase;
@@ -102,10 +112,16 @@ class uvm_domain extends uvm_phase;
     uvm_domain domain;
 
     if(m_domains.exists("common"))
-      domain = m_domains["common"];
+      begin
+        domain = m_domains["common"];
+      end
+
     
     if (domain != null)
-      return domain;
+      begin
+        return domain;
+      end
+
 
     domain = new("common");
     domain.add(uvm_build_phase::get());
@@ -165,12 +181,13 @@ class uvm_domain extends uvm_phase;
   //
   static function uvm_domain get_uvm_domain();
   
-    if (m_uvm_domain == null) begin
-      m_uvm_domain = new("uvm");
-      m_uvm_schedule = new("uvm_sched", UVM_PHASE_SCHEDULE);
-      add_uvm_phases(m_uvm_schedule);
-      m_uvm_domain.add(m_uvm_schedule);
-    end
+    if (m_uvm_domain == null) 
+      begin
+        m_uvm_domain = new("uvm");
+        m_uvm_schedule = new("uvm_sched", UVM_PHASE_SCHEDULE);
+        add_uvm_phases(m_uvm_schedule);
+        m_uvm_domain.add(m_uvm_schedule);
+      end
     return m_uvm_domain;
   endfunction
 
@@ -179,8 +196,10 @@ class uvm_domain extends uvm_phase;
   // @uvm-ieee 1800.2-2020 auto 9.4.2.1
   function new(string name);
     super.new(name,UVM_PHASE_DOMAIN);
-    if (m_domains.exists(name))
-      `uvm_error("UNIQDOMNAM", $sformatf("Domain created with non-unique name '%s'", name))
+    if (m_domains.exists(name)) 
+      begin
+        `uvm_error("UNIQDOMNAM", $sformatf("Domain created with non-unique name '%s'", name))
+      end
     m_domains[name] = this;
   endfunction
 
@@ -194,8 +213,14 @@ class uvm_domain extends uvm_phase;
     phases = phases.find(item) with (item.get_state() inside {[UVM_PHASE_STARTED:UVM_PHASE_CLEANUP]}); 
     
     foreach(phases[idx]) 
+      begin
         if(phases[idx].is_before(phase) || phases[idx].is_after(phase))
-            phases[idx].jump(phase);        
+        begin
+          phases[idx].jump(phase);
+        end
+
+      end
+        
     
   endfunction
 
@@ -207,7 +232,10 @@ class uvm_domain extends uvm_phase;
     uvm_domain::get_domains(domains);
            
     foreach(domains[idx])      
-        domains[idx].jump(phase);        
+      begin
+        domains[idx].jump(phase);
+      end
+        
     
    endfunction
 endclass

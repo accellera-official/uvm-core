@@ -1,7 +1,7 @@
 //------------------------------------------------------------------------------
 // Copyright 2010-2018 Cadence Design Systems, Inc.
 // Copyright 2022 Marvell International Ltd.
-// Copyright 2015-2022 NVIDIA Corporation
+// Copyright 2015-2024 NVIDIA Corporation
 // Copyright 2014 Synopsys, Inc.
 //   All Rights Reserved Worldwide
 //
@@ -19,6 +19,16 @@
 //   the License for the specific language governing
 //   permissions and limitations under the License.
 //------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------
+// Git details (see DEVELOPMENT.md):
+//
+// $File$
+// $Rev$
+// $Hash$
+//
+//----------------------------------------------------------------------
+
 `ifndef UVM_GLOBAL_DEFINES_SVH
 `define UVM_GLOBAL_DEFINES_SVH
 
