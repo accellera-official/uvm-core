@@ -503,7 +503,7 @@ endfunction : __m_uvm_execute_field_op
 //
 // *Note:*  When running with <`UVM_ENABLE_DEPRECATED_API>,
 // the ~type_name~ member is declared as:
-//| const static string type_name = TNAME_STRING;
+//| localparam  string type_name = TNAME_STRING;
 // This is unsafe, as static initialization can cause races
 // to occur.  When running without <`UVM_ENABLE_DEPRECATED_API>,
 // the implementation is an static initialization safe function:
@@ -513,7 +513,7 @@ endfunction : __m_uvm_execute_field_op
 //
 `ifdef UVM_ENABLE_DEPRECATED_API
  `define uvm_type_name_decl(TNAME_STRING) \
-     const static string type_name = TNAME_STRING; \
+     localparam string type_name = TNAME_STRING; \
      virtual function string get_type_name(); \
        return TNAME_STRING; \
      endfunction : get_type_name
