@@ -39,7 +39,7 @@
 class uvm_spell_chkr #(type T=int);
 
   typedef T tab_t[string];
-  static const int unsigned max = '1;
+  localparam int unsigned max = '1;
    
   //--------------------------------------------------------------------
   // check

@@ -56,7 +56,7 @@
 //@uvm_compat
 class uvm_random_stimulus #(type T=uvm_transaction) extends uvm_component;
 
-  const static string type_name = "uvm_random_stimulus #(T)";
+  localparam  string type_name = "uvm_random_stimulus #(T)";
 
   typedef uvm_random_stimulus #(T) this_type;
   `uvm_component_param_utils(this_type)

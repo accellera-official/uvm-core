@@ -39,7 +39,7 @@ typedef class uvm_root;
 typedef class uvm_report_object;
 typedef class uvm_report_message;
    
-// Title: Globals
+// Title -- NODOCS -- Globals
 
 //------------------------------------------------------------------------------
 //

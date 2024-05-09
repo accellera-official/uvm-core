@@ -27,8 +27,6 @@
 //
 //----------------------------------------------------------------------
 
-// Title: HDL Signal Polling
-
 `ifndef UVM_HDL_POLLING
  `define UVM_HDL_POLLING
 typedef class uvm_hdl_polling_cbs;

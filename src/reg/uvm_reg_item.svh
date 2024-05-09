@@ -44,10 +44,8 @@
 //------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------
-// CLASS: uvm_reg_item
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
+// CLASS -- NODOCS -- uvm_reg_item
+//
 // Defines an abstract register transaction item. No bus-specific information
 // is present, although a handle to a <uvm_reg_map> is provided in case a user
 // wishes to implement a custom address translation algorithm.
