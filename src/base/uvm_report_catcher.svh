@@ -87,8 +87,8 @@ virtual class uvm_report_catcher extends uvm_callback;
   local static int m_caught_warning;
 
   // Flag counts
-  const static int DO_NOT_CATCH      = 1; 
-  const static int DO_NOT_MODIFY     = 2; 
+  localparam   int DO_NOT_CATCH      = 1; 
+  localparam   int DO_NOT_MODIFY     = 2; 
   local static int m_debug_flags;
 
   local static  bit do_report;
