@@ -829,8 +829,8 @@ function void uvm_root::m_do_verbosity_settings();
 
       foreach(m_time_settings[i]) begin
         uvm_component comps[$];
-        find_all(m_time_settings[i].comp,comps);
         #(m_time_settings[i].offset - last_time);
+        find_all(m_time_settings[i].comp,comps);
         last_time = m_time_settings[i].offset;
         if(m_time_settings[i].id == "_ALL_") begin
           foreach(comps[j]) begin

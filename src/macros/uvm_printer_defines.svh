@@ -664,6 +664,93 @@ begin \
   PRINTER.print_array_footer(VALUE.num()); \
 end
 
-    
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_int3(F, R, P) \
+  `uvm_print_int(F, $bits(F), R, , P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_int4(F, R, NM, P) \
+  `uvm_print_named_int(NM, F, $bits(F), R, , P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_object2(F, P) \
+  `uvm_print_object(F, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_string2(F, P) \
+  `uvm_print_string(F, P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_array_int3(F, R, P) \
+  `uvm_print_array_int(F, R, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_array_int3(F, R, P) \
+  `uvm_print_named_qda_int(da, `"F`", F, R, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_sarray_int3(F, R, P) \
+  `uvm_print_named_qda_int(sa, `"F`", F, R, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_qda_int4(F, R, P, T) \
+  `uvm_print_named_qda_int(T, `"F`", F, R, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_queue_int3(F, R, P) \
+  `uvm_print_named_qda_int(queue, `"F`", F, R, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_array_object3(F, P, FLAG) \
+  `uvm_print_array_object(F, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_sarray_object3(F, P,FLAG) \
+  `uvm_print_sarray_object(F, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_object_qda4(F, P, T, FLAG) \
+  `uvm_print_named_qda_object(T, `"F`", F, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_object_queue3(F, P, FLAG) \
+  `uvm_print_queue_object(F, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_array_string2(F, P) \
+  `uvm_print_array_string(F, P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_sarray_string2(F, P) \
+  `uvm_print_sarray_string(F, P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_string_qda3(F, P, T) \
+  `uvm_print_named_qda_string(T, `"F`", F, P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_string_queue2(F, P) \
+  `uvm_print_queue_string(F, P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_aa_string_int3(F, R, P) \
+  `uvm_print_aa_int_string(F, R, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_aa_string_object3(F, P, FLAG) \
+  `uvm_print_aa_object_string(F, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_aa_string_string2(F, P) \
+  `uvm_print_aa_string_string(F, P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_aa_int_object3(F, P, FLAG) \
+  `uvm_print_aa_object_int(F, ,P)
+
+// @uvm-compat - For compatibility with 1.2
+`define uvm_print_aa_int_key4(KEY, F, R, P) \
+  `uvm_print_aa_int_int(F, R, ,KEY, P)
+
 `endif //  `ifndef UVM_PRINTER_DEFINES_SVH
 
