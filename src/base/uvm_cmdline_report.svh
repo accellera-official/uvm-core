@@ -1,7 +1,7 @@
 //
 //------------------------------------------------------------------------------
 // Copyright 2022 AMD
-// Copyright 2007-2009 Cadence Design Systems, Inc.
+// Copyright 2007-2024 Cadence Design Systems, Inc.
 // Copyright 2007-2009 Mentor Graphics Corporation
 // Copyright 2020-2024 NVIDIA Corporation
 //   All Rights Reserved Worldwide

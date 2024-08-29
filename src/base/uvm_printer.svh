@@ -854,9 +854,7 @@ function void uvm_printer::print_field (string name,
     radix = get_default_radix();
   end
 
-
-  val_str = uvm_bitstream_to_string (value, size, radix,
-                                     get_radix_string(radix));
+  val_str = uvm_bit_vector_utils#(uvm_bitstream_t)::to_string(value, size, radix, get_radix_string(radix));
 
   name = adjust_name(name,scope_separator);
 
@@ -903,9 +901,7 @@ function void uvm_printer::print_field_int (string name,
     radix = get_default_radix();
   end
 
-
-  val_str = uvm_integral_to_string (value, size, radix,
-                                    get_radix_string(radix));
+  val_str = uvm_bit_vector_utils#(uvm_integral_t)::to_string(value, size, radix, get_radix_string(radix));
 
   name = adjust_name(name,scope_separator);
 

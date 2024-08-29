@@ -1,6 +1,6 @@
 //
 //------------------------------------------------------------------------------
-// Copyright 2010-2018 Cadence Design Systems, Inc.
+// Copyright 2010-2024 Cadence Design Systems, Inc.
 // Copyright 2010-2011 Mentor Graphics Corporation
 // Copyright 2014-2024 NVIDIA Corporation
 // Copyright 2013 Verilab

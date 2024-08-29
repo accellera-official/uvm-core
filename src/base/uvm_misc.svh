@@ -4,7 +4,7 @@
 // Copyright 2007-2018 Cadence Design Systems, Inc.
 // Copyright 2014-2018 Cisco Systems, Inc.
 // Copyright 2017 Intel Corporation
-// Copyright 2022 Marvell International Ltd.
+// Copyright 2022-2024 Marvell International Ltd.
 // Copyright 2007-2021 Mentor Graphics Corporation
 // Copyright 2013-2024 NVIDIA Corporation
 // Copyright 2014 Semifore
@@ -300,66 +300,189 @@ function string uvm_leaf_scope (string full_name, byte scope_separator = ".");
 endfunction
 
 
+// Class: uvm_bit_vector_utils#(T)
+// 
+// Provides utility functions for converting bit vectors to/from strings.
+//
+// @uvm-contrib - For potential contribution to a future 1800.2 standard
+virtual class uvm_bit_vector_utils#(type T=int);
+
+  // Function: to_string
+  // Converts a packed array value into a string.
+  //
+  // The <size> argument is the number of bits in the vector to be converted,
+  // all bits beyond the size are ignored/masked out.
+  // The <radix> argument controls the base of the conversion, e.g. UVM_BIN for "%0b".
+  // The <radix_str> argument is prepended to the converted value, e.g. "'b" for binary.
+  // Note that the radix_str argument has no effect on the base of the conversion.
+  //
+  // The return value is the converted string.
+  //
+  // @uvm-contrib - For potential contribution to a future 1800.2 standard
+  static function string to_string(T value, int size,
+                                   uvm_radix_enum radix=UVM_NORADIX,
+                                   string radix_str="");
+    // sign extend & don't show radix for negative values
+    if (radix == UVM_DEC && value[size-1] === 1) begin
+      return $sformatf("%0d", value);
+    end
+
+
+    // TODO $countbits(value,'z) would be even better
+    if($isunknown(value)) begin
+      T _t;
+      _t=0;
+      for(int idx=0;idx<size;idx++) begin
+        _t[idx]=value[idx];
+      end
+
+      value=_t;
+    end
+    else begin
+      value &= (1 << size)-1;
+    end
+
+
+    case(radix)
+      UVM_BIN:      begin
+        return $sformatf("%0s%0b", radix_str, value);
+      end
+
+      UVM_OCT:      begin
+        return $sformatf("%0s%0o", radix_str, value);
+      end
+
+      UVM_UNSIGNED: begin
+        return $sformatf("%0s%0d", radix_str, value);
+      end
+
+      UVM_STRING:   begin
+        return $sformatf("%0s%0s", radix_str, value);
+      end
+
+      UVM_TIME:     begin
+        return $sformatf("%0s%0t", radix_str, value);
+      end
+
+      UVM_DEC:      begin
+        return $sformatf("%0s%0d", radix_str, value);
+      end
+
+      default:      begin
+        return $sformatf("%0s%0x", radix_str, value);
+      end
+
+    endcase
+
+  endfunction : to_string
+
+  // Function: from_string
+  // Converts a string value into a packed array.
+  //
+  // The string ~val_str~ is processed as:
+  //
+  //| [sign][radix]value
+  //
+  // Where `[sign]` is an optional sign character, either "+" or "-", and 
+  // `[radix]` is an optional radix specifier.  
+  //
+  // The following radix specifiers are supported:
+  //   "'b", "0b": Binary
+  //   "'o": Octal
+  //   "'d": Decimal
+  //   "'h", "'x", "0x": Hexidecimal
+  //
+  // If the optional radix is omitted, then the ~value~ shall be treated as decimal.  
+  //
+  // The ~val_str~ is treated as a 4-state value, the characters "X", "x", "Z", "z", 
+  // and "?" are legal within the ~val_str~ string.  Additionally, the underscore character
+  // ("_") is ignored.
+  //
+  // @uvm-contrib - For potential contribution to a future 1800.2 standard
+  static function int from_string(input string val_str, output T val);
+    string base, extval, tmp;
+    int    success ;
+    bit    is_negative;
+
+    if (val_str.len()  > 1) begin
+      byte char;
+      char = val_str.getc(0);
+      // Optional sign
+      if (char == "-") begin
+        // Signed, negative
+        is_negative = 1;
+        tmp = val_str.substr(1, val_str.len()-1);
+      end
+      else if (char == "+") begin
+        // Signed, positive (just remove the sign)
+        tmp = val_str.substr(1, val_str.len()-1);
+      end
+      else begin
+        // Unsigned
+        tmp = val_str;
+      end
+    end // if (val_str.len() > 1)
+    else begin // !(val_str.len() > 1)
+      tmp = val_str;
+    end
+
+    if(tmp.len() > 2) begin
+      base = tmp.substr(0,1);
+      extval = tmp.substr(2,tmp.len()-1);
+      case(base)
+        "'b" : begin
+          success= $sscanf(extval,"%b", val);
+        end
+
+        "0b" : begin
+          success= $sscanf(extval,"%b", val);
+        end
+
+        "'o" : begin
+          success= $sscanf(extval,"%o", val);
+        end
+
+        "'d" : begin
+          success= $sscanf(extval,"%d", val);
+        end
+
+        "'h" : begin
+          success= $sscanf(extval,"%x", val);
+        end
+
+        "'x" : begin
+          success= $sscanf(extval,"%x", val);
+        end
+
+        "0x" : begin
+          success= $sscanf(extval,"%x", val);
+        end
+
+        default : begin
+          success = $sscanf(val_str,"%d", val);
+        end
+
+      endcase
+    end
+    else begin
+      success = $sscanf(tmp,"%d", val);
+    end // else: !if(tmp.len() > 2)
+
+    if ((success == 1) && (is_negative)) begin
+      val = -val;
+    end
+    return success;
+  endfunction : from_string
+
+endclass : uvm_bit_vector_utils
+
 // Function- uvm_bitstream_to_string
 //
 //
 function string uvm_bitstream_to_string (uvm_bitstream_t value, int size,
                                          uvm_radix_enum radix=UVM_NORADIX,
                                          string radix_str="");
-  // sign extend & don't show radix for negative values
-  if (radix == UVM_DEC && value[size-1] === 1) begin
-    
-    return $sformatf("%0d", value);
-  end
-
-
-  // TODO $countbits(value,'z) would be even better
-  if($isunknown(value)) begin
-    uvm_bitstream_t _t;
-    _t=0;
-    for(int idx=0;idx<size;idx++) begin
-        
-      _t[idx]=value[idx];
-    end
-
-    value=_t;
-  end
-  else begin 
-      
-    value &= (1 << size)-1;
-  end
-
-
-  case(radix)
-    UVM_BIN:      begin
-      return $sformatf("%0s%0b", radix_str, value);
-    end
-
-    UVM_OCT:      begin
-      return $sformatf("%0s%0o", radix_str, value);
-    end
-
-    UVM_UNSIGNED: begin
-      return $sformatf("%0s%0d", radix_str, value);
-    end
-
-    UVM_STRING:   begin
-      return $sformatf("%0s%0s", radix_str, value);
-    end
-
-    UVM_TIME:     begin
-      return $sformatf("%0s%0t", radix_str, value);
-    end
-
-    UVM_DEC:      begin
-      return $sformatf("%0s%0d", radix_str, value);
-    end
-
-    default:      begin
-      return $sformatf("%0s%0x", radix_str, value);
-    end
-
-  endcase
+  return uvm_bit_vector_utils#(uvm_bitstream_t)::to_string(value,size,radix,radix_str);
 endfunction
 
 // Function- uvm_integral_to_string
@@ -368,62 +491,9 @@ endfunction
 function string uvm_integral_to_string (uvm_integral_t value, int size,
                                          uvm_radix_enum radix=UVM_NORADIX,
                                          string radix_str="");
-  // sign extend & don't show radix for negative values
-  if (radix == UVM_DEC && value[size-1] === 1) begin
-    
-    return $sformatf("%0d", value);
-  end
-
-
-  // TODO $countbits(value,'z) would be even better
-  if($isunknown(value)) begin
-    uvm_integral_t _t;
-    _t=0;
-    for(int idx=0;idx<size;idx++) begin
-          
-      _t[idx]=value[idx];
-    end
-
-    value=_t;
-  end
-  else begin 
-      
-    value &= (1 << size)-1;
-  end
-
-
-  case(radix)
-    UVM_BIN:      begin
-      return $sformatf("%0s%0b", radix_str, value);
-    end
-
-    UVM_OCT:      begin
-      return $sformatf("%0s%0o", radix_str, value);
-    end
-
-    UVM_UNSIGNED: begin
-      return $sformatf("%0s%0d", radix_str, value);
-    end
-
-    UVM_STRING:   begin
-      return $sformatf("%0s%0s", radix_str, value);
-    end
-
-    UVM_TIME:     begin
-      return $sformatf("%0s%0t", radix_str, value);
-    end
-
-    UVM_DEC:      begin
-      return $sformatf("%0s%0d", radix_str, value);
-    end
-
-    default:      begin
-      return $sformatf("%0s%0x", radix_str, value);
-    end
-
-  endcase
+  return uvm_bit_vector_utils#(uvm_integral_t)::to_string(value, size, radix, radix_str);
 endfunction
-   
+
 // Function- uvm_get_array_index_int
 //
 // The following functions check to see if a string is representing an array

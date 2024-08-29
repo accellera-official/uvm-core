@@ -50,7 +50,7 @@ All rights reserved.
 Portions of the UVM Reference Library were developed by
 Cadence Design Systems, Inc.
 
-Copyright 2007-2023 Cadence Design Systems, Inc.
+Copyright 2007-2024 Cadence Design Systems, Inc.
 All rights reserved.
 
 =========================================================================
@@ -161,6 +161,16 @@ Portions of the UVM Reference Library were developed by
 Semifore.
 
 Copyright 2011-2022 Semifore.
+All rights reserved.
+
+=========================================================================
+==  UVM Siemens Notice
+=========================================================================
+
+Portions of the UVM Reference Library were developed by
+Siemens.
+
+Copyright 2024 Siemens.
 All rights reserved.
 
 =========================================================================

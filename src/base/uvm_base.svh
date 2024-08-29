@@ -85,6 +85,7 @@
   `include "base/uvm_printer.svh"
   `include "base/uvm_comparer.svh"
   `include "base/uvm_packer.svh"
+  `include "base/uvm_packer_array_extension.svh"
   `include "base/uvm_links.svh"
   `include "base/uvm_tr_database.svh"
   `include "base/uvm_text_tr_database.svh"

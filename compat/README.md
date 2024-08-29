@@ -8,7 +8,7 @@ Note that the uvm_compat_pkg provides compatibility by enabling code based on di
 
 # Kit version
 
-This version of the compatibility package was distributed with 1800.2 2020.3.0.
+This version of the compatibility package was distributed with 1800.2 2020.3.1.
 
 # License
 

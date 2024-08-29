@@ -1,7 +1,7 @@
 // $Id: uvm_report_catcher.svh,v 1.1.2.10 2010/04/09 15:03:25 janick Exp $
 //------------------------------------------------------------------------------
 // Copyright 2010-2012 AMD
-// Copyright 2007-2018 Cadence Design Systems, Inc.
+// Copyright 2007-2024 Cadence Design Systems, Inc.
 // Copyright 2014 Cisco Systems, Inc.
 // Copyright 2018 Intel Corporation
 // Copyright 2022 Marvell International Ltd.

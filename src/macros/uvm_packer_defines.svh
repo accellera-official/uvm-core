@@ -112,15 +112,33 @@
 `define uvm_pack_enumN(VAR,SIZE,PACKER=packer) \
    `uvm_pack_intN(VAR,SIZE,PACKER)
 
+// Impementation macro for opening a begin..end block
+// with the uvm_packer_array_extension present.
+`define uvm_packer_array_extension_begin(PACKER) \
+  begin \
+    uvm_object m__ext; \
+    uvm_object m__prev_ext; \
+    m__ext = uvm_packer_array_extension::get(); \
+    m__prev_ext = PACKER.set_extension(m__ext);
 
+// Impementation macro for closing the begin..end block
+// opened by `uvm_pack_array_begin
+`define uvm_packer_array_extension_end(PACKER) \
+    if (m__prev_ext != null) begin \
+      void'(PACKER.set_extension(m__prev_ext)); \
+    end \
+    else begin \
+      PACKER.clear_extension(m__ext.get_object_type()); \
+    end \
+  end
 
 // @uvm-ieee 1800.2-2020 auto B.2.4.3
 `define uvm_pack_sarrayN(VAR,SIZE,PACKER=packer) \
-    begin \
-    foreach (VAR `` [index]) \
-      `uvm_pack_intN(VAR[index],SIZE,PACKER) \
-    end
-
+    `uvm_packer_array_extension_begin(PACKER) \
+        foreach(VAR `` [index]) begin \
+          `uvm_pack_intN(VAR[index],SIZE,PACKER) \
+        end \
+    `uvm_packer_array_extension_end(PACKER)
 
 
 // @uvm-ieee 1800.2-2020 auto B.2.4.4
@@ -237,12 +255,11 @@
 
 // @uvm-ieee 1800.2-2020 auto B.2.5.3
 `define uvm_unpack_sarrayN(VAR,SIZE,PACKER=packer) \
-    begin \
-    foreach (VAR `` [i]) \
-      `uvm_unpack_intN(VAR``[i], SIZE, PACKER) \
-    end
-
-
+    `uvm_packer_array_extension_begin(PACKER) \
+        foreach (VAR `` [i]) begin \
+          `uvm_unpack_intN(VAR``[i], SIZE, PACKER) \
+        end \
+    `uvm_packer_array_extension_end(PACKER)
 
 // @uvm-ieee 1800.2-2020 auto B.2.5.4
 `define uvm_unpack_arrayN(VAR,SIZE,PACKER=packer) \
@@ -597,8 +614,10 @@ end
 //--
 
 `define uvm_pack_sarray_real(VAR, PACKER=packer) \
-  foreach(VAR[index]) \
-    `uvm_pack_real(VAR[index], PACKER)
+  `uvm_packer_array_extension_begin(PACKER) \
+    foreach(VAR[index]) \
+      `uvm_pack_real(VAR[index], PACKER) \
+  `uvm_packer_array_extension_end(PACKER)
 
 `define m_uvm_pack_qda_real(VAR, PACKER=packer) \
   `uvm_pack_intN(VAR.size(), 32, PACKER) \
@@ -611,8 +630,10 @@ end
   `m_uvm_pack_qda_real(VAR, PACKER)
 
 `define uvm_unpack_sarray_real(VAR, PACKER=packer) \
+  `uvm_packer_array_extension_begin(PACKER) \
   foreach(VAR[index]) \
-    `uvm_unpack_real(VAR[index], PACKER)
+    `uvm_unpack_real(VAR[index], PACKER) \
+  `uvm_packer_array_extension_end(PACKER)
 
 `define uvm_unpack_da_real(VAR, PACKER=packer) \
   begin \
