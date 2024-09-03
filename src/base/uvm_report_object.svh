@@ -615,7 +615,10 @@ class uvm_report_object extends uvm_object;
     return 1;
   endfunction
 
-
+  // @uvm-compat - Added for compatibility with 1.2
+  function uvm_report_server get_report_server();
+      return uvm_report_server::get_server();
+  endfunction
 
 
 endclass

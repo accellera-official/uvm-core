@@ -243,6 +243,10 @@ If data is packed to a stream and then that stream is unpacked, all library vers
 
 Prior to 1800.2 versions, user code could create an instance of uvm_sequence_base or uvm_sequence#(), but because these are abstract in 1800.2, they may no longer be instanced.  The recommendation is to use the uvm_compat_sequence_proxy_sequence#().  Please refer to the compatibility package [README](./compat/README.md) for details.
 
+### `uvm_deprecated_defines.svh` and associated macros have been removed
+
+Prior to 1800.2 versions, the file `src/macros/uvm_deprecated_defines.svh` existed and presented transitional macros for users converting from OVM, such as `` `uvm_sequencer_utils(TYPE) ``.  This file has been removed and its macros are no longer supported.
+
 ## Polling mechansim.
 The Polling mechanism is a new feature under development. Hence the API may change. It is experimental and feedback is welcome. 
 To use this feature, add the define UVM_ENABLE_EXPERIMENTAL_POLLING_API to include the polling API in your compilation. This is in addition to other defines described below which select options within the polling API.

@@ -468,6 +468,11 @@ virtual class uvm_transaction extends uvm_object;
   local uvm_tr_stream stream_handle;
   local uvm_recorder      tr_recorder;
 
+  // @uvm-compat - Added for compatibility with 1.2.
+  uvm_event#(uvm_object) begin_event;
+  // @uvm-compat - Added for compatibility with 1.2.
+  uvm_event#(uvm_object) end_event;
+
 endclass
 
 
@@ -810,7 +815,6 @@ function int uvm_transaction::m_begin_tr (time begin_time=0,
    do_begin_tr(); //execute callback before event trigger
    
    begin
-     uvm_event#(uvm_object) begin_event ;
      begin_event = events.get("begin");
      begin_event.trigger();
    end
@@ -842,7 +846,6 @@ function void uvm_transaction::end_tr (time end_time=0, bit free_handle=1);
    tr_recorder = null;
 
    begin
-     uvm_event#(uvm_object) end_event ;
      end_event = events.get("end") ;
      end_event.trigger();
    end
