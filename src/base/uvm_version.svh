@@ -37,7 +37,7 @@
 `ifndef UVM_VERSION_SVH
 `define UVM_VERSION_SVH
 
-parameter string UVM_VERSION_STRING = "Accellera:1800.2:UVM:2020.3.0";
+parameter string UVM_VERSION_STRING = "Accellera:1800.2:UVM:2020.3.1";
 
 function string uvm_revision_string();
   return UVM_VERSION_STRING;

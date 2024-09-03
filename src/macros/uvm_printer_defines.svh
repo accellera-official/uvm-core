@@ -682,10 +682,6 @@ end
 
 // @uvm-compat - For compatibility with 1.2
 `define uvm_print_array_int3(F, R, P) \
-  `uvm_print_array_int(F, R, ,P)
-
-// @uvm-compat - For compatibility with 1.2
-`define uvm_print_array_int3(F, R, P) \
   `uvm_print_named_qda_int(da, `"F`", F, R, ,P)
 
 // @uvm-compat - For compatibility with 1.2

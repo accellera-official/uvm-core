@@ -220,9 +220,9 @@ virtual class uvm_transaction extends uvm_object;
 
 
   // @uvm-ieee 1800.2-2020 auto 5.4.2.4
-  extern function int begin_tr (
+  extern function uvm_tr_handle_t begin_tr (
      time begin_time = 0
-     , int parent_handle = 0
+     , uvm_tr_handle_t parent_handle = 0
   );
 
   
@@ -258,8 +258,8 @@ virtual class uvm_transaction extends uvm_object;
   // The return value is a transaction handle, which is valid (non-zero) only if
   // recording is enabled. The meaning of the handle is implementation specific.
 
-  extern function int begin_child_tr (time begin_time = 0, 
-                                               int parent_handle = 0);
+  extern function uvm_tr_handle_t begin_child_tr (time begin_time = 0, 
+                                               uvm_tr_handle_t parent_handle = 0);
 
 
   // Function -- NODOCS -- do_begin_tr
@@ -324,7 +324,7 @@ virtual class uvm_transaction extends uvm_object;
   // call to <begin_child_tr> or <begin_tr> with transaction recording enabled.
 
   // @uvm-ieee 1800.2-2020 auto 5.4.2.8
-  extern function int get_tr_handle ();
+  extern function uvm_tr_handle_t get_tr_handle ();
 
   
   // Function -- NODOCS -- disable_recording
@@ -418,7 +418,7 @@ virtual class uvm_transaction extends uvm_object;
   // responses to requests.
 
   // @uvm-ieee 1800.2-2020 auto 5.4.2.17
-  extern function void set_transaction_id(int id);
+  extern function void set_transaction_id(uvm_transaction_id_t id);
 
 
   // Function -- NODOCS -- get_transaction_id
@@ -432,7 +432,7 @@ virtual class uvm_transaction extends uvm_object;
   // responses to requests.
 
   // @uvm-ieee 1800.2-2020 auto 5.4.2.18
-  extern function int get_transaction_id();
+  extern function uvm_transaction_id_t get_transaction_id();
 
        
   // Variable -- NODOCS -- events
@@ -455,10 +455,10 @@ virtual class uvm_transaction extends uvm_object;
   extern virtual function void do_copy   (uvm_object rhs);
 
 
-  extern protected function int m_begin_tr (time    begin_time=0, 
-                                                int parent_handle=0);
+  extern protected function uvm_tr_handle_t m_begin_tr (time    begin_time=0, 
+                                                uvm_tr_handle_t parent_handle=0);
 
-  local int m_transaction_id = -1;
+  local uvm_transaction_id_t m_transaction_id = -1;
 
   local time    begin_time=-1;
   local time    end_time=-1;
@@ -494,12 +494,12 @@ endfunction // uvm_transaction
 
 
 // set_transaction_id
-function void uvm_transaction::set_transaction_id(int id);
+function void uvm_transaction::set_transaction_id(uvm_transaction_id_t id);
     m_transaction_id = id;
 endfunction
 
 // get_transaction_id
-function int uvm_transaction::get_transaction_id();
+function uvm_transaction_id_t uvm_transaction::get_transaction_id();
     return (m_transaction_id);
 endfunction
 
@@ -655,7 +655,7 @@ endfunction
 // get_tr_handle
 // ---------
 
-function int uvm_transaction::get_tr_handle ();
+function uvm_tr_handle_t uvm_transaction::get_tr_handle ();
    if (tr_recorder != null)
      begin
        return tr_recorder.get_handle();
@@ -722,9 +722,9 @@ endfunction
 // begin_tr
 // -----------
 
-function int uvm_transaction::begin_tr (
+function uvm_tr_handle_t uvm_transaction::begin_tr (
      time begin_time = 0
-     , int parent_handle = 0
+     , uvm_tr_handle_t parent_handle = 0
 ); 
    return m_begin_tr(
       begin_time 
@@ -736,16 +736,16 @@ endfunction
 // --------------
 
 //Use a parent handle of zero to link to the parent after begin
-function int uvm_transaction::begin_child_tr (time begin_time=0,
-                                                  int parent_handle=0); 
+function uvm_tr_handle_t uvm_transaction::begin_child_tr (time begin_time=0,
+                                                  uvm_tr_handle_t parent_handle=0); 
   return m_begin_tr(begin_time, parent_handle);
 endfunction
 
 // m_begin_tr
 // -----------
 
-function int uvm_transaction::m_begin_tr (time begin_time=0, 
-                                              int parent_handle=0);
+function uvm_tr_handle_t uvm_transaction::m_begin_tr (time begin_time=0, 
+                                              uvm_tr_handle_t parent_handle=0);
    time tmp_time = (begin_time == 0) ? $realtime : begin_time;
    uvm_recorder parent_recorder;
 

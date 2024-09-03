@@ -331,6 +331,99 @@ feature branch in the local and Github fork may be deleted.
 
 [14]: https://help.github.com/articles/using-pull-requests "Using Pull Requests - github:help"
 
+### Updating the `official` branch and repository
+
+The `official` branch of the repository is setup to track pre-release bug patches to the
+tarball releases of the reference implementation.  In effect, [accellera-official/uvm-core:main][15]
+is the publicly read-only mirror of the privately read/write [OSCI-WG/uvm-core:official][16].
+See [CONTRIBUTING][9] for more details on "Functional Bugs."
+
+The `official` branch in `OSCI-WG` gets updates in two ways:
+1. When a new release is made, the `official` branch is updated to
+   point to that release.
+2. When a bug fix patch is accepted for the existing release, the `official` branch
+   is updated.
+
+Note that the `official` branch is _not_ updated directly from `master` or `release`,
+and shares no common history with either branch.  This is intentional, as it helps
+to prevent cross contamination in both the files and commit history.  
+
+To update the `official` branch, a patch file should be generated from a pull request
+of [accellera-official/uvm-core:main][15] or [OSCI-WG/uvm-core:master][17].  These patches
+can be easily acquired from the github UI by appending `.patch` to the URL for the
+pull request.
+
+For example:
+
+```
+# The patch for OSCI-WG/uvm-core pull request #500
+wget https://github.com/OSCI-WG/uvm-core/pull/500.patch
+```
+
+> **Note:** All patches taken from the [accellera-official/uvm-core:main][15] MUST be 
+> signed off with a Developer's Certificate of Origin.  See [CONTRIBUTING][9] for more details.
+
+The patch file can then be applied to `OSCI-WG/uvm-core:official` using the following commands:
+```
+git checkout -b official_issue_<issue_number> --track osci-wg/official
+git apply <patch_file>
+... possible edits ...
+git commit -m "Applying patch for accellera-official/uvm-core#<issue_number>"
+git push -u origin official_issue_<issue_number>
+```
+
+Note that edits to the patch may be necessary to ensure that the patch is compatible with the
+`official` branch.  This could occur if the patch is coming [OSCI-WG/uvm-core:master][17] and
+needs tweaks because of enhancements made to `master` since the last tarball, or if the patch
+is coming from [accellera-official/uvm-core:main][15] and needs to be merged into other patches
+that have been applied.
+
+Applying patches from [OSCI-WG/uvm-core:official][16] to [accellera-official/uvm-core:main][15] 
+is done in a similar way as above.
+
+First, the latest commit to [OSCI-WG/uvm-core:official][16] must be tagged to indicate
+that this is a patch point.  That tag is then used to produce a patch file for use 
+with [accellera-official/uvm-core:main][15].
+
+This can be done using the following command:
+```
+## These commands are executed in a clone of OSCI-WG/uvm-core
+# Make sure you're up to date with OSCI-WG
+git checkout master
+git fetch --all
+# Delete the local branch to ensure a clean work area
+git branch -D official
+# Create a local branch
+git checkout -b official --track osci-wg/official
+# Tag this location for the patch
+git tag -a OFFICIAL_<VERSION>_PATCH<PATCH_NUMBER> -m "Official Patch <PATCH_NUMBER> for 1800.2 <VERSION>"
+git push osci-wg OFFICIAL_<VERSION>_PATCH<PATCH_NUMBER>
+# Create a patch file for the latest commit to official
+git diff <PREVIOUS_OFFICIAL_TAG> OFFICIAL_<VERSION>_PATCH<PATCH_NUMBER> > official_patch_<PATCH_NUMBER>.patch
+```
+
+This patch file can then be used to update the official repository using the following command:
+```
+## These commands are executed in a clone of accellera-official/uvm-core
+# Make sure you're up to date with accellera-official
+git checkout main
+git fetch --all
+# Create a patch branch
+git checkout -b official_patch_<PATCH_NUMBER> --track accellera-official/main
+# Apply the patch file
+git apply <PATCH FILE>
+# Commit the changes, making sure to sign the commit
+git commit -s -m "Official Patch <PATCH_NUMBER> for 1800.2 <VERSION>"
+# Push the changes up, create a pull request to be merged by the WG
+git push origin official_patch_<PATCH_NUMBER>
+```
+
+The WG can then accept the new pull request and merge the changes into `main`.
+
+[15]: https://github.com/accellera-official/uvm-core "accellera-official/uvm-core:main"
+[16]: https://github.com/OSCI-WG/uvm-core/tree/official "OSCI-WG/uvm-core:official"
+[17]: https://github.com/OSCI-WG/uvm-core/tree/master "OSCI-WG/uvm-core:master"
+
 ---------------------------------------------------------------------
 Versioning scheme
 ---------------------------------------------------------------------

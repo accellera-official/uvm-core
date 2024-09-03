@@ -1087,77 +1087,10 @@ function void uvm_root::m_process_config(string cfg, bit is_int, is_bitstream);
       uvm_config_int::set(m_uvm_top, split_val[0], split_val[1], v);
     end // if (is_int)
         else if(is_bitstream) begin
-          string base, extval, tmp;
           int    success ;
-          bit    is_negative;
-          if (split_val[2].len() > 1) begin
-            byte char;
-            char = split_val[2].getc(0);
-            // Optional sign
-            if (char == "-") begin
-              // Signed, negative
-              is_negative = 1;
-              tmp = split_val[2].substr(1, split_val[2].len()-1);
-            end
-            else if (char == "+") begin
-              // Signed, positive (just remove the sign)
-              tmp = split_val[2].substr(1, split_val[2].len()-1);
-            end
-            else begin
-              // Unsigned
-              tmp = split_val[2];
-            end
-          end // if (split_val[2].len() > 1)
-          else begin // !(split_val[2].len() > 1)
-            tmp = split_val[2];
-          end
-          
-          if(tmp.len() > 2) begin
-            base = tmp.substr(0,1);
-            extval = tmp.substr(2,tmp.len()-1);                   
-            case(base)
-              "'b" : begin
-                success= $sscanf(extval,"%b", v);
-              end
- 
-              "0b" : begin
-                success= $sscanf(extval,"%b", v);
-              end
- 
-              "'o" : begin
-                success= $sscanf(extval,"%o", v);
-              end
- 
-              "'d" : begin
-                success= $sscanf(extval,"%d", v);
-              end
- 
-              "'h" : begin
-                success= $sscanf(extval,"%x", v);
-              end
- 
-              "'x" : begin
-                success= $sscanf(extval,"%x", v);
-              end
- 
-              "0x" : begin
-                success= $sscanf(extval,"%x", v);
-              end
- 
-              default : begin
-                success = $sscanf(split_val[2],"%d", v);
-              end
- 
-            endcase
-          end
-          else begin
-            success = $sscanf(tmp,"%d", v);
-          end // else: !if(tmp.len() > 2)
+          success = uvm_bit_vector_utils#(uvm_bitstream_t)::from_string(split_val[2], v);
 
           if (success == 1) begin
-            if (is_negative) begin
-              v = -v;
-            end
             uvm_report_info("UVM_CMDLINE_PROC", {"Applying config setting from the command line: +uvm_set_config_bitstream=", cfg}, UVM_NONE);
             uvm_config_int::set(m_uvm_top, split_val[0], split_val[1], v);
           end

@@ -986,8 +986,8 @@ class uvm_text_recorder extends uvm_recorder;
                    $realtime,
                    this.get_handle(),
                    nm,
-                   uvm_bitstream_to_string(value, numbits, radix),
-                    radix.name(),
+                   uvm_bit_vector_utils#(uvm_bitstream_t)::to_string(value, numbits, radix),
+                   radix.name(),
                    numbits);
       end
    endfunction : write_attribute
@@ -1012,7 +1012,7 @@ class uvm_text_recorder extends uvm_recorder;
                    $realtime,
                    this.get_handle(),
                    nm,
-                   uvm_integral_to_string(value, numbits, radix),
+                   uvm_bit_vector_utils#(uvm_integral_t)::to_string(value, numbits, radix),
                    radix.name(),
                    numbits);
       end
@@ -1088,7 +1088,7 @@ class uvm_text_recorder extends uvm_recorder;
                    $realtime,
                    txh,
                    nm,
-                   uvm_bitstream_to_string(value, numbits, radix),
+                   uvm_bit_vector_utils#(uvm_bitstream_t)::to_string(value, numbits, radix),
                    radix.name(),
                    numbits);
         

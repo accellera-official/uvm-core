@@ -9,7 +9,7 @@ See details in the Library Release Description below.
 
 # Kit version
 
-1800.2 2020.3.0
+1800.2 2020.3.1
 
 # License
 
@@ -30,22 +30,22 @@ contact the Accellera UVM Working Group (uvm-wg@lists.accellera.org).
 
 # Bug Fixes
 
-The following errata were fixed in 2020.3.0.
+The following errata were fixed in 2020.3.1.
 
-| Mantis Number | Description |
+| Identifier | Description |
 | ------------- | ----------- |
-| [Mantis_7944](https://accellera.mantishub.io/view.php?id=7944) | `uvm_compat_packer` works wrong for `unpack_object` method |
-| [Mantis_7915](https://accellera.mantishub.io/view.php?id=7915) | Compatibility: `uvm_resource#(T)::get_by_name` and `get_by_type` missing in 2020-2.0 |
-| [Mantis_8224](https://accellera.mantishub.io/view.php?id=8224) | TLM GP Buffer overflow during unpack operation |
-| [Mantis_7879](https://accellera.mantishub.io/view.php?id=7879) | All classes should derive from `uvm_void` |
-| [Mantis_7932](https://accellera.mantishub.io/view.php?id=7932) | `UVM_ENABLE_DEPRECATED` in 1800.2-2020 2.0 library |
-| [Mantis_7916](https://accellera.mantishub.io/view.php?id=7916) | Compat: UVM Messaging macros introduce unnecessary dependency on `uvm_report_object` |
-| [Mantis_7696](https://accellera.mantishub.io/view.php?id=7696) | Poll API using Simulator callback |
-| [Mantis_7933](https://accellera.mantishub.io/view.php?id=7933) | `uvm_tlm_fifo::flush` uses bit instead of int for `mailbox::try_get` return value |
-| [Mantis_7919](https://accellera.mantishub.io/view.php?id=7919) | LINT: one-line if/else statements should use `begin...end` |
-| [Mantis_7935](https://accellera.mantishub.io/view.php?id=7935) | Add a process guard class |
-| [Mantis_6745](https://accellera.mantishub.io/view.php?id=6475) | Jumping to extract phase results in extract executing twice |
-| [Mantis_5315](https://accellera.mantishub.io/view.php?id=5315) | No arbitration to protect the `rw_info` of front door sequence from being accessed by multiple threads simultaneously |
+| [Mantis 8419](https://accellera.mantishub.io/view.php?id=8419) | Compatibility: `uvm_event#(T)::add_callback/delete_callback` missing |
+| [Mantis 8406](https://accellera.mantishub.io/view.php?id=8406) | Compatibility: add `begin/end_event` to `uvm_transaction` |
+| [Mantis 8407](https://accellera.mantishub.io/view.php?id=8407) | Compatibility: `` `uvm_print_* `` macros removed |
+| [Mantis 8405](https://accellera.mantishub.io/view.php?id=8405) | Compatibility: `uvm_deprecated_defines.svh` is missing |
+| [Mantis 8404](https://accellera.mantishub.io/view.php?id=8404) | Compatibility: `uvm_report_object::get_report_server` |
+| [Mantis 7365](https://accellera.mantishub.io/view.php?id=7365) | `+uvm_set_verbosity` does not work when a non-zero time is given |
+| [Mantis 5000](https://accellera.mantishub.io/view.php?id=5000) | `uvm_[bitstream\|integral]_to_string` is undocumented, and non scalable |
+| [Mantis 7340](https://accellera.mantishub.io/view.php?id=7340) | Request for explicit transaction_id type |
+| [Mantis 8446](https://accellera.mantishub.io/view.php?id=8446) | Add policy extension for packers to indicate array operations |
+| [Mantis 8376](https://accellera.mantishub.io/view.php?id=8376) | `static const xx` class members with initialization |
+| [Github Issue #6](https://github.com/accellera-official/uvm-core/issues/6) | Static races in `static const` declarations |
+
 
 # Installing the kit
 

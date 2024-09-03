@@ -70,7 +70,21 @@ typedef logic signed [UVM_STREAMBITS-1:0] uvm_bitstream_t;
 
 typedef logic signed [63:0] uvm_integral_t;
 
+// Type: uvm_transaction_id_t
+//
+// Integral type used to represent unique IDs of transactions in 
+// <uvm_transaction::set_transaction_id> and <uvm_transaction::get_transaction_id>.
+//
+// @uvm-contrib - For potential contribution to a future 1800.2 standard.
+typedef int uvm_transaction_id_t;
 
+// Type: uvm_tr_handle_t
+//
+// Integral type used to represent transaction handles in <uvm_transaction::get_tr_handle>
+// and associated APIs.
+//
+// @uvm-contrib - For potential contribution to a future 1800.2 standard.
+typedef int uvm_tr_handle_t;
 
 // The number of least significant bits of uvm_field_flag_t which are reserved for this
 // implementation.  Derived from the value of UVM_RADIX which uses the most significant subset.
