@@ -64,7 +64,7 @@ virtual class uvm_agent extends uvm_component;
   // agent should be acting in active or passive mode. This parameter can
   // be set by doing:
   //
-  //| uvm_config_int::set(this, "<relative_path_to_agent>, "is_active", UVM_ACTIVE);
+  //| uvm_config_int::set(this, "<relative_path_to_agent>", "is_active", UVM_ACTIVE);
 
   // @uvm-ieee 1800.2-2020 auto 13.4.2.1
   function new (string name, uvm_component parent);
